@@ -1,5 +1,6 @@
 import urllib.request
 from time import time
+from datetime import datetime
 
 
 def opening_time(website):
@@ -14,8 +15,8 @@ def check(urls):
     statuses = []
     for url in urls:
         website = urllib.request.urlopen(url)
-        statuses.append(website.getcode() == 200 and
-                        opening_time(website) < 3)
+        statuses.append((website.getcode() == 200 and opening_time(website) < 3,
+                         datetime.now()))
     return statuses
 
 
