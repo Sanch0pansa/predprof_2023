@@ -3,7 +3,9 @@ import requests
 from threading import Thread
 import asyncio
 
-bot = telebot.TeleBot('5981300300:AAH3cU-Px8CPJVSu0mNSX9HkO3Q_rNWxsdM')
+
+file = open('conf.txt').readlines()
+bot = telebot.TeleBot(file[0].split()[1])
 my_id = 1080913894
 url = '/api/v1/bot'
 
