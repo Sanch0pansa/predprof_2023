@@ -9,15 +9,16 @@ class Role(models.Model):
     id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=32)
 
-    class Meta:
-        ordering = ['id']
 
 class User(models.Model):
     login = models.EmailField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
     username = models.CharField(max_length=32)
+    telegramID = models.IntegerField(null=True)
+    telegram_verification_code = models.IntegerField(blank=True, null=True, unique=True)
+    telegram_verification_code_date = models.DateTimeField(blank=True, null=True)
     registred_at = models.DateTimeField(auto_now_add=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, default=1, null=True, related_name='users')
+    role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=1, to_field='id', related_name='users')
 
 
 class Page(models.Model):
