@@ -12,13 +12,29 @@ def get_request_message(message):
 
 # data = requests.post()
 # dict_data = data.json()
+data = {
+    'message': [
+        {
+            'email': 'andrew.lipko@yandex.ru',
+            'message_text': 'Something that is important'
+        }, {
+            'email': 'andrewlipko123@gmai.com',
+            'message_text': 'Something that is important 2'
+        }
+    ]
+}
+
+@bot.message_handlers(command=['start'])
+def bor_start(message):
+    print(message)
+    bot.send_message(message.id, 'Привет')
+
 
 
 # Функционал:
 #
 # Регистрация: Спросить почту
 # и проверить код регистрации (запрос на сервер кода по ??? ) (/bot/verify)
-# отправить id на сервер
 # проверка на срок годности кода
 #
 # если код верный отправляем тг id на сервер get
