@@ -1,4 +1,5 @@
 import urllib.request
+import requests
 from time import time
 from datetime import datetime
 
@@ -7,12 +8,8 @@ TIMEOUT_TIME = 7
 FIGOVO_GRUZIT_TIME = 5
 
 
-def opening_time(website):
-    open_time = time()
-    website.read()
-    close_time = time()
-    website.close()
-    return close_time - open_time
+def opening_time(url):
+    return requests.get(url).elapsed.total_seconds()
 
 
 '''
@@ -45,7 +42,7 @@ def check(urls):
             else:
                 status = 666
         else:
-            if opening_time(website) < FIGOVO_GRUZIT_TIME:
+            if opening_time(url) < FIGOVO_GRUZIT_TIME:
                 status = website.getcode()
             else:
                 status = 199
