@@ -9,8 +9,6 @@ class Role(models.Model):
     id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=32)
 
-    class Meta:
-        ordering = ['id']
 
 class User(models.Model):
     login = models.EmailField(max_length=32, unique=True)
