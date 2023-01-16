@@ -53,7 +53,6 @@ class Review(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
     added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     publicated = models.DateTimeField(auto_now_add=True)
 
 

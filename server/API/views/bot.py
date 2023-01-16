@@ -1,10 +1,12 @@
 from rest_framework import generics
+from rest_framework import serializers
 from django.http import JsonResponse
-
+from API.models import Check
 import json
-class get_telegram_messages(generics.GenericAPIView):
+class get_messages(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         if request.POST['_token'] == '123456':
-            return JsonResponse({'foo':'bar'})
+            checks = Check.objects.exclude(response_status_code='200')
+            return JsonResponse(checks, safe=False)
         else:
-            return HttpResponse(json.dumps(['Не верный токен']), content_type='application/json')
+            return JsonResponse('Не верный токен')
