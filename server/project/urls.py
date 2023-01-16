@@ -32,13 +32,19 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
+ROOT_API_URL = "/api/v1/"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api/v1/', include('API.urls.user')),
-    path('api/v1/', include('API.urls.page')),
-    path('api/v1/', include('API.urls.bot')),
-    path('api/v1/', include('API.urls.check'))
+    path(ROOT_API_URL, include('API.urls.bot')),
+    path(ROOT_API_URL, include('API.urls.check')),
+    path(ROOT_API_URL, include('API.urls.page')),
+    path(ROOT_API_URL, include('API.urls.report')),
+    path(ROOT_API_URL, include('API.urls.review')), # in work
+    path(ROOT_API_URL, include('API.urls.subscription')), # in work
+    path(ROOT_API_URL, include('API.urls.user'))
+
 ]
