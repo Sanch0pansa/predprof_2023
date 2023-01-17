@@ -1,5 +1,97 @@
-$primary: #0000ff;
-$secondary: #D62828;
+// Цвета
+$primary: #3A85F6;
+$success: #2CDC00;
+$danger: #DC3500;
+$warning: #FBB500;
+
+$body-bg: #F8F8FF;
+$standart-font: #313840;
+
+// Отступы
+$btn-padding: 12px 20px;
+$block-padding: 30px;
+
+// Скругления
+$border-radius: 8px;
+
+// Шрифт
+
+@font-face {
+  font-family: "Montserrat Bold";
+  src: url("/src/assets/font/Montserrat-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Montserrat SemiBold";
+  src: url("/src/assets/font/Montserrat-SemiBold.ttf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/src/assets/font/Montserrat-Medium.ttf");
+  font-weight: 500;
+}
+
+h1 {
+  font-weight: 700;
+  font-family: "Montserrat Bold";
+}
+
+h2, h3, h4 {
+  font-weight: 600;
+  font-family: "Montserrat SemiBold";
+  margin-bottom: 0 !important;
+}
+
+a {
+  font-family: "Montserrat SemiBold";
+  text-decoration: none !important;
+}
+
+// Основные элементы
+
+* {
+  box-sizing: border-box;
+  font-family: Montserrat;
+  color: $standart-font;
+}
+
+body {
+  margin: 0;
+  background: $body-bg;
+}
+
 
 // Include Bootstrap SCSS files
 @import './node_modules/bootstrap/scss/bootstrap.scss';
+
+// Непосредственно верстка
+
+// Кнопки
+.btn {
+  color: $white;
+  padding: $btn-padding;
+  border-radius: $border-radius;
+  line-height: 1;
+
+  &:hover, &:focus, &:active {
+    color: $white !important;
+  }
+
+}
+
+// Блоки
+
+.block {
+  padding: $block-padding;
+  background: $white;
+  border-radius: $border-radius;
+
+  @extend .shadow;
+}
+
+.shadow {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+}
