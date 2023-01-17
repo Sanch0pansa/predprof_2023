@@ -32,7 +32,7 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
-ROOT_API_URL = "/api/v1/"
+ROOT_API_URL = "api/v1/"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

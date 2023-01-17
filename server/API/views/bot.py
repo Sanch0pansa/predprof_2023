@@ -6,8 +6,5 @@ import json
 
 class get_messages(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
-        if request.POST['_token'] == '123456':
-            checks = Check.objects.exclude(response_status_code='200')
-            return JsonResponse(checks, safe=False)
-        else:
-            return JsonResponse('Не верный токен')
+        checks = Check.objects.all().order_by('page_id', '-checked_at').distinct('page_id')
+        return JsonResponse(list(checks.values()), safe=False)
