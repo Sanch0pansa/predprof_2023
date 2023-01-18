@@ -1,44 +1,35 @@
+import time
+
 import telebot
 import requests
 from threading import Thread
-import asyncio
+
+import smtplib
 
 
-file = open('conf.txt').readlines()
-bot = telebot.TeleBot(file[0].split()[1])
-my_id = 1080913894
+cofig = [i.split() for i in open('conf.txt').readlines()]
+
+bot = telebot.TeleBot(cofig[0][1])
 url = '/api/v1/bot'
 
+bot_mail = cofig[1][1]
+mail_password = cofig[2][1]
 
-def get_request_message(message):
-    pass
-
-
-# data = requests.post()
-# dict_data = data.json()
-data = {
-    'message': [
-        {
-            'email': 'andrew.lipko@yandex.ru',
-            'message_text': 'Something that is important'
-        }, {
-            'email': 'andrewlipko123@gmai.com',
-            'message_text': 'Something that is important 2'
-        }
-    ]
-}
+mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
+mail.login(bot_mail, mail_password)
 
 
 def registration(message):
     # new_user = requests.post(f'{url}/verify', data={'_token': 123456, 'telegram_id': message.from_user.id})
     # new_user_answer = new_user.json()
-    new_user_answer = {'success': 'true'}
+    new_user_answer = {'success': 'false'}
 
     if new_user_answer['success'] == 'true':
         bot.send_message(message.from_user.id, 'Успешная авторизация')
     elif new_user_answer['success'] == 'false':
         bot.send_message(message.from_user.id, '''Ошибка авторизации
-Введите код еще раз''')                     # проверить срок годности ?
+Возможно срок действия кода истек или он введен неверно
+Введите код еще раз''')
         bot.register_next_step_handler(message, registration)
 
 
@@ -67,13 +58,44 @@ def bot_start(message):
         bot.send_message(message.from_user.id, commands)
 
 
-task_client = Thread(target=bot.infinity_polling)
-task_client.start()
+def check_messages():
+    while True:
+        # data = requests.post(f'{url}/get_messages/', data={'_token': 123456})
+        # dict_data = data.json()
+        dict_data = {
+            'message': [
+                {
+                    'email': 'andrew.lipko@yandex.ru',
+                    'message_text': 'Something that is important'
+                }, {
+                    'email': 'andrewlipko123@gmai.com',
+                    'message_text': 'Something that is important 2'
+                }
+            ]
+        }
 
+        for i in dict_data:
+            pass
+
+        time.sleep(60 * 30)  # 30 minutes
+
+
+def send_email(to_mail, text):
+    theme = 'Оповещение о работе сайта'
+    message = f'From: {bot_mail}\r\nTo: {to_mail}]\r\nContent-Type: text/plain; charset="utf-8"\r\nSubject: {theme}\r\n\r\n'
+    text += 'Пока пустышка'  # Оформить сообщение о работе сайта
+    message += text
+    mail.sendmail(bot_mail, to_mail, message.encode('utf8'))
+
+
+task_client = Thread(target=bot.infinity_polling)
+task_checking = Thread(target=check_messages)
+task_client.start()
+task_checking.start()
 
 # Функционал:
 #
-# Регистрация: Спросить почту ?
+# Регистрация:
 # и проверить код регистрации (запрос на сервер кода по ??? ) (/bot/verify)
 # проверка на срок годности кода
 #
