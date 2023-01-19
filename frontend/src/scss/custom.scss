@@ -10,6 +10,7 @@ $standart-font: #313840;
 // Отступы
 $btn-padding: 12px 20px;
 $block-padding: 30px;
+$block-padding-small: 24px;
 
 // Скругления
 $border-radius: 8px;
@@ -116,6 +117,25 @@ label {
   border-radius: $border-radius;
 
   @extend .shadow;
+}
+
+.block table {
+
+  overflow: hidden;
+  margin-bottom: 0;
+
+  td, th {
+    padding: $block-padding-small 10px;
+  }
+
+  td:last-of-type, th:last-of-type {
+    padding-right: $block-padding-small;
+
+  }
+  td:first-of-type, th:first-of-type {
+    padding-left: $block-padding-small;
+  }
+
 }
 
 .shadow {

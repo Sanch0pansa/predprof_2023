@@ -3,20 +3,6 @@
   <div class="container">
     <nav class="navbar">
       <a class="navbar-brand" href="#">SiteChecker</a>
-<!--      <ul class="navbar-nav flex flex-row gap-3">-->
-<!--        <li class="nav-item">-->
-<!--          <a class="nav-link active" aria-current="page" href="#">Home</a>-->
-<!--        </li>-->
-<!--        <li class="nav-item">-->
-<!--          <a class="nav-link" href="#">Features</a>-->
-<!--        </li>-->
-<!--        <li class="nav-item">-->
-<!--          <a class="nav-link" href="#">Pricing</a>-->
-<!--        </li>-->
-<!--        <li class="nav-item">-->
-<!--          <a class="nav-link disabled">Disabled</a>-->
-<!--        </li>-->
-<!--      </ul>-->
       <ul class="navbar-nav">
         <li v-if="$store.state.isAuth" class="nav-item dropstart">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
