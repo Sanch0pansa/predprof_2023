@@ -69,6 +69,14 @@ body {
   background: $body-bg;
 }
 
+// Секции
+
+section {
+  &.hero {
+    margin-top: 80px;
+  }
+}
+
 
 // Include Bootstrap SCSS files
 @import './node_modules/bootstrap/scss/bootstrap.scss';
@@ -117,6 +125,10 @@ label {
   border-radius: $border-radius;
 
   @extend .shadow;
+
+  &.sm {
+    padding: $block-padding-small $block-padding;
+  }
 }
 
 .block table {
@@ -141,3 +153,39 @@ label {
 .shadow {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
 }
+
+// Карточки достоинств сайта
+
+.advs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  max-width: 400px;
+  margin-left: auto;
+}
+
+.adv {
+  @extend .block;
+
+  border-radius: 12px;
+  padding: 15px;
+  padding-top: 23px;
+  text-align: center;
+
+
+  span {
+    display: block;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+
+
+}
+
+@include media-breakpoint-down(lg) {
+   .advs {
+     gap: 30px;
+     margin-top: 30px;
+     margin-left: 0px;
+   }
+ }
