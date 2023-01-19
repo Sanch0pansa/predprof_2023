@@ -4,6 +4,11 @@ import PageHeader from "@/components/page/PageHeader.vue";
 
 export default {
   components: {PageHeader},
+  data() {
+    return {
+
+    }
+  },
   methods: {
 
   }
@@ -22,7 +27,6 @@ export default {
       <div class="col-7">
         <Block>
           <h3>Hello world</h3>
-          <Inp label="Login:" name="login"></Inp>
         </Block>
       </div>
     </div>

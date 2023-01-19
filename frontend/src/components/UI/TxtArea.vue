@@ -1,13 +1,13 @@
 <template>
   <div class="">
     <label :for="name">{{ label }}</label>
-    <input :value="modelValue" @input="updateInput" :type="type" class="form-control" :name="name" :id="name">
+    <textarea :value="modelValue" @input="updateInput" :type="type" class="form-control" :name="name" :id="name"></textarea>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Inp",
+  name: "TxtArea",
   props: {
     name: {
       type: String,

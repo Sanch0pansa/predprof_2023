@@ -1,13 +1,15 @@
 <template>
   <div class="">
     <label :for="name">{{ label }}</label>
-    <input :value="modelValue" @input="updateInput" :type="type" class="form-control" :name="name" :id="name">
+    <select :value="modelValue" @change="updateSelect" :type="type" class="form-control" :name="name" :id="name">
+      <option v-for="option in options" :value="option.value">{{ option.text }}</option>
+    </select>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Inp",
+  name: "Sel",
   props: {
     name: {
       type: String,
@@ -23,10 +25,11 @@ export default {
       default: "string"
     },
     modelValue: [],
-
+    options: [],
   },
+
   methods: {
-    updateInput(event) {
+    updateSelect(event) {
       this.$emit("update:modelValue", event.target.value);
     }
   }
