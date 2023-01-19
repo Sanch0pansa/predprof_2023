@@ -6,6 +6,10 @@ import router from './router'
 import './scss/custom.scss'
 import UIComponents from "./components/UI/index"
 import store from "@/store";
+import 'bootstrap/dist/js/bootstrap.js';
+// import '@fortawesome/fontawesome-svg-core';
+
+
 
 const app = createApp(App)
 

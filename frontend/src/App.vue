@@ -1,7 +1,9 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router'
+import PageHeader from "@/components/page/PageHeader.vue";
 
 export default {
+  components: {PageHeader},
   methods: {
 
   }
@@ -10,12 +12,7 @@ export default {
 
 <template>
 <div class="wrapper">
-  <header class="py-4 bg-white shadow">
-    <div class="container">
-      <h4>SiteChecker</h4>
-    </div>
-
-  </header>
+  <PageHeader></PageHeader>
   <div class="container">
     <h1 class="mt-5">Hello, vue + bootstrap</h1>
     <h2 class="text-primary">Some text here</h2>

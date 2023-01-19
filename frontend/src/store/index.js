@@ -2,8 +2,8 @@ import {createStore} from "vuex";
 
 
 export default createStore({
-    states: {
-
+    state: {
+        isAuth: true
     },
     getters: {
 
