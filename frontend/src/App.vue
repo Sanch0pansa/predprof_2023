@@ -4,9 +4,11 @@ import PageHeader from "@/components/page/PageHeader.vue";
 import PageFooter from "@/components/page/PageFooter.vue";
 import PageTable from "@/components/page/PageTable.vue";
 import PageWelcomeSection from "@/components/page/PageWelcomeSection.vue";
+import PagesList from "@/components/items/PagesList.vue";
+import PageSiteStatistics from "@/components/page/PageSiteStatistics.vue";
 
 export default {
-  components: {PageHeader, PageFooter, PageTable, PageWelcomeSection},
+  components: {PageHeader, PageFooter, PageTable, PageWelcomeSection, PagesList, PageSiteStatistics},
   data() {
     return {
       tableData: [
@@ -34,17 +36,16 @@ export default {
   <div class="container">
     <PageWelcomeSection></PageWelcomeSection>
     <div class="row">
-      <div class="col-12">
+      <div class="col-lg-6">
         <PageSection :title="`Популярные ресурсы`">
-          <Block :class="['mb-2']">
-            <Link href="https://google.com">Привет</Link>
-          </Block>
-          <Block :class="['mb-2']">
-            <Link href="https://google.com">Привет</Link>
-          </Block>
-          <Block :class="['mb-2']">
-            <Link href="https://google.com">Привет</Link>
-          </Block>
+          <PagesList></PagesList>
+        </PageSection>
+      </div>
+      <div class="col-lg-6">
+        <PageSection :title="`Статистика`">
+          <PageSiteStatistics>
+
+          </PageSiteStatistics>
         </PageSection>
       </div>
       <div class="col-12">
