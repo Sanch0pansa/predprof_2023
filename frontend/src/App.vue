@@ -24,7 +24,8 @@ export default {
     <div class="row mt-3">
       <div class="col-7">
         <Block>
-          <h3>Huy</h3>
+          <h3>Hello world</h3>
+          <Inp label="Login:" name="login"></Inp>
         </Block>
       </div>
     </div>
