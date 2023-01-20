@@ -1,9 +1,11 @@
 from rest_framework import generics
 from rest_framework import serializers
 from django.http import JsonResponse
-from API.models import Check, Subscription
+from API.models import Check, Subscription, User
 from django.db.models.expressions import RawSQL
-import json
+import json, datetime
+from django.utils import timezone
+
 
 class GetBotMessages(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
@@ -35,3 +37,23 @@ WHERE NOT (sub1.response_status_code='200')'''
             print(pages)
 
         return JsonResponse(list(pages.values()), safe=False)
+
+
+class VerifyUser(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        data = request.POST
+        try:
+            checkJson = ((User.objects.filter(telegram_verification_code=data['telegram_verification_code'])).values())[
+                0]
+            checkData = User.objects.get(pk=checkJson['id'])
+        except Exception:
+            return JsonResponse({'succes': False})
+        dateNow = timezone.now()
+        if checkJson['telegram_verification_code_date'] > dateNow:
+            checkData.telegram_id = request.POST['telegram_id']
+            checkData.telegram_verification_code = None
+            checkData.telegram_verification_code_date = None
+            checkData.save()
+            return JsonResponse({'succes': True})
+        else:
+            return JsonResponse({'succes': False})

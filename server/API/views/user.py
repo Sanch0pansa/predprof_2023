@@ -11,3 +11,8 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    
+
+class VerifyCodeGen(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        pass
