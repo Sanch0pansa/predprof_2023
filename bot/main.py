@@ -3,33 +3,43 @@ import time
 import telebot
 import requests
 from threading import Thread
+from timeloop import Timeloop
+import datetime
 
 import smtplib
 
+tl = Timeloop()
 
-cofig = [i.split() for i in open('conf.txt').readlines()]
+my_id = 1080913894
 
-bot = telebot.TeleBot(cofig[0][1])
+config = [i.split() for i in open('conf.txt').readlines()]
+
+bot = telebot.TeleBot(config[0][1])
 url = '/api/v1/bot'
 
-bot_mail = cofig[1][1]
-mail_password = cofig[2][1]
+bot_mail = config[1][1]
+mail_password = config[2][1]
 
 mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
 mail.login(bot_mail, mail_password)
+
+last_data_telegram = {}
+last_data_email = {}
 
 
 def registration(message):
     # new_user = requests.post(f'{url}/verify', data={'_token': 123456, 'telegram_id': message.from_user.id})
     # new_user_answer = new_user.json()
-    new_user_answer = {'success': 'false'}
+    new_user_answer = {'success': 'true'}
 
     if new_user_answer['success'] == 'true':
         bot.send_message(message.from_user.id, 'Успешная авторизация')
+    elif message.text == '/stop_code':
+        bot.send_message(message.from_user.id, 'Вы прекратили аунтификацию\n')
     elif new_user_answer['success'] == 'false':
         bot.send_message(message.from_user.id, '''Ошибка авторизации
 Возможно срок действия кода истек или он введен неверно
-Введите код еще раз''')
+Введите код еще раз или отпрвьте /stop_code , чтобы продолжить пользоваться ботом''')
         bot.register_next_step_handler(message, registration)
 
 
@@ -53,53 +63,100 @@ def bot_start(message):
             bot.send_message(message.from_user.id, 'Ваш телеграмм уже зарегестрирован')
     elif message.text == '/help':
         commands = '''Вот список доступных команд:
-...
+/last - Показать последние статусы сайтов
 '''
         bot.send_message(message.from_user.id, commands)
 
 
+@tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
 def check_messages():
-    while True:
-        # data = requests.post(f'{url}/get_messages/', data={'_token': 123456})
-        # dict_data = data.json()
-        dict_data = {
-            'message': [
-                {
-                    'email': 'andrew.lipko@yandex.ru',
-                    'message_text': 'Something that is important'
-                }, {
-                    'email': 'andrewlipko123@gmai.com',
-                    'message_text': 'Something that is important 2'
-                }
+    # data = requests.post(f'{url}/get_messages/', data={'_token': 123456})
+    # dict_data = data.json()
+    dict_data = [
+        {
+            'url': 'https://dontsu.ru',          # 2xx - хороший сайт
+            'response_status_code': '900',       # 4xx - ошибка клиента
+            'response_time': 32767,              # 5xx - ошибка сервера
+            'subscribers_telegram': [
+                1080913894,
+                1046062266
+            ],
+            'subscribers_email': [
+                'coderlair@yandex.ru',
+                'andrew.lipko@yandex.ru',
+                'Kate.Zhilyakova@gmail.com'
             ]
-        }
+        },
+        {
+            'url': 'https://mgu.ru',
+            'response_status_code': '506',
+            'response_time': 124,
+            'subscribers_telegram': [
+                1080913894,
+                5694956479,
+                1046062266
+            ],
+            'subscribers_email': [
+                'andrew.lipko@yandex.ru',
+                'coderlair@yandex.ru',
+                'lde0060@gmail.com',
+                'Kate.Zhilyakova@gmail.com'
+            ]
+        },
+    ]
+    tg_message = {}
+    mail_error_messages = {}
 
-        for i in dict_data:
-            pass
+    def add_message(dict, id, message):
+        if id in dict:
+            dict[id] += message
+        else:
+            dict[id] = message
 
-        time.sleep(60 * 30)  # 30 minutes
+    for i in dict_data:
+        if i['response_status_code'][0] == '2':
+            for id in i['subscribers_telegram']:
+                add_message(tg_message, id, f'✅ {i["url"]} \n')
+        elif i['response_status_code'][0] == '4':
+            for id in i['subscribers_telegram']:
+                add_message(tg_message, id, f'❌ {i["url"]} (ошибка клиента)\n')
+            for mail in i['subscribers_email']:
+                add_message(mail_error_messages, mail, f'❌ {i["url"]} (ошибка клиента)\n')
+        elif i['response_status_code'][0] == '5':
+            for id in i['subscribers_telegram']:
+                add_message(tg_message, id, f'❌ {i["url"]} (ошибка сервера) \n')
+            for mail in i['subscribers_email']:
+                add_message(mail_error_messages, mail, f'❌ {i["url"]} (ошибка сервера) \n')
+        else:
+            for id in i['subscribers_telegram']:
+                add_message(tg_message, id, f'❌ {i["url"]} \n')
+            for mail in i['subscribers_email']:
+                add_message(mail_error_messages, mail, f'❌ {i["url"]} \n')
+
+    MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября',
+              'Декабря']
+    month = MONTHS[datetime.date.today().month - 1]
+    day = datetime.date.today().day
+    current_time = datetime.datetime.now().time().isoformat()[:5]
+
+    for message in tg_message:
+        try:
+            bot.send_message(message, f'Последнее обновление {day} {month} в {current_time}\n' + tg_message[message])
+        except:
+            continue
+
+    for message in mail_error_messages:
+        send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' + \
+                   mail_error_messages[message] + '\nС уважением Bot Checker!')
 
 
 def send_email(to_mail, text):
     theme = 'Оповещение о работе сайта'
     message = f'From: {bot_mail}\r\nTo: {to_mail}]\r\nContent-Type: text/plain; charset="utf-8"\r\nSubject: {theme}\r\n\r\n'
-    text += 'Пока пустышка'  # Оформить сообщение о работе сайта
     message += text
     mail.sendmail(bot_mail, to_mail, message.encode('utf8'))
 
 
 task_client = Thread(target=bot.infinity_polling)
-task_checking = Thread(target=check_messages)
 task_client.start()
-task_checking.start()
-
-# Функционал:
-#
-# Регистрация:
-# и проверить код регистрации (запрос на сервер кода по ??? ) (/bot/verify)
-# проверка на срок годности кода
-#
-# если код верный отправляем тг id на сервер get
-#
-# Запрос на сервер наличия сообщений юзеру и отправка сообщения
-# по времени отправляем сообщения
+tl.start(block=True)
