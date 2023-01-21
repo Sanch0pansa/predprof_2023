@@ -9,57 +9,16 @@ import PageSiteStatistics from "@/components/page/PageSiteStatistics.vue";
 
 export default {
   components: {PageHeader, PageFooter, PageTable, PageWelcomeSection, PagesList, PageSiteStatistics},
-  data() {
-    return {
-      tableData: [
-        [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '100'],
-        [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '100'],
-        [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '100'],
-        [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '100'],
-        [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '100'],
-      ]
-    }
-  },
-  methods: {
-    loadMore() {
-      this.tableData.push(
-          [`<a href='https://google.com'>google.com</a>`, '22 янв 2023, 23:04:45', `<b class='text-success'>Работает</b>`, `<b class='text-success'>26</b>`, '99'],
-      );
-    }
-  }
+
 }
 </script>
 
 <template>
 <div class="wrapper">
   <PageHeader></PageHeader>
-  <div class="container">
-    <PageWelcomeSection></PageWelcomeSection>
-    <div class="row">
-      <div class="col-lg-6">
-        <PageSection :title="`Популярные ресурсы`">
-          <PagesList></PagesList>
-        </PageSection>
-      </div>
-      <div class="col-lg-6">
-        <PageSection :title="`Статистика`">
-          <PageSiteStatistics>
+  <div class="container main pb-5">
 
-          </PageSiteStatistics>
-        </PageSection>
-      </div>
-      <div class="col-12">
-        <PageSection :title="`Таблица`">
-          <PageTable
-              :headers="['Сайт', 'Последняя проверка', 'Состояние', 'Задержка ответа, мс', 'Рейтинг']"
-              :data="tableData"
-              :noLoadMore="true"
-
-              @loadMore="loadMore"
-          ></PageTable>
-        </PageSection>
-      </div>
-    </div>
+    <RouterView></RouterView>
 
   </div>
   <PageFooter></PageFooter>
