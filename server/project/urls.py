@@ -18,6 +18,7 @@ from django.urls import path, include,  re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+import djoser
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -35,16 +36,17 @@ schema_view = get_schema_view(
 ROOT_API_URL = "api/v1/"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('admin/', admin.site.urls),
     path(ROOT_API_URL, include('API.urls.bot')),
     path(ROOT_API_URL, include('API.urls.check')),
     path(ROOT_API_URL, include('API.urls.page')),
     path(ROOT_API_URL, include('API.urls.report')),
-    path(ROOT_API_URL, include('API.urls.review')), # in work
-    path(ROOT_API_URL, include('API.urls.subscription')), # in work
-    path(ROOT_API_URL, include('API.urls.user'))
-
+    path(ROOT_API_URL, include('API.urls.review')),
+    path(ROOT_API_URL, include('API.urls.subscription')),
+    path(ROOT_API_URL, include('API.urls.user')),
+    path(ROOT_API_URL+'auth/', include('djoser.urls')),
+    path(ROOT_API_URL, include('djoser.urls.authtoken'))
 ]
