@@ -1,5 +1,5 @@
 <template>
-  <footer class="py-4 bg-white shadow mt-5">
+  <footer class="py-4 bg-white shadow">
     <div class="container">
       <nav class="navbar">
         <a class="navbar-brand" href="#">SiteChecker</a></nav>

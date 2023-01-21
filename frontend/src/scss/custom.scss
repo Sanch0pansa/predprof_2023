@@ -69,6 +69,13 @@ body {
   background: $body-bg;
 }
 
+// Обёртка
+
+.main {
+  min-height: calc(100vh - 208px);
+
+}
+
 // Секции
 
 section {
