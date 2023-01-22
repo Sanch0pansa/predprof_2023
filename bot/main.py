@@ -14,6 +14,7 @@ my_id = 1080913894
 
 config = [i.split() for i in open('conf.txt').readlines()]
 
+
 _token = config[3][1]
 bot = telebot.TeleBot(config[0][1])
 url = 'http://127.0.0.1:8000/api/v1/bot'
