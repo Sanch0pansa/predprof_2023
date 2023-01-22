@@ -14,6 +14,7 @@ my_id = 1080913894
 
 config = [i.split() for i in open('conf.txt').readlines()]
 
+_token = config[3][1]
 bot = telebot.TeleBot(config[0][1])
 url = '/api/v1/bot'
 
@@ -28,7 +29,7 @@ last_data_email = {}
 
 
 def registration(message):
-    # new_user = requests.post(f'{url}/verify', data={'_token': 123456, 'telegram_id': message.from_user.id})
+    # new_user = requests.post(f'{url}/verify', data={'_token': _token, 'telegram_id': message.from_user.id})
     # new_user_answer = new_user.json()
     new_user_answer = {'success': 'true'}
 
@@ -47,7 +48,7 @@ def registration(message):
 def bot_start(message):
     if message.text == '/start':  # проверяем на наличие юзера
         # print(message)
-        # check = requests.post(f'{url}/check_user/', data={'_token': 123456, 'telegram_id': message.from_user.id})
+        # check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
         # check = check.json()
         check = {
             'user_verified': 'true'
@@ -70,14 +71,14 @@ def bot_start(message):
 @bot.message_handler(commands=['last'])
 def bot_reply(message):
     if message.text == '/last':
-        pass
+        bot.send_message(message.from_user.id, last_data_telegram[message.from_user.id])
 
 
 @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
 def check_messages():
     global last_data_telegram
     global last_data_email
-    # data = requests.post(f'{url}/get_messages/', data={'_token': 123456})
+    # data = requests.post(f'{url}/get_messages/', data={'_token': _token})
     # dict_data = data.json()
     dict_data = [
         {

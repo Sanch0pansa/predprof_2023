@@ -1,3 +1,4 @@
 bot_token: 5981300300:AAH3cU-Px8CPJVSu0mNSX9HkO3Q_rNWxsdM
 bot_mail: tochecksite@yandex.ru
 mail_password: _qazwsx123
+_token: Ki6@fh@EGGc~8q1?Ti5zzRsPS
