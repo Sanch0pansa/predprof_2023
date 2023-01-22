@@ -16,7 +16,7 @@ config = [i.split() for i in open('conf.txt').readlines()]
 
 _token = config[3][1]
 bot = telebot.TeleBot(config[0][1])
-url = '/api/v1/bot'
+url = 'http://127.0.0.1:8000/api/v1/bot'
 
 bot_mail = config[1][1]
 mail_password = config[2][1]
@@ -29,9 +29,9 @@ last_data_email = {}
 
 
 def registration(message):
-    # new_user = requests.post(f'{url}/verify', data={'_token': _token, 'telegram_id': message.from_user.id})
-    # new_user_answer = new_user.json()
-    new_user_answer = {'success': 'true'}
+    new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
+    new_user_answer = new_user.json()
+    # new_user_answer = {'success': 'true'}
 
     if new_user_answer['success'] == 'true':
         bot.send_message(message.from_user.id, 'Успешная авторизация')
@@ -74,38 +74,39 @@ def bot_reply(message):
         bot.send_message(message.from_user.id, last_data_telegram[message.from_user.id])
 
 
-@tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
+@bot.message_handler(commands=['check'])
+# @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
 def check_messages():
     global last_data_telegram
     global last_data_email
-    # data = requests.post(f'{url}/get_messages/', data={'_token': _token})
-    # dict_data = data.json()
-    dict_data = [
-        {
-            'url': 'https://dontsu.ru',      # 2xx - хороший сайт
-            'response_status_code': '900',   # 4xx - ошибка клиента
-            'response_time': 32767,          # 5xx - ошибка сервера
-            'subscribers_telegram': [
-                1080913894,
-            ],
-            'subscribers_email': [
-                'andrew.lipko@yandex.ru',
-            ]
-        },
-        {
-            'url': 'https://mgu.ru',
-            'response_status_code': '506',
-            'response_time': 124,
-            'subscribers_telegram': [
-                1080913894,
-                5694956479,
-            ],
-            'subscribers_email': [
-                'andrew.lipko@yandex.ru',
-                'lde0060@gmail.com',
-            ]
-        },
-    ]
+    data = requests.post(f'{url}/get_messages/', data={'_token': _token})
+    dict_data = data.json()
+    # dict_data = [
+    #     {
+    #         'url': 'https://dontsu.ru',      # 2xx - хороший сайт
+    #         'response_status_code': '900',   # 4xx - ошибка клиента
+    #         'response_time': 32767,          # 5xx - ошибка сервера
+    #         'subscribers_telegram': [
+    #             1080913894,
+    #         ],
+    #         'subscribers_email': [
+    #             'andrew.lipko@yandex.ru',
+    #         ]
+    #     },
+    #     {
+    #         'url': 'https://mgu.ru',
+    #         'response_status_code': '506',
+    #         'response_time': 124,
+    #         'subscribers_telegram': [
+    #             1080913894,
+    #             5694956479,
+    #         ],
+    #         'subscribers_email': [
+    #             'andrew.lipko@yandex.ru',
+    #             'lde0060@gmail.com',
+    #         ]
+    #     },
+    # ]
     tg_message = {}
     mail_error_messages = {}
 
@@ -168,4 +169,4 @@ def send_email(to_mail, text):
 task_client = Thread(target=bot.infinity_polling)
 task_client.start()
 check_messages()
-tl.start(block=True)
+# tl.start(block=True)
