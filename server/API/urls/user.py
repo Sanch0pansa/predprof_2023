@@ -8,5 +8,5 @@ urlpatterns = [
     path('user/register/', user.UserCreateView.as_view()),
     path('user/login/', authViews.obtain_auth_token),
     path('user/<int:pk>/', user.UserRetrieveUpdateDestroyView.as_view()),
-    path('user/verify_code_gen/', user.VerifyCodeGen.as_view())
+    path('user/generate_telegram_code/', user.GenerateTelegramCode.as_view())
 ]
