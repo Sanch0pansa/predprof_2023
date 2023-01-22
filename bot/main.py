@@ -30,15 +30,15 @@ last_data_email = {}
 
 
 def registration(message):
-    new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
+    new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id, 'telegram_verification_code': message.text})
     new_user_answer = new_user.json()
     # new_user_answer = {'success': 'true'}
 
-    if new_user_answer['success'] == 'true':
-        bot.send_message(message.from_user.id, 'Успешная авторизация')
+    if new_user_answer['success'] == True:
+        bot.send_message(message.from_user.id, 'Успешная авторизация') # описание переписать
     elif message.text == '/stop_code':
         bot.send_message(message.from_user.id, 'Вы прекратили аунтификацию\n')
-    elif new_user_answer['success'] == 'false':
+    elif new_user_answer['success'] == False:
         bot.send_message(message.from_user.id, '''Ошибка авторизации
 Возможно срок действия кода истек или он введен неверно
 Введите код еще раз или отпрвьте /stop_code , чтобы продолжить пользоваться ботом''')
@@ -49,13 +49,13 @@ def registration(message):
 def bot_start(message):
     if message.text == '/start':  # проверяем на наличие юзера
         # print(message)
-        # check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
-        # check = check.json()
-        check = {
-            'user_verified': 'true'
-        }
-
-        if check['user_verified'] == 'false':
+        check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
+        check = check.json()
+        # check = {
+        #     'user_verified': 'true'
+        # }
+        print(check)
+        if not check['user_verified']:
             bot.send_message(message.from_user.id,
                              '''Привет!\nОтправьте мне код аунтификации, который высвечен на сайте''')
 
@@ -77,10 +77,10 @@ def bot_reply(message):
 
 @bot.message_handler(commands=['check'])
 # @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
-def check_messages():
+def check_bot_messages(message):
     global last_data_telegram
     global last_data_email
-    data = requests.post(f'{url}/get_messages/', data={'_token': _token})
+    data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
     dict_data = data.json()
     # dict_data = [
     #     {
@@ -118,7 +118,7 @@ def check_messages():
             dict[id] = message
 
     for i in dict_data:
-        if i['response_status_code'][0] == '2':
+        if i['response_status_code'] == '200':
             for id in i['subscribers_telegram']:
                 add_message(tg_message, id, f'✅ {i["url"]} \n')
         elif i['response_status_code'][0] == '4':
@@ -169,5 +169,4 @@ def send_email(to_mail, text):
 
 task_client = Thread(target=bot.infinity_polling)
 task_client.start()
-check_messages()
 # tl.start(block=True)
