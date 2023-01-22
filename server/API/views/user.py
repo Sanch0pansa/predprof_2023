@@ -1,7 +1,7 @@
 from rest_framework import generics
 from API.models import User
 from django.http import JsonResponse
-from API.serializers.user import UserSerializer
+from API.serializers.user import UserSerializers
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from django.utils import timezone
 from random import seed, randint
@@ -10,19 +10,19 @@ from datetime import datetime, timedelta
 
 class UserCreateView(generics.CreateAPIView):
     permission_classes = [AllowAny]
-    serializer_class = UserSerializer
+    serializer_class = UserSerializers
     queryset = User.objects.all()
 
 
 class UserListView(generics.ListAPIView):
     permission_classes = [IsAdminUser]
-    serializer_class = UserSerializer
+    serializer_class = UserSerializers
     queryset = User.objects.all()
 
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
+    serializer_class = UserSerializers
     queryset = User.objects.all()
 
 
