@@ -1,25 +1,29 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 #  https://docs.djangoproject.com/en/3.2/topics/db/models/
 #  python manage.py makemigrations
 #  python manage.py migrate
-
 
 class Role(models.Model):
     id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=32)
 
 
-class User(models.Model):
-    login = models.EmailField(max_length=32, unique=True)
-    password = models.CharField(max_length=32)
-    username = models.CharField(max_length=32)
-    telegramID = models.IntegerField(null=True)
-    telegram_verification_code = models.IntegerField(blank=True, null=True, unique=True)
-    telegram_verification_code_date = models.DateTimeField(blank=True, null=True)
-    registred_at = models.DateTimeField(auto_now_add=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=1, to_field='id', related_name='users')
-
+class User(AbstractUser):
+    email = models.EmailField(max_length=128, unique=True)
+    password = models.CharField(max_length=128)
+    username = models.CharField(max_length=128, unique=True)
+    telegram_id = models.IntegerField(null=True)
+    telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
+    telegram_verification_code_date = models.DateTimeField(blank=True, default=None, null=True)
+    role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=1, related_name='users')
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'password']
 
 class Page(models.Model):
     added_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='pages')
@@ -29,6 +33,7 @@ class Page(models.Model):
     moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     is_moderated = models.BooleanField(null=True)
     is_checking = models.BooleanField()
+
 
 class Report(models.Model):
     added_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='reports')
@@ -53,7 +58,6 @@ class Review(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
     added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     publicated = models.DateTimeField(auto_now_add=True)
 
 
@@ -61,3 +65,9 @@ class Subscription(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='subscriptions')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
     subscripted_at = models.DateTimeField(auto_now_add=True)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
