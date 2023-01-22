@@ -7,7 +7,7 @@
         <li v-if="$store.state.isAuth" class="nav-item dropstart">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             user@site.com
-            <i class="ms-2 fa-solid fa-user text-primary"></i>
+            <i class="ms-2 fas fa-user text-primary"></i>
           </a>
           <ul class="dropdown-menu" style="position: absolute;">
             <li><a class="dropdown-item" href="#">Личный кабинет</a></li>

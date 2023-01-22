@@ -9,19 +9,19 @@
       <div class="col-lg-5">
         <div class="advs">
           <div class="adv">
-            <i class="fa-solid fa-robot text-primary fs-1"></i>
+            <i class="fas fa-robot text-primary fs-1"></i>
             <span>Автоматический мониторинг</span>
           </div>
           <div class="adv">
-            <i class="fa-solid fa-paper-plane text-primary fs-1"></i>
+            <i class="fas fa-paper-plane text-primary fs-1"></i>
             <span>Оповещения в телеграм</span>
           </div>
           <div class="adv">
-            <i class="fa-solid fa-message text-primary fs-1"></i>
+            <i class="fas fa-comment text-primary fs-1"></i>
             <span>Сбор сообщений пользователей</span>
           </div>
           <div class="adv">
-            <i class="fa-solid fa-star text-primary fs-1"></i>
+            <i class="fas fa-star text-primary fs-1"></i>
             <span>Рейтинг<br>ресурсов</span>
           </div>
         </div>

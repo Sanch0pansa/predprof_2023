@@ -11,7 +11,6 @@ import 'bootstrap/dist/js/bootstrap.js';
 // import '@fortawesome/fontawesome-svg-core';
 
 
-
 const app = createApp(App)
 
 UIComponents.forEach(el =>
