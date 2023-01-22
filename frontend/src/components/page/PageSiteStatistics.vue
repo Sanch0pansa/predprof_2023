@@ -22,7 +22,7 @@
         </table>
       </div>
       <div class="col-5 d-grid" style="place-items: center">
-        <i class="fa-solid fa-chart-pie text-primary" style="font-size: 120px;"></i>
+        <i class="fas fa-chart-pie text-primary" style="font-size: 120px;"></i>
       </div>
     </div>
 
