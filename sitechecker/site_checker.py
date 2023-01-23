@@ -1,11 +1,9 @@
 import urllib.request
 import requests
-from time import time
-from datetime import datetime
 
 
 TIMEOUT_TIME = 7
-FIGOVO_GRUZIT_TIME = 5
+LATE_TIME = 5
 
 
 def opening_time(url):
@@ -30,7 +28,7 @@ ConnectionError - 808
 '''
 def check(url_to_check):
     url = url_to_check
-    if 'https://' not in url or 'http://' not in url:
+    if 'https://' not in url and 'http://' not in url:
         url = 'https://' + url
     response_time = 0
     try:
@@ -52,8 +50,8 @@ def check(url_to_check):
     except requests.exceptions.ConnectionError:
         status = 808
     else:
-        if response_time >= FIGOVO_GRUZIT_TIME:
+        if response_time >= LATE_TIME:
             status = 199
         else:
             status = website.getcode()
-    return datetime.now(), status, round(response_time, 3)
+    return status, round(response_time, 3)
