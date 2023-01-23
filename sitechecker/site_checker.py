@@ -1,6 +1,3 @@
-import urllib.request
-import requests
-from time import time
 from datetime import datetime
 
 
@@ -26,9 +23,15 @@ Not Acceptable - 406
 и т.д. для HTTPError
 
 unknown url type - -1
+ConnectionError - 808
 '''
-def check(url):
+def check(url_to_check):
+    url = url_to_check
+    if 'https://' not in url or 'http://' not in url:
+        url = 'https://' + url
+    response_time = 0
     try:
+        response_time = opening_time(url)
         website = urllib.request.urlopen(url, timeout=TIMEOUT_TIME)
     except urllib.error.HTTPError as error:
         status = error.code
@@ -43,9 +46,11 @@ def check(url):
             status = 666
     except ValueError:
         status = -1
+    except requests.exceptions.ConnectionError:
+        status = 808
     else:
-        if opening_time(url) < FIGOVO_GRUZIT_TIME:
-            status = website.getcode()
-        else:
+        if response_time >= FIGOVO_GRUZIT_TIME:
             status = 199
-    return status, datetime.now()
+        else:
+            status = website.getcode()
+    return datetime.now(), status, round(response_time, 3)
