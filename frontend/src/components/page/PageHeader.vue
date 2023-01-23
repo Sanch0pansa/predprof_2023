@@ -2,9 +2,9 @@
 <header class="py-4 bg-white shadow">
   <div class="container">
     <nav class="navbar">
-      <a class="navbar-brand" href="#">SiteChecker</a>
+      <RouterLink :class="[`navbar-brand`]" :to="{name: 'home'}">SiteChecker</RouterLink>
       <ul class="navbar-nav">
-        <li v-if="$store.state.isAuth" class="nav-item dropstart">
+        <li v-if="isAuth" class="nav-item dropstart">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             user@site.com
             <i class="ms-2 fas fa-user text-primary"></i>
@@ -14,7 +14,8 @@
           </ul>
         </li>
         <li v-else class="nav-item">
-          <a href="">Log in</a>
+<!--          <a href="">Log in</a>-->
+          <RouterLink :to="{name: 'login'}">Log in</RouterLink>
         </li>
       </ul>
     </nav>
@@ -23,8 +24,17 @@
 </template>
 
 <script>
+import {mapState, mapGetters, mapActions, mapMutations} from 'vuex'
+import { RouterLink, RouterView } from 'vue-router'
+
+
 export default {
-  name: "PageHeader"
+  name: "PageHeader",
+  computed: {
+    ...mapState({
+        isAuth: state => state.auth.isAuth,
+      }),
+  },
 }
 </script>
 
