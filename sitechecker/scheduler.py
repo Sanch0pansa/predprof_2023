@@ -9,7 +9,7 @@ from site_checker import check
 config = {}
 for l in open('conf.txt', 'r').readlines():
     config[l.split(': ')[0]] = l.split(': ')[1]
-checker_token = config['checker_token']
+checker_token = config['checker_token'].rstrip('\n')
 main_url = 'http://127.0.0.1:8000/api/v1/checker'
 
 
