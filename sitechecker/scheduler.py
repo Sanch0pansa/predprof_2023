@@ -30,7 +30,7 @@ def check_all_urls():
 
     # Отправка
     for url, info in results.items():
-        response = requests.post(f'{main_url}/check/', data={'_token': checker_token, 'url': url, 'response_status_code': info[0], 'response_time': info[1]})
+        response = requests.post(f'{main_url}/check/', data={'_token': checker_token, 'url': url, 'response_status_code': info[0], 'response_time': int(info[1] * 1000)})
         print(response.json())
 
     # Логи
