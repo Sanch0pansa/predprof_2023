@@ -18,7 +18,9 @@ class GetPagesForCheck(generics.GenericAPIView):
                 pages = list((Page.objects.filter(is_checking=True)).values())
                 for i in pages:
                     sites['pages'].append(i['url'])
-            return JsonResponse(sites)
+                return JsonResponse(sites)
+            else:
+                return JsonResponse({'detail': 'Wrong token'})
         except Exception:
             return JsonResponse({'detail': 'Something went wrong'})
 
