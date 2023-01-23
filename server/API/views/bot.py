@@ -33,7 +33,6 @@ class GetBotMessages(generics.GenericAPIView):
                 pages[i.url]['subscribers_email'].append(i.email)
                 if i.telegram_id is not None:
                     pages[i.url]['subscribers_telegram'].append(i.telegram_id)
-                print(pages)
 
             return JsonResponse(list(pages.values()), safe=False)
         else:
