@@ -7,7 +7,6 @@ from django.utils import timezone
 from random import seed, randint
 from datetime import datetime, timedelta
 
-
 class UserCreateView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserSerializers
@@ -47,3 +46,11 @@ class GenerateTelegramCode(generics.GenericAPIView):
             data.telegram_verification_code_date = (timezone.now() + timedelta(minutes=5))
             data.save()
             return JsonResponse({'telegram_verification_code': data.telegram_verification_code})
+
+
+class ShowMe(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        data = request.user
+        return JsonResponse({'username': data.username, 'email': data.email, 'telegram_id': data.telegram_id})
