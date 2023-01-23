@@ -6,11 +6,11 @@ import requests
 
 config = [i.split() for i in open('conf.txt').readlines()]
 checker_token = config[0][1]
-url = 'http://127.0.0.1:8000/api/v1/checker'
+main_url = 'http://127.0.0.1:8000/api/v1/checker'
 
 
 def get_urls():
-    data = requests.post(f'{url}/get_pages_for_check/', data={'_token': checker_token})
+    data = requests.post(f'{main_url}/get_pages_for_check/', data={'_token': checker_token})
     urls_data = data.json()
     urls = urls_data[0]['pages']
 
