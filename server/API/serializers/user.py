@@ -3,7 +3,7 @@ from API.models import User
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
