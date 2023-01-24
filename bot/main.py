@@ -1,4 +1,4 @@
-import time
+# import time
 
 import telebot
 import requests
@@ -69,8 +69,9 @@ def bot_start(message):
 def bot_reply(message):
     if message.text == '/last':
         try:
-            bot.send_message(message.from_user.id, last_data_telegram['date'] + last_data_telegram[message.from_user.id],
-                         disable_web_page_preview=True)
+            bot.send_message(message.from_user.id,
+                             last_data_telegram['date'] + last_data_telegram[message.from_user.id],
+                             disable_web_page_preview=True)
         except KeyError:
             bot.send_message(message.from_user.id, 'Данных пока нет')
 
@@ -83,9 +84,9 @@ def check_bot_messages(message):
     # dict_data = data.json()
     dict_data = [
         {
-            'url': 'https://dontsu.ru',      # 2xx - хороший сайт
-            'response_status_code': '900',   # 4xx - ошибка клиента
-            'response_time': 32767,          # 5xx - ошибка сервера
+            'url': 'https://dontsu.ru',  # 2xx - хороший сайт
+            'response_status_code': '900',  # 4xx - ошибка клиента
+            'response_time': 32767,  # 5xx - ошибка сервера
             'subscribers_telegram': [
                 1080913894,
             ],
@@ -109,11 +110,11 @@ def check_bot_messages(message):
     tg_message = {}
     mail_error_messages = {}
 
-    def add_message(dict, id, message):
-        if id in dict:
-            dict[id] += message
+    def add_message(array, user, text):
+        if user in array:
+            array[user] += text
         else:
-            dict[id] = message
+            array[user] = text
 
     for i in dict_data:
         if i['response_status_code'] == '200':
@@ -158,7 +159,7 @@ def check_bot_messages(message):
             print(ex)
             continue
     for message in mail_error_messages:
-        send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' + \
+        send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' +
                    mail_error_messages[message] + '\nС уважением Bot Checker!')
 
 
