@@ -6,11 +6,12 @@
       <ul class="navbar-nav">
         <li v-if="isAuth" class="nav-item dropstart">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            user@site.com
+            {{ user.username ? user.username : "" }}
             <i class="ms-2 fas fa-user text-primary"></i>
           </a>
           <ul class="dropdown-menu" style="position: absolute;">
-            <li><a class="dropdown-item" href="#">Личный кабинет</a></li>
+            <li class="dropdown-item" role="button">Личный кабинет</li>
+            <li class="dropdown-item text-danger" role="button" @click="logoutAction">Выход</li>
           </ul>
         </li>
         <li v-else class="nav-item">
@@ -33,8 +34,20 @@ export default {
   computed: {
     ...mapState({
         isAuth: state => state.auth.isAuth,
+        user: state => state.auth.user,
       }),
   },
+  methods: {
+    ...mapActions({
+      logout: 'auth/logout'
+    }),
+
+    async logoutAction() {
+      await this.logout();
+
+      this.$router.replace({ name: 'login' });
+    }
+  }
 }
 </script>
 
