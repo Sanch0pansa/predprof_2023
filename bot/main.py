@@ -76,37 +76,37 @@ def bot_reply(message):
             bot.send_message(message.from_user.id, 'Данных пока нет')
 
 
-@bot.message_handler(commands=['check'])
-# @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
+# @bot.message_handler(commands=['check'])
+@tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
 def check_bot_messages(message):
     global last_data_telegram
-    # data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
-    # dict_data = data.json()
-    dict_data = [
-        {
-            'url': 'https://dontsu.ru',  # 2xx - хороший сайт
-            'response_status_code': '900',  # 4xx - ошибка клиента
-            'response_time': 32767,  # 5xx - ошибка сервера
-            'subscribers_telegram': [
-                1080913894,
-            ],
-            'subscribers_email': [
-                'andrew.lipko@yandex.ru',
-            ]
-        },
-        {
-            'url': 'https://mgu.ru',
-            'response_status_code': '506',
-            'response_time': 124,
-            'subscribers_telegram': [
-                1080913894,
-            ],
-            'subscribers_email': [
-                'andrew.lipko@yandex.ru',
-                'lde0060@gmail.com',
-            ]
-        },
-    ]
+    data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
+    dict_data = data.json()
+    # dict_data = [
+    #     {
+    #         'url': 'https://dontsu.ru',  # 2xx - хороший сайт
+    #         'response_status_code': '900',  # 4xx - ошибка клиента
+    #         'response_time': 32767,  # 5xx - ошибка сервера
+    #         'subscribers_telegram': [
+    #             1080913894,
+    #         ],
+    #         'subscribers_email': [
+    #             'andrew.lipko@yandex.ru',
+    #         ]
+    #     },
+    #     {
+    #         'url': 'https://mgu.ru',
+    #         'response_status_code': '506',
+    #         'response_time': 124,
+    #         'subscribers_telegram': [
+    #             1080913894,
+    #         ],
+    #         'subscribers_email': [
+    #             'andrew.lipko@yandex.ru',
+    #             'lde0060@gmail.com',
+    #         ]
+    #     },
+    # ]
     tg_message = {}
     mail_error_messages = {}
 
@@ -172,4 +172,4 @@ def send_email(to_mail, text):
 
 task_client = Thread(target=bot.infinity_polling)
 task_client.start()
-# tl.start(block=True)
+tl.start(block=True)
