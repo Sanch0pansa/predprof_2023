@@ -50,6 +50,7 @@ class GenerateTelegramCode(generics.GenericAPIView):
 
 class ShowMe(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializers
 
     def get(self, request, *args, **kwargs):
         data = request.user
