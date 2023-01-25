@@ -30,14 +30,14 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class GenerateTelegramCode(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = request.user
         if user.telegram_verification_code_date is not None and user.telegram_verification_code_date > timezone.now():
-            return JsonResponse('Время действия кода ещё не истекло', safe=False)
+            return JsonResponse({'detail': 'Время действия кода ещё не истекло'})
         elif user.telegram_id != None:
-            return JsonResponse('Телеграм уже привязан к аккаунту', safe=False)
+            return JsonResponse({'detail': 'Телеграм уже привязан к аккаунту'})
         else:
-            seed(int(str(int(datetime.timestamp(timezone.localtime()))) + str(data.id)))
+            seed(int(str(int(datetime.timestamp(timezone.localtime()))) + str(user.id)))
             while True:
                 try:
                     user.telegram_verification_code = randint(100000, 999999)
@@ -47,7 +47,7 @@ class GenerateTelegramCode(generics.GenericAPIView):
                     break
             user.telegram_verification_code_date = (timezone.now() + timedelta(minutes=5))
             user.save()
-            return JsonResponse({'telegram_verification_code': data.telegram_verification_code})
+            return JsonResponse({'telegram_verification_code': user.telegram_verification_code})
 
 
 class ShowMe(generics.GenericAPIView):
