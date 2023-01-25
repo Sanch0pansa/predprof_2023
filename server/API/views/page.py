@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from django.db.models import Count, Subquery
 from django.http import JsonResponse
 from django.db.models import Q
-
+from django.core.paginator import Paginator
 
 class PageListCreateView(generics.ListCreateAPIView):
     serializer_class = PageSerializer
@@ -23,9 +23,15 @@ class GetPopularPages(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            reviews = list(Review.objects.values('page_id').annotate(total=Count('id')).order_by('-total'))
-            pageIds = [reviews[i]['page_id'] for i in range(0, 3)]
-        except Exception:
+            reviews = Review.objects.raw('SELECT pages.id, COUNT(revs.id) AS "total" '
+                                         'FROM "API_page" as pages '
+                                         'LEFT JOIN "API_review" as revs ON revs.page_id=pages.id '
+                                         'GROUP BY pages.id '
+                                         'ORDER BY total DESC '
+                                         'LIMIT 3')
+            pageIds = [i.id for i in reviews]
+        except Exception as ex:
+            print(ex)
             return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов в базе'})
         checks = list(Check.objects
                       .prefetch_related('checks')
@@ -62,13 +68,15 @@ class GetSiteStats(generics.GenericAPIView):
 class GetCheckingPages(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
+            data = request.POST
             pages = Check.objects\
                 .select_related('page')\
                 .values('page__id', 'page__name', 'page__url', 'response_status_code', 'response_time', 'checked_at')\
                 .order_by('-page__id')\
                 .distinct('page__id')
+            print(pages.query)
             result = []
             n = -1
             for i in pages:
@@ -78,7 +86,7 @@ class GetCheckingPages(generics.GenericAPIView):
                                'url': i['page__url'],
                                'last_check_time': i['checked_at'],
                                'last_check_result': None,
-                               'last_check_timout': i['response_time']})
+                               'last_check_timeout': i['response_time']})
                 item = result[n]
                 if i['response_status_code'] != '200':
                     item['last_check_result'] = 0
@@ -86,6 +94,8 @@ class GetCheckingPages(generics.GenericAPIView):
                     item['last_check_result'] = 2
                 elif i['response_time'] >= 1000:
                     item['last_check_result'] = 1
-            return JsonResponse(result, safe=False)
-        except Exception:
+            result = Paginator(result, 5)
+            return JsonResponse({'num_pages':result.num_pages, 'pages': list(result.page(data['page_id']))}, safe=False)
+        except Exception as ex:
+            print(ex)
             return JsonResponse({'detail': 'Something went wrong...'})
