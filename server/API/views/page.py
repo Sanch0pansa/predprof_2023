@@ -26,7 +26,7 @@ class GetPopularPages(generics.GenericAPIView):
             reviews = list(Review.objects.values('page_id').annotate(total=Count('id')).order_by('-total'))
             pageIds = [reviews[i]['page_id'] for i in range(0, 3)]
         except Exception:
-            return {'detail': 'Ошибка, меньше 3 сайтов в базе'}
+            return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов в базе'})
         checks = list(Check.objects
                       .prefetch_related('checks')
                       .values('page_id', 'page__name', 'page__url', 'response_time', 'response_status_code')
