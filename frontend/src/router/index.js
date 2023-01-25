@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from "@/views/RegisterView.vue";
-import AccountView from "@/views/AccountView.vue";
+import AccountView from "@/views/account/AccountView.vue";
+import VerifyTelegramView from "@/views/Account/VerifyTelegramView.vue";
 
 
 const router = createRouter({
@@ -27,18 +28,19 @@ const router = createRouter({
       path: '/account',
       name: 'account',
       component: AccountView,
-      authRequired: true,
+      meta: {
+        authRequired: true,
+      },
+    },
+    {
+      path: '/account/verify_telegram',
+      name: 'verify_telegram',
+      component: VerifyTelegramView,
+      meta: {
+        authRequired: true,
+      },
     },
   ]
 })
-
-// Требование авторизации
-router.beforeEach((to, from) => {
-  // ...
-  // explicitly return false to cancel the navigation
-  if (to.name !== 'login' && !isAuthenticated) this.$router.push({ name: 'login'});
-  else return true
-})
-
 
 export default router

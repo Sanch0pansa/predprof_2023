@@ -20,5 +20,13 @@ UIComponents.forEach(el =>
 app.use(router)
 app.use(store)
 
+// Требование авторизации
+router.beforeEach((to, from) => {
+    if (to.meta.authRequired) {
+        if (!store.state.auth.isAuth)
+            return '/login'
+    }
+})
+
 
 app.mount('#app')
