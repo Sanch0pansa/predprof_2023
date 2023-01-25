@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 #  https://docs.djangoproject.com/en/3.2/topics/db/models/
 #  python manage.py makemigrations
@@ -30,7 +31,7 @@ class Page(models.Model):
     name = models.CharField(max_length=128)
     description = models.CharField(max_length=256, blank=True)
     url = models.URLField(max_length=128)
-    moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagesm')
     is_moderated = models.BooleanField(null=True)
     is_checking = models.BooleanField()
 
@@ -50,15 +51,14 @@ class Check(models.Model):
     response_status_code = models.CharField(max_length=3)
     response_time = models.SmallIntegerField()
 
-
 class Review(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reviews')
-    mark = models.SmallIntegerField()
-    message = models.CharField(max_length=256)
+    mark = models.DecimalField(decimal_places=1, max_digits=2, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    message = models.CharField(max_length=256, blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
-    added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
-    publicated = models.DateTimeField(auto_now_add=True)
+    added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', null=True)
+    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+', null=True)
+    publicated = models.DateTimeField(default=None, null=True)
 
 
 class Subscription(models.Model):
