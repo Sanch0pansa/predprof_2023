@@ -8,6 +8,7 @@ from random import seed, randint
 from datetime import datetime, timedelta
 from django.contrib.auth.hashers import check_password
 
+
 class UserCreateView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserSerializers
@@ -90,3 +91,4 @@ class SetNewEmail(generics.GenericAPIView):
                 return JsonResponse({'detail': 'Неверный пароль'})
         except Exception:
             return JsonResponse({'detail': 'Данные не были введены или были введены неверно'})
+

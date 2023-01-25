@@ -10,6 +10,14 @@
       <br>
 
       <Inp
+          :name="`username`"
+          :label="`Имя пользователя:`"
+          v-model="username"
+          v-model:errors="errorBag.username">
+      </Inp>
+      <br>
+
+      <Inp
           :name="`password`"
           :label="`Пароль:`"
           v-model="password"
@@ -30,15 +38,17 @@ import {mapState, mapGetters, mapActions, mapMutations} from 'vuex'
 import {errorBagFill} from "@/components/forms/errorBag.js";
 
 export default {
-  name: "LoginForm",
+  name: "RegisterForm",
   components: {FormEl},
   data() {
     return {
       login: "",
+      username: "",
       password: "",
       errorBag: {
         email: [],
         password: [],
+        username: [],
         non_field_errors: [],
         success: "",
       }
@@ -46,21 +56,22 @@ export default {
   },
   methods: {
     ...mapActions({
-      auth: 'auth/authentificate'
+      register: 'auth/registrate'
     }),
     async handle(ev) {
 
-      const res = await this.auth({
+      const res = await this.register({
         login: this.login,
         password: this.password,
+        username: this.username,
       });
 
       errorBagFill(this.errorBag, res);
 
       if (res.success) {
-          setTimeout(() => {
-            this.$router.replace({ name: 'home' })
-          }, 1500);
+        setTimeout(() => {
+          this.$router.replace({ name: 'home' })
+        }, 1500);
       }
 
     }
