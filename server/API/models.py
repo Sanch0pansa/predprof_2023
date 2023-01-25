@@ -65,9 +65,3 @@ class Subscription(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='subscriptions')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
     subscripted_at = models.DateTimeField(auto_now_add=True)
-
-
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)

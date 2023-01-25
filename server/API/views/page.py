@@ -2,7 +2,6 @@ from rest_framework import generics
 from API.models import Page, Review, Check, Report
 from API.serializers.page import PageSerializer
 from rest_framework.permissions import AllowAny
-from django.db.models import Count, Subquery
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -74,7 +73,7 @@ class GetCheckingPages(generics.GenericAPIView):
             pages = Check.objects\
                 .select_related('page')\
                 .values('page__id', 'page__name', 'page__url', 'response_status_code', 'response_time', 'checked_at')\
-                .order_by('-page__id')\
+                .order_by('-page__id', '-id')\
                 .distinct('page__id')
             print(pages.query)
             result = []
@@ -95,7 +94,7 @@ class GetCheckingPages(generics.GenericAPIView):
                 elif i['response_time'] >= 1000:
                     item['last_check_result'] = 1
             result = Paginator(result, 5)
-            return JsonResponse({'num_pages':result.num_pages, 'pages': list(result.page(data['page_id']))}, safe=False)
+            return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_id']))}, safe=False)
         except Exception as ex:
             print(ex)
             return JsonResponse({'detail': 'Something went wrong...'})
