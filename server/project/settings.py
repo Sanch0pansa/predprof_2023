@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 
 import rest_framework.authentication
+config = [i.split() for i in open('tokens.txt').readlines()][2]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4yo)a#ewhh4%v0gn(=gcq^lf6iv60m8v(m^=uaykdh_chyphct'
+SECRET_KEY = config[1]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

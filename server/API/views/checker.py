@@ -4,7 +4,7 @@ from API.serializers.check import CheckSerializer
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 
-config = [i.split() for i in open('conf.txt').readlines()]
+config = [i.split() for i in open('tokens.txt').readlines()]
 
 
 class GetPagesForCheck(generics.GenericAPIView):
