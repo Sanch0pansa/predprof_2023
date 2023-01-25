@@ -1,6 +1,6 @@
 <template>
 <Block :class="['sm d-flex justify-content-between align-items-center']">
-  <Link :href="href">{{ href }}</Link>
+  <Link :href="href">{{ name }}</Link>
   <div class="indicator"
        :class="{'indicator-success': status == 2, 'indicator-warning': status == 1, 'indicator-danger': status == 0,}">
 
@@ -13,7 +13,8 @@ export default {
   name: "PagesListItem",
   props: {
     status: [Number],
-    href: [String]
+    href: [String],
+    name: [String],
   }
 }
 </script>

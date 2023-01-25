@@ -1,4 +1,5 @@
 <template>
+  <PageSection :title="`Статистика`">
   <Block>
     <div class="row">
       <div class="col-7">
@@ -9,7 +10,7 @@
           </tr>
           <tr>
             <td>Выявлено сбоев:</td>
-            <th>{{ malfunctions }}</th>
+            <th>{{ failures }}</th>
           </tr>
           <tr>
             <td>Сообщений о сбоях:</td>
@@ -27,25 +28,43 @@
     </div>
 
   </Block>
+  </PageSection>
 </template>
 
 <script>
+import {mapActions} from "vuex";
+
 export default {
   name: "PageSiteStatistics",
   data() {
     return {
       pages: 0,
-      malfunctions: 0,
+      failures: 0,
       reports: 0,
       reviews: 0,
     }
   },
+
+  methods: {
+    ...mapActions({
+      getStatistics: "pages/getStatistics"
+    }),
+
+    async fetchStatistics() {
+      const data = await this.getStatistics();
+
+
+      this.pages = data.total_pages;
+      this.failures = data.detected_failures;
+      this.reports = data.total_reports;
+      this.reviews = data.total_reviews;
+
+    }
+  },
+
   async mounted() {
-    // Здесь будет запрос на получение статистики
-    this.pages = 2623;
-    this.malfunctions = 45;
-    this.reports = 156;
-    this.reviews = 608;
+    await this.fetchStatistics();
+
   }
 }
 </script>
