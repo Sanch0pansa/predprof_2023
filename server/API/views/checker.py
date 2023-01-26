@@ -20,7 +20,7 @@ class GetPagesForCheck(generics.GenericAPIView):
                     sites['pages'].append(i['url'])
                 return JsonResponse(sites)
             else:
-                return JsonResponse({'detail': 'Wrong token'})
+                return JsonResponse({'detail': 'Неправильный токен'})
         except Exception:
             return JsonResponse({'detail': 'Something went wrong'})
 
