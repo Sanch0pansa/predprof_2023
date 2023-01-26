@@ -1,4 +1,5 @@
-# import time
+import time
+
 
 import telebot
 import requests
@@ -27,6 +28,7 @@ mail.login(bot_mail, mail_password)
 last_data_telegram = {}
 
 
+
 def registration(message):
     new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id,
                                                           'telegram_verification_code': message.text})
@@ -46,12 +48,14 @@ def registration(message):
 def bot_start(message):
     if message.text == '/start':  # проверяем на наличие юзера
         # print(message)
+
         check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
         check = check.json()
         # check = {
         #     'user_verified': 'true'
         # }
         if not check['user_verified']:
+
             bot.send_message(message.from_user.id,
                              '''Привет!\nОтправьте мне код аунтификации, который высвечен на сайте''')
 
@@ -60,6 +64,7 @@ def bot_start(message):
             bot.send_message(message.from_user.id, 'Ваш телеграмм уже зарегестрирован')
     elif message.text == '/help':
         commands = '''Вот список доступных команд:
+
 /last - Показать последние статусы сайтов
 '''
         bot.send_message(message.from_user.id, commands)
@@ -68,6 +73,7 @@ def bot_start(message):
 @bot.message_handler(commands=['last'])
 def bot_reply(message):
     if message.text == '/last':
+
         try:
             bot.send_message(message.from_user.id,
                              last_data_telegram['date'] + last_data_telegram[message.from_user.id],
@@ -87,6 +93,7 @@ def check_bot_messages(message):
     #         'url': 'https://dontsu.ru',  # 2xx - хороший сайт
     #         'response_status_code': '900',  # 4xx - ошибка клиента
     #         'response_time': 32767,  # 5xx - ошибка сервера
+
     #         'subscribers_telegram': [
     #             1080913894,
     #         ],
@@ -100,6 +107,8 @@ def check_bot_messages(message):
     #         'response_time': 124,
     #         'subscribers_telegram': [
     #             1080913894,
+
+
     #         ],
     #         'subscribers_email': [
     #             'andrew.lipko@yandex.ru',
@@ -109,6 +118,7 @@ def check_bot_messages(message):
     # ]
     tg_message = {}
     mail_error_messages = {}
+
 
     def add_message(array, user, text):
         if user in array:
@@ -122,6 +132,7 @@ def check_bot_messages(message):
                 add_message(tg_message, id, f'✅ {i["url"]} \n')
             for mail in i['subscribers_email']:
                 add_message(mail_error_messages, mail, f'✅ {i["url"]}\n')
+
         elif i['response_status_code'][0] == '4':
             for id in i['subscribers_telegram']:
                 add_message(tg_message, id, f'❌ {i["url"]} (ошибка клиента)\n')
@@ -145,6 +156,7 @@ def check_bot_messages(message):
     current_time = datetime.datetime.now().time().isoformat()[:5]
 
     last_data_telegram = tg_message.copy()
+
     last_data_telegram['date'] = f'Последнее обновление {day} {month} в {current_time}\n'
 
     for message in tg_message:
@@ -152,6 +164,7 @@ def check_bot_messages(message):
             continue
         try:
             bot.send_message(message, last_data_telegram['date'] + tg_message[message], disable_web_page_preview=True)
+
         except telebot.apihelper.ApiException:
             print(f'Нельзя отправить сообщение {message}')
             continue
@@ -159,7 +172,9 @@ def check_bot_messages(message):
             print(ex)
             continue
     for message in mail_error_messages:
+
         send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' +
+
                    mail_error_messages[message] + '\nС уважением Bot Checker!')
 
 
@@ -173,3 +188,4 @@ def send_email(to_mail, text):
 task_client = Thread(target=bot.infinity_polling)
 task_client.start()
 tl.start(block=True)
+

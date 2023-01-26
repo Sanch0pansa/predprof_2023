@@ -12,7 +12,13 @@
 
 <!--      Данные -->
       <tr v-for="row in data">
-        <td v-for="column in row" v-html="column"></td>
+
+        <td v-for="column in row">
+          <div v-if="typeof column != 'object'" v-html="column"></div>
+          <div v-else>
+            <RouterLink :to="column.href">{{ column.text }}</RouterLink>
+          </div>
+        </td>
       </tr>
 
 <!--      Кнопка "Загрузить ещё" -->

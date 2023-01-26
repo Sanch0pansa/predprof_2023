@@ -1,4 +1,5 @@
-import urllib.request
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen, Request
 import requests
 
 
@@ -33,10 +34,12 @@ def check(url_to_check):
     response_time = 0
     try:
         response_time = opening_time(url)
-        website = urllib.request.urlopen(url, timeout=TIMEOUT_TIME)
-    except urllib.error.HTTPError as error:
+        headers = requests.utils.default_headers()
+        headers.update({'User-Agent': 'My User Agent 1.0',})
+        website = urlopen(Request(url, headers=headers), timeout=TIMEOUT_TIME)
+    except HTTPError as error:
         status = error.code
-    except urllib.error.URLError as error:
+    except URLError as error:
         if error.reason.args[0] == '_ssl.c:1106: The handshake operation timed out':
             status = 0
         elif error.reason.args[0] == 1:
