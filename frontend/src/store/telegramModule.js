@@ -23,10 +23,16 @@ export default {
                     },
                 );
 
-                if (response.data.telegram_verification_code) {
+                console.log(response.data);
+                if (!response.data.detail) {
                     return {success: true, code: response.data.telegram_verification_code};
                 } else {
-                    return {success: false, error: response.data};
+                    return {
+                        success: false,
+                        error: response.data.detail,
+                        code: response.data.telegram_verification_code,
+                        remain_time: response.data.remain_time,
+                    };
                 }
 
             } catch (e) {

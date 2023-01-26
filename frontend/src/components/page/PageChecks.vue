@@ -67,8 +67,8 @@ export default {
               minute: "numeric",
               second: "numeric"
             }).replaceAll(" г", "").replaceAll(".", ""),
-            `<b class="text-${statesColors[page.last_check_result]}">${statesNames[page.last_check_result]}</b>`,
-            `<b class="text-${statesColors[page.last_check_result]}">${page.last_check_timout}</b>`,
+            `<b class="text-${statesColors[page.check_status]}">${statesNames[page.check_status]}</b>`,
+            `<b class="text-${statesColors[page.check_status]}">${page.last_check_timeout}</b>`,
             100,
         ]);
       });

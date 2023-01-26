@@ -34,14 +34,17 @@ export default {
         // Получение популярных страниц
         async getCheckingPages({state, commit}) {
             try {
-                const response = await axios.get(
+                const response = await axios.post(
                     URLS.getCheckingPages,
+                    {
+                        page_number: 1,
+                    }
                 );
 
                 if (response.data['details']) {
                     return [];
                 } else {
-                    return response.data;
+                    return response.data.pages;
                 }
 
             } catch (e) {

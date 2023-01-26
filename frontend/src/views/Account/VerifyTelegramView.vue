@@ -8,7 +8,8 @@
         <div class="alert alert-primary my-4">
           <h1 style="letter-spacing: 2px">{{ code }}</h1>
         </div>
-        <Btn @click="fetchCode">Сгенерировать новый код</Btn>
+        <Btn @click="fetchCode" v-if="can_repeat">Сгенерировать новый код</Btn>
+        <Btn v-else disabled="disabled">Другой код через {{ String(remain_time) }} сек.</Btn>
       </Block>
     </div>
   </div>
@@ -30,9 +31,30 @@ export default {
 
     async fetchCode() {
       let res = await this.generateTelegramCode();
-      console.log(res);
-      if (res.success) {
+
+      if (res.code) {
         this.code = res.code;
+      }
+
+      if (!res.success) {
+        this.can_repeat = false;
+        this.remain_time = res.remain_time;
+
+        this.timer();
+      }
+
+
+    },
+
+    async timer() {
+      console.log("timed");
+      if (this.remain_time > 0) {
+        setTimeout(() => {
+          this.timer();
+        }, 1000);
+        this.remain_time -= 1;
+      } else {
+        this.can_repeat = true;
       }
     }
   },
@@ -40,6 +62,8 @@ export default {
   data() {
     return {
       code: 0,
+      can_repeat: true,
+      remain_time: 0,
     }
   },
 
