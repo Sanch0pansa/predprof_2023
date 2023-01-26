@@ -60,6 +60,7 @@ class GetSiteStats(generics.GenericAPIView):
 
 class GetCheckingPages(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = PageSerializer
 
     def post(self, request, *args, **kwargs):
         try:
