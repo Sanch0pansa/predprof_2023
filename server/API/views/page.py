@@ -78,7 +78,7 @@ class GetCheckingPages(generics.GenericAPIView):
                                'last_check_timeout': i['response_time'],
                                'check_status': i['check_status']})
             result = Paginator(result, 5)
-            return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_id']))})
+            return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
         except Exception as ex:
             print(ex)
             return JsonResponse({'detail': 'Something went wrong...'})
