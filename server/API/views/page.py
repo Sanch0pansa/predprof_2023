@@ -46,7 +46,7 @@ class GetPopularPages(generics.GenericAPIView):
                 i['check_status'] = i.pop('check_status')
             return JsonResponse(checks, safe=False)
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)})
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
 class GetSiteStats(generics.GenericAPIView):
@@ -61,7 +61,7 @@ class GetSiteStats(generics.GenericAPIView):
             result = {'total_pages': pages, 'total_reports': reports, 'total_reviews': reviews, 'detected_failures': failures}
             return JsonResponse(result)
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)})
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
 class GetCheckingPages(generics.GenericAPIView):
@@ -88,7 +88,7 @@ class GetCheckingPages(generics.GenericAPIView):
             result = Paginator(result, 5)
             return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)})
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
 class GetAccountData(generics.GenericAPIView):
@@ -110,4 +110,4 @@ class GetAccountData(generics.GenericAPIView):
                                'check_status': i.check_status})
             return JsonResponse(result, safe=False)
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)}, status=400)
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)

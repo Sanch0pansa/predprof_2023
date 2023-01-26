@@ -63,7 +63,7 @@ class VerifyUser(generics.GenericAPIView):
             else:
                 return JsonResponse({'detail': 'Неправильный токен'})
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)})
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
 class CheckUser(generics.GenericAPIView):
@@ -80,4 +80,4 @@ class CheckUser(generics.GenericAPIView):
             else:
                 return JsonResponse({'detail': 'Неправильный токен'})
         except Exception as ex:
-            return JsonResponse({'detail': str(ex)})
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
