@@ -33,7 +33,16 @@ class CheckCreateView(generics.GenericAPIView):
             data = request.POST
             if data['_token'] == config[1]:
                 page = list((Page.objects.filter(url=data['url'])).values())[0]
-                check = Check(page_id=page['id'], response_status_code=data['response_status_code'], response_time=data['response_time'])
+                if data['response_status_code'] != '200':
+                    last_check_result = 0
+                elif data['response_time'] < 1000:
+                    last_check_result = 2
+                elif data['response_time'] >= 1000:
+                    last_check_result = 1
+                check = Check(page_id=page['id'],
+                              response_status_code=data['response_status_code'],
+                              response_time=data['response_time'],
+                              check_status=last_check_result)
                 check.save()
                 return JsonResponse({'success': True})
         except Exception as ex:
