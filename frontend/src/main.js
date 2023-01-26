@@ -21,7 +21,11 @@ app.use(router)
 app.use(store)
 
 // Требование авторизации
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
+    if (to.meta.authUpdate) {
+        await store.dispatch("auth/getUserData");
+    }
+
     if (to.meta.authRequired) {
         if (!store.state.auth.isAuth)
             return '/login'
