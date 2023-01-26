@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from API.models import Check, User
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
-config = [i.split() for i in open('conf.txt').readlines()][0]
+config = [i.split() for i in open('tokens.txt').readlines()][0]
 class GetBotMessages(generics.GenericAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):

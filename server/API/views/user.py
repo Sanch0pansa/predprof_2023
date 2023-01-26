@@ -3,16 +3,27 @@ from API.models import User
 from django.http import JsonResponse
 from API.serializers.user import UserSerializers
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.authtoken.models import Token
 from django.utils import timezone
 from random import seed, randint
 from datetime import datetime, timedelta
 from django.contrib.auth.hashers import check_password
 
 
-class UserCreateView(generics.CreateAPIView):
+class UserCreateView(generics.GenericAPIView):
     permission_classes = [AllowAny]
-    serializer_class = UserSerializers
-    queryset = User.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = request.POST
+            user = User(email=data['email'], username=data['username'])
+            user.set_password(data['password'])
+            user.save()
+            token = Token.objects.create(user=user)
+            return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
+        except Exception as ex:
+            print(ex)
+            return JsonResponse({'detail': 'Формат введённый данных неверен'})
 
 
 class UserListView(generics.ListAPIView):
@@ -22,7 +33,7 @@ class UserListView(generics.ListAPIView):
 
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
     serializer_class = UserSerializers
     queryset = User.objects.all()
 
@@ -32,9 +43,13 @@ class GenerateTelegramCode(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        if user.telegram_verification_code_date is not None and user.telegram_verification_code_date > timezone.now():
-            return JsonResponse({'detail': 'Время действия кода ещё не истекло'})
-        elif user.telegram_id != None:
+        timeNow = timezone.now()
+        codeTime = user.telegram_verification_code_date
+        if user.telegram_verification_code_date is not None and codeTime > timeNow:
+            return JsonResponse({'detail': 'Время действия кода ещё не истекло',
+                                 'remain_time': (codeTime - timeNow).seconds,
+                                 'telegram_verification_code': user.telegram_verification_code})
+        elif user.telegram_id is not None:
             return JsonResponse({'detail': 'Телеграм уже привязан к аккаунту'})
         else:
             seed(int(str(int(datetime.timestamp(timezone.localtime()))) + str(user.id)))
