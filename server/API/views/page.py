@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
+from API.funcs import getData
 
 class PageListCreateView(generics.ListCreateAPIView):
     serializer_class = PageSerializer
@@ -64,7 +65,7 @@ class GetCheckingPages(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
+            data = getData(request)
             pages = Check.objects\
                 .select_related('page')\
                 .values('page__id', 'page__name', 'page__url', 'check_status', 'response_time', 'checked_at')\

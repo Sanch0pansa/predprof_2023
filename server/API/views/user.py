@@ -8,7 +8,7 @@ from django.utils import timezone
 from random import seed, randint
 from datetime import datetime, timedelta
 from django.contrib.auth.hashers import check_password
-
+from API.funcs import getData
 
 class UserCreateView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -16,7 +16,7 @@ class UserCreateView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
+            data = getData(request)
             user = User(email=data['email'], username=data['username'])
             user.set_password(data['password'])
             user.save()
@@ -81,7 +81,7 @@ class SetNewPassword(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             user = request.user
-            data = request.POST
+            data = getData(request)
             if check_password(data['current_password'], user.password):
                 user.set_password(data['new_password'])
                 user.save()
@@ -98,7 +98,7 @@ class SetNewEmail(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             user = request.user
-            data = request.POST
+            data = getData(request)
             if check_password(data['current_password'], user.password):
                 user.email = data['new_email']
                 user.save()
