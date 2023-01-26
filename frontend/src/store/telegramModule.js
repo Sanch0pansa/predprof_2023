@@ -23,13 +23,16 @@ export default {
                     },
                 );
 
-                console.log(response.data);
                 if (!response.data.detail) {
-                    return {success: true, code: response.data.telegram_verification_code};
+                    return {
+                        success: true,
+                        code: response.data.telegram_verification_code,
+                        remain_time: response.data.remain_time,
+                    };
                 } else {
                     return {
                         success: false,
-                        error: response.data.detail,
+                        errors: response.data.errors,
                         code: response.data.telegram_verification_code,
                         remain_time: response.data.remain_time,
                     };
