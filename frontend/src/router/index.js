@@ -30,6 +30,7 @@ const router = createRouter({
       component: AccountView,
       meta: {
         authRequired: true,
+        authUpdate: true,
       },
     },
     {
@@ -38,6 +39,7 @@ const router = createRouter({
       component: VerifyTelegramView,
       meta: {
         authRequired: true,
+        authUpdate: true,
       },
     },
   ]

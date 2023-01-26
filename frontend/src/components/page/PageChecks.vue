@@ -3,7 +3,7 @@
     <PageTable
         :headers="['Сайт', 'Последняя проверка', 'Состояние', 'Задержка ответа, мс', 'Рейтинг']"
         :data="pages"
-
+        :no-load-more="!this.$store.state.pages.canLoadMore"
         @loadMore="loadMore"
     ></PageTable>
   </PageSection>
@@ -11,7 +11,7 @@
 
 <script>
 import PageTable from "@/components/page/PageTable.vue";
-import {mapActions} from "vuex";
+import {mapActions, mapState} from "vuex";
 import {RouterLink} from "vue-router";
 
 export default {
@@ -37,22 +37,24 @@ export default {
     }),
 
     loadMore() {
-      // Pusto poka
+      this.fetchCheckingPages();
     },
 
-    async fetchCheckingPages() {
-      const data = await this.getCheckingPages();
+    async fetchCheckingPages(first=false) {
+      const data = await this.getCheckingPages({first});
 
       const statesNames = [
           "Не работает",
           "Работает медленно",
-          "Работает"
+          "Работает",
+          "Не проверялся"
       ];
 
       const statesColors = [
           "danger",
           "warning",
-          "success"
+          "success",
+          "secondary"
       ];
 
       data.forEach(page => {
@@ -76,7 +78,7 @@ export default {
   },
 
   async mounted() {
-    await this.fetchCheckingPages();
+    await this.fetchCheckingPages(true);
   }
 }
 </script>
