@@ -47,7 +47,8 @@ class GenerateTelegramCode(generics.GenericAPIView):
         codeTime = user.telegram_verification_code_date
         if user.telegram_verification_code_date is not None and codeTime > timeNow:
             return JsonResponse({'detail': 'Время действия кода ещё не истекло',
-                                 'remain_time': 'Код действителен ещё %s секунд' % (codeTime - timeNow).seconds})
+                                 'remain_time': 'Код действителен ещё %s секунд' % (codeTime - timeNow).seconds,
+                                 'telegram_verification_code': user.telegram_verification_code})
         elif user.telegram_id is not None:
             return JsonResponse({'detail': 'Телеграм уже привязан к аккаунту'})
         else:
