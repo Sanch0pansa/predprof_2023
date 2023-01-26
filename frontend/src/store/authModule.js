@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 const URLS = {
-    login: "http://127.0.0.1:8000/api/v1/token/login/",
-    register: "http://127.0.0.1:8000/api/v1/auth/users/",
-    getUserData: "http://127.0.0.1:8000/api/v1/auth/users/me/",
-    logout: "http://127.0.0.1:8000/api/v1/token/logout/"
+    login: "http://127.0.0.1:8000/api/v1/auth/token/login/",
+    register: "http://127.0.0.1:8000/api/v1/auth/user/registration/",
+    getUserData: "http://127.0.0.1:8000/api/v1/user/me/",
+    logout: "http://127.0.0.1:8000/api/v1/auth/token/logout/"
 }
 
 export default {
@@ -81,10 +81,11 @@ export default {
         async getUserData({state, commit}) {
             try {
                 const response = await axios.get(
-                    URLS.getUserData,
-                    {headers: {
+                    URLS.getUserData, {
+                        headers: {
                             Authorization: `Token ${state.authToken}`
-                        }},
+                        }
+                    },
                 );
 
                 commit('setUser', response.data)
@@ -104,12 +105,14 @@ export default {
                         }},
                 );
 
-                commit("setIsAuth", false);
-                commit("setAuthToken", "");
-                commit("setUser", {});
+
             } catch (e) {
 
             }
+
+            commit("setIsAuth", false);
+            commit("setAuthToken", "");
+            commit("setUser", {});
         }
     },
     mutations: {

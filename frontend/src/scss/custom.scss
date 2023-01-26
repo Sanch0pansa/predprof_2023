@@ -218,4 +218,10 @@ table.table-big {
     background: $danger;
     box-shadow: 0px 0px 20px $danger;
   }
+
+
+  &.indicator-secondary {
+    background: $secondary;
+    box-shadow: 0px 0px 20px $secondary;
+  }
 }

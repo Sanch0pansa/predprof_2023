@@ -3,27 +3,24 @@
   <PageWelcomeSection></PageWelcomeSection>
   <div class="row">
     <div class="col-lg-6">
-      <PageSection :title="`Популярные ресурсы`">
-        <PagesList></PagesList>
-      </PageSection>
+      <PagePopulars></PagePopulars>
     </div>
     <div class="col-lg-6">
-      <PageSection :title="`Статистика`">
         <PageSiteStatistics>
 
         </PageSiteStatistics>
-      </PageSection>
     </div>
     <div class="col-12">
-      <PageSection :title="`Таблица`">
-        <PageTable
-            :headers="['Сайт', 'Последняя проверка', 'Состояние', 'Задержка ответа, мс', 'Рейтинг']"
-            :data="tableData"
-            :noLoadMore="true"
+<!--      <PageSection :title="`Таблица`">-->
+<!--        <PageTable-->
+<!--            :headers="['Сайт', 'Последняя проверка', 'Состояние', 'Задержка ответа, мс', 'Рейтинг']"-->
+<!--            :data="tableData"-->
+<!--            :noLoadMore="true"-->
 
-            @loadMore="loadMore"
-        ></PageTable>
-      </PageSection>
+<!--            @loadMore="loadMore"-->
+<!--        ></PageTable>-->
+<!--      </PageSection>-->
+      <PageChecks></PageChecks>
     </div>
   </div>
 </template>
@@ -35,10 +32,21 @@ import PageTable from "@/components/page/PageTable.vue";
 import PageWelcomeSection from "@/components/page/PageWelcomeSection.vue";
 import PagesList from "@/components/items/PagesList.vue";
 import PageSiteStatistics from "@/components/page/PageSiteStatistics.vue";
+import PagePopulars from "@/components/page/PagePopulars.vue";
+import PageChecks from "@/components/page/PageChecks.vue";
 
 export default {
   name: "HomeView",
-  components: {PageHeader, PageFooter, PageTable, PageWelcomeSection, PagesList, PageSiteStatistics},
+  components: {
+    PageChecks,
+    PagePopulars,
+    PageHeader,
+    PageFooter,
+    PageTable,
+    PageWelcomeSection,
+    PagesList,
+    PageSiteStatistics
+  },
   data() {
     return {
       tableData: [
