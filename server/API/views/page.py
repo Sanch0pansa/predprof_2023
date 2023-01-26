@@ -36,7 +36,8 @@ class GetPopularPages(generics.GenericAPIView):
                       .prefetch_related('checks')
                       .values('page_id', 'page__name', 'page__url', 'check_status')
                       .filter(Q(page_id=pageIds[0]) | Q(page_id=pageIds[1]) | Q(page_id=pageIds[2]))
-                      .order_by('-checked_at'))[:3]
+                      .order_by('-page_id', '-checked_at')
+                      .distinct('page_id'))[:3]
         for i in checks:
             i['id'] = i.pop('page_id')
             i['name'] = i.pop('page__name')

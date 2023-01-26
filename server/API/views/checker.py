@@ -35,9 +35,9 @@ class CheckCreateView(generics.GenericAPIView):
                 page = list((Page.objects.filter(url=data['url'])).values())[0]
                 if data['response_status_code'] != '200':
                     last_check_result = 0
-                elif data['response_time'] < 1000:
+                elif int(data['response_time']) < 1000:
                     last_check_result = 2
-                elif data['response_time'] >= 1000:
+                elif int(data['response_time']) >= 1000:
                     last_check_result = 1
                 check = Check(page_id=page['id'],
                               response_status_code=data['response_status_code'],
