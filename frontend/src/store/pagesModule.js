@@ -9,7 +9,9 @@ const URLS = {
 export default {
     namespaced: true,
     state: () => ({
-
+        pageNumber: 1,
+        totalPagesNumber: 0,
+        canLoadMore: true,
     }),
     actions: {
 
@@ -32,18 +34,30 @@ export default {
         },
 
         // Получение популярных страниц
-        async getCheckingPages({state, commit}) {
+        async getCheckingPages({state, commit}, {first=false}) {
             try {
+                if (first) {
+                    commit('setCanLoadMore', true);
+                    commit('setPageNumber', 1);
+                }
+
                 const response = await axios.post(
                     URLS.getCheckingPages,
                     {
-                        page_number: 1,
+                        page_number: state.pageNumber,
                     }
                 );
 
                 if (response.data['details']) {
                     return [];
                 } else {
+
+                    commit('setTotalPagesNumber', response.data.num_pages);
+                    commit('setPageNumber', state.pageNumber + 1);
+
+                    if (state.pageNumber > state.totalPagesNumber) {
+                        commit('setCanLoadMore', false);
+                    }
                     return response.data.pages;
                 }
 
@@ -81,4 +95,17 @@ export default {
         },
     },
 
+    mutations: {
+        setPageNumber(state, pageNumber) {
+            state.pageNumber = pageNumber;
+        },
+
+        setTotalPagesNumber(state, totalPagesNumber) {
+            state.totalPagesNumber = totalPagesNumber;
+        },
+
+        setCanLoadMore(state, canLoadMore) {
+            state.canLoadMore = canLoadMore;
+        }
+    },
 }
