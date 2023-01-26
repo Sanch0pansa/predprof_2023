@@ -1,12 +1,15 @@
-# import time
-
 import telebot
 import requests
 from threading import Thread
 from timeloop import Timeloop
 import datetime
 
+import logging
+
 import smtplib
+
+logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
+                    format="%(asctime)s %(levelname)s %(message)s")
 
 tl = Timeloop()
 
@@ -28,9 +31,15 @@ last_data_telegram = {}
 
 
 def registration(message):
-    new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id,
-                                                          'telegram_verification_code': message.text})
-    new_user_answer = new_user.json()
+    try:
+        new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id,
+                                                              'telegram_verification_code': message.text})
+        new_user_answer = new_user.json()
+    except:
+        logging.error("No request to 'bot/verify_user/'")
+        bot.send_message(message.from_user.id,
+                         'Простите, но сейчас сервер недоступен. Попробуйте позже через /start')
+        return
     # new_user_answer = {'success': True}
 
     if new_user_answer['success']:
@@ -41,13 +50,19 @@ def registration(message):
 Проверьте и введите код еще раз''')
         bot.register_next_step_handler(message, registration)
 
+    logging.info(f'Message from {message.from_user.id}')
+
 
 @bot.message_handler(commands=['help', 'start'])
 def bot_start(message):
     if message.text == '/start':  # проверяем на наличие юзера
-        # print(message)
-        check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
-        check = check.json()
+        try:
+            check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
+            check = check.json()
+        except:
+            logging.error("No request to 'bot/check_user/'")
+            bot.send_message(message.from_user.id, 'Простите, но сейчас сервер недоступен. Попробуйте позже')
+            return
         # check = {
         #     'user_verified': 'true'
         # }
@@ -67,6 +82,7 @@ def bot_start(message):
 
 @bot.message_handler(commands=['last'])
 def bot_reply(message):
+    logging.info(f"Message '{message.text}' from {message.from_user.id}")
     if message.text == '/last':
         try:
             bot.send_message(message.from_user.id,
@@ -74,14 +90,20 @@ def bot_reply(message):
                              disable_web_page_preview=True)
         except KeyError:
             bot.send_message(message.from_user.id, 'Данных пока нет')
+            logging.error('No last data')
 
 
 # @bot.message_handler(commands=['check'])
 @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
 def check_bot_messages(message):
     global last_data_telegram
-    data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
-    dict_data = data.json()
+    logging.info("Run 'check_bot_messages' function")
+    try:
+        data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
+        dict_data = data.json()
+    except:
+        logging.error("No request to 'bot/get_bot_messages/'")
+        return
     # dict_data = [
     #     {
     #         'url': 'https://dontsu.ru',  # 2xx - хороший сайт
@@ -89,6 +111,7 @@ def check_bot_messages(message):
     #         'response_time': 32767,  # 5xx - ошибка сервера
     #         'subscribers_telegram': [
     #             1080913894,
+    #             5694956479
     #         ],
     #         'subscribers_email': [
     #             'andrew.lipko@yandex.ru',
@@ -153,9 +176,10 @@ def check_bot_messages(message):
         try:
             bot.send_message(message, last_data_telegram['date'] + tg_message[message], disable_web_page_preview=True)
         except telebot.apihelper.ApiException:
-            print(f'Нельзя отправить сообщение {message}')
+            logging.error(f"Can't send message to {message}")
             continue
         except Exception as ex:
+            logging.error(f"ex")
             print(ex)
             continue
     for message in mail_error_messages:
