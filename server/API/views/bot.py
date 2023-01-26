@@ -36,41 +36,48 @@ class GetBotMessages(generics.GenericAPIView):
 
             return JsonResponse(list(pages.values()), safe=False)
         else:
-            return JsonResponse({'detail': 'Wrong token'})
+            return JsonResponse({'detail': 'Неправильный токен'})
 
 
 class VerifyUser(generics.GenericAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
-        data = request.POST
-        if data['_token'] == config[1]:
-            try:
-                checkJson = ((User.objects.filter(telegram_verification_code=data['telegram_verification_code'])).values())[
-                    0]
-                checkData = User.objects.get(pk=checkJson['id'])
-            except Exception:
-                return JsonResponse({'succes': False})
-            dateNow = timezone.now()
-            if checkJson['telegram_verification_code_date'] > dateNow:
-                checkData.telegram_id = request.POST['telegram_id']
-                checkData.telegram_verification_code = None
-                checkData.telegram_verification_code_date = None
-                checkData.save()
-                return JsonResponse({'success': True})
+        try:
+            data = request.POST
+            if data['_token'] == config[1]:
+                try:
+                    checkJson = ((User.objects.filter(telegram_verification_code=data['telegram_verification_code'])).values())[
+                        0]
+                    checkData = User.objects.get(pk=checkJson['id'])
+                except Exception:
+                    return JsonResponse({'succes': False})
+                dateNow = timezone.now()
+                if checkJson['telegram_verification_code_date'] > dateNow:
+                    checkData.telegram_id = request.POST['telegram_id']
+                    checkData.telegram_verification_code = None
+                    checkData.telegram_verification_code_date = None
+                    checkData.save()
+                    return JsonResponse({'success': True})
+                else:
+                    return JsonResponse({'success': False})
             else:
-                return JsonResponse({'success': False})
-        else:
-            return JsonResponse({'detail': 'Wrong token'})
+                return JsonResponse({'detail': 'Неправильный токен'})
+        except Exception as ex:
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+
 
 class CheckUser(generics.GenericAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
-        data = request.POST
-        if data['_token'] == config[1]:
-            user = list((User.objects.filter(telegram_id=data['telegram_id'])).values())
-            if user != []:
-                return JsonResponse({'user_verified': True})
+        try:
+            data = request.POST
+            if data['_token'] == config[1]:
+                user = list((User.objects.filter(telegram_id=data['telegram_id'])).values())
+                if user != []:
+                    return JsonResponse({'user_verified': True})
+                else:
+                    return JsonResponse({'user_verified': False})
             else:
-                return JsonResponse({'user_verified': False})
-        else:
-            return JsonResponse({'detail': 'Wrong token'})
+                return JsonResponse({'detail': 'Неправильный токен'})
+        except Exception as ex:
+            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
