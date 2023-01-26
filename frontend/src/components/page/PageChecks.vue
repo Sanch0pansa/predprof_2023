@@ -46,13 +46,15 @@ export default {
       const statesNames = [
           "Не работает",
           "Работает медленно",
-          "Работает"
+          "Работает",
+          "Не проверялся"
       ];
 
       const statesColors = [
           "danger",
           "warning",
-          "success"
+          "success",
+          "secondary"
       ];
 
       data.forEach(page => {
