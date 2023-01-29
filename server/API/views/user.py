@@ -66,10 +66,13 @@ class UserLoginView(generics.GenericAPIView):
                         {'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}},
                         status=400)
             if user.check_password(data['password']):
-                token = Token.objects.get(user=user)
+                try:
+                    token = Token.objects.get(user=user)
+                except Exception:
+                    token = Token.objects.create(user=user)
                 return JsonResponse({'auth_token': token.key})
             else:
-                return JsonResponse({'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}}, status = 400)
+                return JsonResponse({'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}}, status=400)
         except Exception as ex:
             return JsonResponse({'errors': str(ex)}, status=400, safe=False)
 
