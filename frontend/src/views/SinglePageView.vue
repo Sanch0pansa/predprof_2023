@@ -1,7 +1,7 @@
 <template>
   <div class="row pt-5">
     <div class="col-md-5">
-        <h1>{{ title }}</h1>
+        <h1>{{ name }}</h1>
         <h3>{{ url }}</h3>
         <b class="text-success d-flex align-items-center gap-2 my-3">
           <div class="indicator indicator-success"></div>
@@ -64,14 +64,17 @@
   <PageSection :title="`Сообщение о сбоях`">
     <Btn :class="`mb-3`">Сообщить о сбое</Btn>
     <PageTable
+        v-if="reportsForTable.length"
         :data="reportsForTable"
         :headers="['Время сообщения', 'Подробности', 'Пользователь']"
         :no-load-more="true"
     ></PageTable>
+    <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
   <PageSection :title="`Отзывы`">
     <Btn :class="`mb-3`">Добавить отзыв</Btn>
-    <ReviewsList :reviews="reviews"></ReviewsList>
+    <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
+    <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
 </template>
 
@@ -109,7 +112,7 @@ export default {
   components: {ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
-      title: "МГТУ",
+      name: "МГТУ",
       url: "mgtu.ru",
       description: "Просто описание сайта, которое может добавить пользователь при регистрации сайта в реестр",
       status: 2,
@@ -187,19 +190,13 @@ export default {
         ];
 
         this.checksForTable.push(checkRow);
-
-        this.lastCheck = {
-          response_time: checkRow[2],
-          checked_at: checkRow[0],
-          check_status: checkRow[1]
-        }
       })
     },
 
     async fetchPageData() {
       let data = await this.getPageData({id: this.$route.params.id});
 
-      this.title = data.data.title;
+      this.name = data.data.name;
       this.url = data.data.url;
       this.description = data.data.description;
       this.status = data.data.status;
@@ -244,6 +241,7 @@ export default {
       ];
 
       this.checksForTable = [];
+      let lastCheckDefined = false;
       [...this.checks].reverse().slice(0, 3).forEach(check => {
         let checkRow = [
           (new Date(check.checked_at)).toLocaleString("ru", {
@@ -260,11 +258,15 @@ export default {
 
         this.checksForTable.push(checkRow);
 
-        this.lastCheck = {
-          response_time: checkRow[2],
-          checked_at: checkRow[0],
-          check_status: checkRow[1]
+        if (!lastCheckDefined) {
+            this.lastCheck = {
+              response_time: checkRow[2],
+              checked_at: checkRow[0],
+              check_status: checkRow[1]
+            }
+            lastCheckDefined = true;
         }
+
       })
 
       this.reportsForTable = [];
