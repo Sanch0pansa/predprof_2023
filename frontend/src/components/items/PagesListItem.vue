@@ -1,6 +1,6 @@
 <template>
 <Block :class="['sm d-flex justify-content-between align-items-center']">
-  <Link :href="href">{{ name }}</Link>
+  <RouterLink :to="href">{{ name }}</RouterLink>
   <div class="indicator"
        :class="{
     'indicator-success': status == 2,

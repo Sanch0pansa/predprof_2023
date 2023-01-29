@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const URLS = {
-    login: "http://127.0.0.1:8000/api/v1/auth/token/login/",
+    login: "http://127.0.0.1:8000/api/v1/auth/user/login/",
     register: "http://127.0.0.1:8000/api/v1/auth/user/registration/",
     getUserData: "http://127.0.0.1:8000/api/v1/user/me/",
     logout: "http://127.0.0.1:8000/api/v1/auth/token/logout/"
@@ -22,7 +22,7 @@ export default {
                 const response = await axios.post(
                     URLS.login,
                     {
-                        email: login,
+                        login: login,
                         password: password
                     }
                 );

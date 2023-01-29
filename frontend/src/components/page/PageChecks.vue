@@ -60,7 +60,7 @@ export default {
       data.forEach(page => {
         let datetime = new Date(page.last_check_time);
         this.pages.push([
-            {text: page.name, href: {name: 'login'}},
+            {text: page.name, href: {name: 'single_page', params: {id: page.id}}},
             datetime.toLocaleString("ru", {
               year: 'numeric',
               month: 'short',
