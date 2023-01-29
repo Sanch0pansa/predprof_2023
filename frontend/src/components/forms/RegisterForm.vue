@@ -25,7 +25,7 @@
           v-model:errors="errorBag.password">
       </Inp>
       <br>
-      <Btn>Войти</Btn>
+      <Btn>Зарегистрироваться</Btn>
       <ErrorBag v-model:errors="errorBag.non_field_errors" v-model:success="errorBag.success"></ErrorBag>
     </FormEl>
   </Block>

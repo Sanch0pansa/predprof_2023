@@ -59,6 +59,7 @@
         :data="checksForTable"
         :headers="['Время проверки', 'Состояние', 'Задержка ответа, мс']"
         @loadMore="loadMore"
+        :no-load-more="checksForTable.length >= checks.length"
     ></PageTable>
   </PageSection>
   <PageSection :title="`Сообщение о сбоях`">
