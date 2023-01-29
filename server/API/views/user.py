@@ -8,7 +8,9 @@ from django.utils import timezone
 from random import seed, randint
 from datetime import datetime, timedelta
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import BaseUserManager
 from API.funcs import getData
+from django.core.exceptions import ValidationError
 
 class UserCreateView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -17,13 +19,63 @@ class UserCreateView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             data = getData(request)
-            user = User(email=data['email'], username=data['username'])
-            user.set_password(data['password'])
+            if data is None:
+                return JsonResponse({'errors': {'email': 'Это поле не может быть пустым.',
+                                                'username': 'Это поле не может быть пустым.',
+                                                'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+            data['email'] = data['email'] if 'email' in data else ""
+            data['username'] = data['username'] if 'username' in data else ""
+            user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']))
+            try:
+                user.full_clean()
+            except ValidationError as ex:
+                errors = dict(ex)
+                if 'username' in errors and 'Username' in errors['username'][0]:
+                    errors['username'][0] = errors['username'][0].replace('Username', 'именем пользователя')
+                if 'email' in errors and 'Email' in errors['email'][0]:
+                    errors['email'][0] = errors['email'][0].replace('таким Email', 'такой почтой')
+                return JsonResponse({'errors': errors}, status=400, safe=False)
             user.save()
             token = Token.objects.create(user=user)
             return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
         except Exception as ex:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+
+
+class UserLoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserRegisterSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = getData(request)
+            if data is None:
+                return JsonResponse({'errors': {'login': 'Это поле не может быть пустым.',
+                                                'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+            elif 'login' not in data:
+                return JsonResponse({'errors': {'login': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+            elif 'password' not in data:
+                return JsonResponse({'errors': {'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+            try:
+                user = User.objects.get(username=data['login'])
+            except Exception:
+                try:
+                    user = User.objects.get(email=data['login'])
+                except Exception:
+                    return JsonResponse(
+                        {'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}},
+                        status=400)
+            if user.check_password(data['password']):
+                try:
+                    token = Token.objects.get(user=user)
+                except Exception:
+                    token = Token.objects.create(user=user)
+                return JsonResponse({'auth_token': token.key})
+            else:
+                return JsonResponse({'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}}, status=400)
+        except Exception as ex:
+            return JsonResponse({'errors': str(ex)}, status=400, safe=False)
+
 
 
 class UserListView(generics.ListAPIView):
@@ -84,6 +136,7 @@ class ShowMe(generics.GenericAPIView):
 
 class SetNewPassword(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
         try:
@@ -101,6 +154,7 @@ class SetNewPassword(generics.GenericAPIView):
 
 class SetNewEmail(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
         try:

@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from API.funcs import getData
+import json
 
 class PageListCreateView(generics.ListCreateAPIView):
     serializer_class = PageSerializer
@@ -76,7 +77,6 @@ class GetCheckingPages(generics.GenericAPIView):
                 .values('page__id', 'page__name', 'page__url', 'check_status', 'response_time', 'checked_at')\
                 .order_by('-page__id', '-id')\
                 .distinct('page__id')
-            print(pages.query)
             result = []
             for i in pages:
                 result.append({'id': i['page__id'],
@@ -111,3 +111,56 @@ class GetAccountData(generics.GenericAPIView):
             return JsonResponse(result, safe=False)
         except Exception as ex:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+
+
+class GetPageChecks(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PageSerializer
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            checks = list(Check.objects.filter(page_id=id).values('checked_at', 'response_time', 'check_status'))
+            return JsonResponse(checks, safe=False)
+        except Exception:
+            return JsonResponse({'detail': 'Something went wrong'})
+
+class GetPageReviews(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PageSerializer
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            checks = list(Review.objects.filter(page_id=id)
+                          .select_related('added_by_user')
+                          .values('added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user'))
+            return JsonResponse(checks, safe=False)
+        except Exception as ex:
+            return JsonResponse({'detail': 'Something went wrong'})
+
+
+class GetPageReports(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PageSerializer
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            checks = list(Report.objects.filter(page_id=id)
+                          .select_related('added_by_user')
+                          .values('added_at', 'message', 'added_by_user__username', 'added_by_user'))
+            return JsonResponse(checks, safe=False)
+        except Exception:
+            return JsonResponse({'detail': 'Something went wrong'})
+
+
+class GetPageData(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PageSerializer
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            page = list(Page.objects.filter(id=id).values('name', 'url', 'description'))
+            if page:
+                page = page[0]
+            return JsonResponse(page, safe=False)
+        except Exception:
+            return JsonResponse({'detail': 'Something went wrong'})

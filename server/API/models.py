@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.base_user import BaseUserManager
 
 #  https://docs.djangoproject.com/en/3.2/topics/db/models/
 #  python manage.py makemigrations
@@ -19,7 +18,7 @@ class User(AbstractUser):
     email = models.EmailField(max_length=128, unique=True)
     password = models.CharField(max_length=128)
     username = models.CharField(max_length=128, unique=True)
-    telegram_id = models.IntegerField(null=True)
+    telegram_id = models.IntegerField(null=True, blank=True)
     telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
     telegram_verification_code_date = models.DateTimeField(blank=True, default=None, null=True)
     role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=1, related_name='users')
@@ -59,7 +58,7 @@ class Review(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
     added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', null=True)
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+', null=True)
-    publicated = models.DateTimeField(default=None, null=True)
+    published_at = models.DateTimeField(default=None, null=True)
 
 
 class Subscription(models.Model):
