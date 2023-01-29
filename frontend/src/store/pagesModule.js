@@ -4,10 +4,10 @@ const URLS = {
     getPopularPages: "http://127.0.0.1:8000/api/v1/page/get_popular_pages/",
     getCheckingPages: "http://127.0.0.1:8000/api/v1/page/get_checking_pages/",
     getStatistics: "http://127.0.0.1:8000/api/v1/page/get_statistic/",
-    getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}`,
-    getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks`,
-    getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports`,
-    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews`,
+    getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
+    getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
+    getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
 }
 
 export default {
