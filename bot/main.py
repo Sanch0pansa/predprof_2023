@@ -8,6 +8,10 @@ import logging
 
 import smtplib
 
+from flask import Flask
+
+app = Flask('SiteChecker')
+
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
 
@@ -93,9 +97,10 @@ def bot_reply(message):
             logging.error('No last data')
 
 
+@app.route('/check_messages')
 # @bot.message_handler(commands=['check'])
-@tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
-def check_bot_messages(message):
+# @tl.job(interval=datetime.timedelta(minutes=30))  # 30 minutes
+def check_bot_messages(*args):
     global last_data_telegram
     logging.info("Run 'check_bot_messages' function")
     try:
@@ -103,7 +108,7 @@ def check_bot_messages(message):
         dict_data = data.json()
     except:
         logging.error("No request to 'bot/get_bot_messages/'")
-        return
+        return "Hello, World!"
     # dict_data = [
     #     {
     #         'url': 'https://dontsu.ru',  # 2xx - хороший сайт
@@ -111,10 +116,10 @@ def check_bot_messages(message):
     #         'response_time': 32767,  # 5xx - ошибка сервера
     #         'subscribers_telegram': [
     #             1080913894,
-    #             5694956479
+    #             # 5694956479
     #         ],
     #         'subscribers_email': [
-    #             'andrew.lipko@yandex.ru',
+    #             # 'andrew.lipko@yandex.ru',
     #         ]
     #     },
     #     {
@@ -125,8 +130,8 @@ def check_bot_messages(message):
     #             1080913894,
     #         ],
     #         'subscribers_email': [
-    #             'andrew.lipko@yandex.ru',
-    #             'lde0060@gmail.com',
+    #             # 'andrew.lipko@yandex.ru',
+    #             # 'lde0060@gmail.com',
     #         ]
     #     },
     # ]
@@ -186,6 +191,8 @@ def check_bot_messages(message):
         send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' +
                    mail_error_messages[message] + '\nС уважением Bot Checker!')
 
+    return "Hello, World!"
+
 
 def send_email(to_mail, text):
     theme = 'Оповещение о работе сайта'
@@ -195,5 +202,7 @@ def send_email(to_mail, text):
 
 
 task_client = Thread(target=bot.infinity_polling)
+task_flask = Thread(target=app.run)
 task_client.start()
-tl.start(block=True)
+task_flask.start()
+# tl.start(block=True)
