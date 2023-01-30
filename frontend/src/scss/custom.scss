@@ -1,0 +1,227 @@
+// Цвета
+$primary: #3A85F6;
+$success: #2CDC00;
+$danger: #DC3500;
+$warning: #FBB500;
+
+$body-bg: #F8F8FF;
+$standart-font: #313840;
+
+// Отступы
+$btn-padding: 12px 20px;
+$block-padding: 30px;
+$block-padding-small: 24px;
+
+// Скругления
+$border-radius: 8px;
+
+// Шрифт
+
+@font-face {
+  font-family: "Montserrat Bold";
+  src: url("/src/assets/font/Montserrat-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Montserrat SemiBold";
+  src: url("/src/assets/font/Montserrat-SemiBold.ttf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/src/assets/font/Montserrat-Medium.ttf");
+  font-weight: 500;
+}
+
+h1 {
+  font-weight: 700;
+  font-family: "Montserrat Bold";
+}
+
+h2, h3, h4 {
+  font-weight: 600;
+  font-family: "Montserrat SemiBold";
+  margin-bottom: 0 !important;
+}
+
+a {
+  font-family: "Montserrat SemiBold";
+  text-decoration: none !important;
+}
+
+p {
+  color: $standart-font;
+
+}
+
+// Основные элементы
+
+* {
+  box-sizing: border-box;
+  font-family: Montserrat;
+  color: $standart-font;
+}
+
+body {
+  margin: 0;
+  background: $body-bg;
+}
+
+// Обёртка
+
+.main {
+  min-height: calc(100vh - 208px);
+
+}
+
+// Секции
+
+section {
+  &.hero {
+    margin-top: 80px;
+  }
+}
+
+
+// Include Bootstrap SCSS files
+@import './node_modules/bootstrap/scss/bootstrap.scss';
+
+// FontAwesome
+
+
+// Непосредственно верстка
+
+// Кнопки
+
+.btn {
+  &.btn-primary {
+    color: $white;
+
+    &:hover, &:focus, &:active {
+      color: $white !important;
+    }
+  }
+  padding: $btn-padding;
+  border-radius: $border-radius;
+  line-height: 1;
+
+}
+
+// Поля ввода и сопутствующие элементы
+
+label {
+  color: rgba(0, 0, 0, 0.5);
+  font-family: "Montserrat";
+}
+
+// Блоки
+
+.block {
+  padding: $block-padding;
+  background: $white;
+  border-radius: $border-radius;
+
+  @extend .shadow;
+
+  &.sm {
+    padding: $block-padding-small $block-padding;
+  }
+}
+
+.block>table {
+
+  overflow: hidden;
+  margin-bottom: 0;
+
+  td, th {
+    padding: $block-padding-small 10px;
+  }
+
+  td:last-of-type, th:last-of-type {
+    padding-right: $block-padding-small;
+
+  }
+  td:first-of-type, th:first-of-type {
+    padding-left: $block-padding-small;
+  }
+
+}
+
+table.table-big {
+  margin-top: 4px;
+  th, td {
+    padding: 8px 0;
+  }
+}
+
+.shadow {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+// Карточки достоинств сайта
+
+.advs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  max-width: 400px;
+  margin-left: auto;
+}
+
+.adv {
+  @extend .block;
+
+  border-radius: 12px;
+  padding: 15px;
+  padding-top: 23px;
+  text-align: center;
+
+
+  span {
+    display: block;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+
+
+}
+
+@include media-breakpoint-down(lg) {
+   .advs {
+     gap: 30px;
+     margin-top: 30px;
+     margin-left: 0px;
+   }
+ }
+
+// Индикаторы состояний
+
+.indicator {
+  width: 18px;
+  height: 18px;
+  border: 4px solid $white;
+  border-radius: 50%;
+
+  &.indicator-success {
+    background: $success;
+    box-shadow: 0px 0px 20px $success;
+  }
+
+  &.indicator-warning {
+    background: $warning;
+    box-shadow: 0px 0px 20px $warning;
+  }
+
+  &.indicator-danger {
+    background: $danger;
+    box-shadow: 0px 0px 20px $danger;
+  }
+
+
+  &.indicator-secondary {
+    background: $secondary;
+    box-shadow: 0px 0px 20px $secondary;
+  }
+}
