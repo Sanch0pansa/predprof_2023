@@ -101,7 +101,7 @@ class GetAccountData(generics.GenericAPIView):
                                            'FROM "API_subscription" as subs '
                                            'JOIN "API_check" as checks ON checks.page_id=subs.page_id '
                                            'JOIN "API_page" as pages ON subs.page_id=pages.id '
-                                           'WHERE user_id=7 '
+                                          f'WHERE user_id={user.id} '
                                            'ORDER BY checks.page_id DESC, checks.id DESC ')
             result = []
             for i in subs:

@@ -20,9 +20,9 @@ class UserCreateView(generics.GenericAPIView):
         try:
             data = getData(request)
             if data is None:
-                return JsonResponse({'errors': {'email': 'Это поле не может быть пустым.',
-                                                'username': 'Это поле не может быть пустым.',
-                                                'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+                return JsonResponse({'errors': {'email': ['Это поле не может быть пустым.'],
+                                                'username': ['Это поле не может быть пустым.'],
+                                                'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
             data['email'] = data['email'] if 'email' in data else ""
             data['username'] = data['username'] if 'username' in data else ""
             user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']))
@@ -50,12 +50,12 @@ class UserLoginView(generics.GenericAPIView):
         try:
             data = getData(request)
             if data is None:
-                return JsonResponse({'errors': {'login': 'Это поле не может быть пустым.',
-                                                'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+                return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.'],
+                                                'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
             elif 'login' not in data:
-                return JsonResponse({'errors': {'login': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+                return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.']}}, status=400, safe=False)
             elif 'password' not in data:
-                return JsonResponse({'errors': {'password': 'Это поле не может быть пустым.'}}, status=400, safe=False)
+                return JsonResponse({'errors': {'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
             try:
                 user = User.objects.get(username=data['login'])
             except Exception:
@@ -63,7 +63,7 @@ class UserLoginView(generics.GenericAPIView):
                     user = User.objects.get(email=data['login'])
                 except Exception:
                     return JsonResponse(
-                        {'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}},
+                        {'errors': {'non_field_errors': ['Невозможно войти с предоставленными учетными данными.']}},
                         status=400)
             if user.check_password(data['password']):
                 try:
@@ -72,7 +72,7 @@ class UserLoginView(generics.GenericAPIView):
                     token = Token.objects.create(user=user)
                 return JsonResponse({'auth_token': token.key})
             else:
-                return JsonResponse({'errors': {'non_field_errors': 'Невозможно войти с предоставленными учетными данными.'}}, status=400)
+                return JsonResponse({'errors': {'non_field_errors': ['Невозможно войти с предоставленными учетными данными.']}}, status=400)
         except Exception as ex:
             return JsonResponse({'errors': str(ex)}, status=400, safe=False)
 
