@@ -25,9 +25,6 @@ class UserCreateView(generics.GenericAPIView):
                                                 'username': ['Это поле не может быть пустым.'],
                                                 'password': ['Это поле не может быть пустым.']}}, status=400,
                                     safe=False)
-            data['email'] = data['email'] if data['email'] != "" else ""
-            data['password'] = data['password'] if data['password'] != "" else ""
-            data['username'] = data['username'] if data['username'] != "" else ""
             user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']), password=data['password'])
             try:
                 user.full_clean()
