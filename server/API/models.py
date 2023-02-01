@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
@@ -16,7 +16,7 @@ class Role(models.Model):
 
 class User(AbstractUser):
     email = models.EmailField(max_length=128, unique=True)
-    password = models.CharField(max_length=128)
+    password = models.CharField(validators=[MinLengthValidator(8)], max_length=128)
     username = models.CharField(max_length=128, unique=True)
     telegram_id = models.IntegerField(null=True, blank=True)
     telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
