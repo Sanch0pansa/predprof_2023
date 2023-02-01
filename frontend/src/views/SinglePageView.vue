@@ -4,8 +4,7 @@
         <h1>{{ name }}</h1>
         <h3>{{ url }}</h3>
         <b class="text-success d-flex align-items-center gap-2 my-3">
-          <div class="indicator indicator-success"></div>
-          доступен
+          <Indicator :status="status" :show-text="true"></Indicator>
         </b>
         <p>{{ description }}</p>
         <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
@@ -96,6 +95,7 @@ import {Chart as ChartJS,
 import PageTable from "@/components/page/PageTable.vue";
 import {mapActions} from "vuex";
 import ReviewsList from "@/components/items/ReviewsList.vue";
+import Indicator from "@/components/UI/Indicator.vue";
 
 ChartJS.register(CategoryScale,
     LinearScale,
@@ -110,7 +110,7 @@ ChartJS.register(CategoryScale,
 
 export default {
   name: "SinglePageView",
-  components: {ReviewsList, PageTable, PageSection, Link, Line},
+  components: {Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
       name: "МГТУ",

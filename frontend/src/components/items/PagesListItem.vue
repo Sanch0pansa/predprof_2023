@@ -1,19 +1,12 @@
 <template>
 <Block :class="['sm d-flex justify-content-between align-items-center']">
   <RouterLink :to="href">{{ name }}</RouterLink>
-  <div class="indicator"
-       :class="{
-    'indicator-success': status == 2,
-    'indicator-warning': status == 1,
-    'indicator-danger': status == 0,
-    'indicator-secondary': status == 3
-  }">
-
-  </div>
+  <Indicator :status="status"></Indicator>
 </Block>
 </template>
 
 <script>
+
 export default {
   name: "PagesListItem",
   props: {

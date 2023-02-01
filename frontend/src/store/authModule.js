@@ -43,8 +43,7 @@ export default {
                 }
 
             } catch (e) {
-
-                return {success: false, detail: e.response.data};
+                return {success: false, detail: e.response.data.errors};
             }
         },
 
@@ -73,7 +72,7 @@ export default {
 
             } catch (e) {
 
-                return {success: false, detail: e.response.data};
+                return {success: false, detail: e.response.data.errors};
             }
         },
 

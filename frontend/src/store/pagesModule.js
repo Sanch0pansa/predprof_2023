@@ -106,11 +106,11 @@ export default {
                     name: 'Some page',
                     url: 'https://site.com',
                     description: "Загрузка не получилось, описание только такое(",
-                    status: 2,
+                    status: 3,
                     rating: 0,
                 },
                 lastCheck: {
-                    status: 2,
+                    status: 3,
                     response_time: 0,
                     checked_at: "22 янв 2023, 23:34:32"
                 },
