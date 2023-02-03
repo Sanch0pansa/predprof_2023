@@ -6,6 +6,7 @@ import Inp from "@/components/UI/Inp.vue";
 import Sel from "@/components/UI/Sel.vue";
 import TxtArea from "@/components/UI/TxtArea.vue";
 import ErrorBag from "@/components/UI/ErrorBag.vue";
+import Indicator from "@/components/UI/Indicator.vue";
 
 export default [
     Btn,
@@ -16,4 +17,5 @@ export default [
     Sel,
     TxtArea,
     ErrorBag,
+    Indicator,
 ]

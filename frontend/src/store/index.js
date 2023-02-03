@@ -2,6 +2,7 @@ import {createStore} from "vuex";
 import authModule from "@/store/authModule";
 import pagesModule from "@/store/pagesModule";
 import telegramModule from "@/store/telegramModule";
+import accountModule from "@/store/accountModule";
 
 export default createStore({
     state: {
@@ -10,6 +11,7 @@ export default createStore({
     modules: {
         auth: authModule,
         pages: pagesModule,
-        telegram: telegramModule
+        telegram: telegramModule,
+        account: accountModule,
     }
 });

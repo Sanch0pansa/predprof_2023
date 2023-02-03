@@ -4,6 +4,10 @@ const URLS = {
     getPopularPages: "http://127.0.0.1:8000/api/v1/page/get_popular_pages/",
     getCheckingPages: "http://127.0.0.1:8000/api/v1/page/get_checking_pages/",
     getStatistics: "http://127.0.0.1:8000/api/v1/page/get_statistic/",
+    getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
+    getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
+    getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
 }
 
 export default {
@@ -93,6 +97,91 @@ export default {
                 };
             }
         },
+
+        // Получение данных по одной странице
+        async getPageData({state, commit}, {id}) {
+            // Изначально пустые данные страницы
+            let page = {
+                data: {
+                    name: 'Some page',
+                    url: 'https://site.com',
+                    description: "Загрузка не получилось, описание только такое(",
+                    status: 3,
+                    rating: 0,
+                },
+                lastCheck: {
+                    status: 3,
+                    response_time: 0,
+                    checked_at: "22 янв 2023, 23:34:32"
+                },
+                checks: [
+
+                ],
+                reviews: [
+
+                ],
+                reports: [
+
+                ],
+            }
+
+            // Получение данных самой страницы
+            try {
+                const resp = await axios.get(
+                    URLS.getPageData(id)
+                );
+
+                page.data = resp.data;
+            } catch {
+
+            }
+
+            // Получение проверок
+            try {
+                const resp = await axios.get(
+                    URLS.getPageChecks(id)
+                );
+
+                page.checks = resp.data;
+            } catch {
+
+            }
+
+            // Получение отзывов
+            try {
+                const resp = await axios.get(
+                    URLS.getPageReviews(id)
+                );
+                page.reviews = resp.data;
+            } catch {
+
+            }
+
+            // Получение репортов
+            try {
+                const resp = await axios.get(
+                    URLS.getPageReports(id)
+                );
+
+                page.reports = resp.data;
+            } catch {
+
+            }
+
+            // Запись текущего состояние сайта из последней проверки
+            if (page.checks.length) {
+                page.data.status = page.checks[page.checks.length - 1].check_status;
+            }
+
+            // Рассчёт среднего рейтинга
+            if (page.reviews.length) {
+                let sum = 0;
+                page.reviews.forEach(review => sum += Number(review.mark));
+                page.data.rating = Math.round(100 * sum / page.reviews.length) / 100;
+            }
+
+            return page;
+        }
     },
 
     mutations: {

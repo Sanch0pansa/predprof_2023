@@ -225,3 +225,38 @@ table.table-big {
     box-shadow: 0px 0px 20px $secondary;
   }
 }
+
+// Отзывы
+
+ul.reviews {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+  gap: 20px;
+}
+
+li.review {
+  @extend .block;
+
+  .review-header {
+    a {
+      font-size: 16px;
+    }
+  }
+
+  .review-mark {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin: 10px 0;
+
+    i {
+      color: #FFC736;
+    }
+  }
+
+  .review-content p {
+    margin: 0;
+  }
+}
