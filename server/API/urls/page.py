@@ -11,6 +11,6 @@ urlpatterns = [
     path('page/<int:id>/checks/', page.GetPageChecks.as_view()),
     path('page/<int:id>/reviews/', page.GetPageReviews.as_view()),
     path('page/<int:id>/reports/', page.GetPageReports.as_view()),
-    path('page/<int:id>/subscribe/', page.CreateSubscribe.as_view()),
+    path('page/<int:id>/subscription/', page.Subscriptions.as_view()),
     path('page/<int:id>/', page.GetPageData.as_view())
 ]

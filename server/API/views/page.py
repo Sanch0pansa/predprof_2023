@@ -207,9 +207,20 @@ class GetPageData(generics.GenericAPIView):
             return JsonResponse({'detail': 'Something went wrong'}, status=400)
 
 
-class CreateSubscribe(generics.GenericAPIView):
+class Subscriptions(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = Subscription
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            user = request.user
+            check_sub = list(Subscription.objects.filter(page_id=id, user_id=user.id))
+            if check_sub:
+                return JsonResponse({'subscribed': True})
+            else:
+                return JsonResponse({'subscribed': False})
+        except Exception as ex:
+            return JsonResponse({'subscribed': "Exception"}, status=400)
 
     def post(self, request, id, *args, **kwargs):
         try:
@@ -220,10 +231,9 @@ class CreateSubscribe(generics.GenericAPIView):
                 sub.save()
                 return JsonResponse({'success': True})
             else:
-                return JsonResponse({'success': False}, status=400)
+                return JsonResponse({'success': False})
         except Exception as ex:
-            print(str(ex))
-            return JsonResponse({'success': False}, status=400)
+            return JsonResponse({'success': "Exception"}, status=400)
 
     def delete(self, request, id, *args, **kwargs):
         try:
@@ -233,6 +243,6 @@ class CreateSubscribe(generics.GenericAPIView):
                 check_sub.delete()
                 return JsonResponse({'success': True})
             else:
-                return JsonResponse({'success': False}, status=400)
+                return JsonResponse({'success': False})
         except Exception:
-            return JsonResponse({'success': False}, status=400)
+            return JsonResponse({'success': "Exception"}, status=400)
