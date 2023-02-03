@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
@@ -16,7 +16,7 @@ class Role(models.Model):
 
 class User(AbstractUser):
     email = models.EmailField(max_length=128, unique=True)
-    password = models.CharField(max_length=128)
+    password = models.CharField(validators=[MinLengthValidator(8)], max_length=128)
     username = models.CharField(max_length=128, unique=True)
     telegram_id = models.IntegerField(null=True, blank=True)
     telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
@@ -40,8 +40,8 @@ class Report(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reports')
     message = models.CharField(max_length=256)
     added_at = models.DateTimeField(auto_now_add=True)
-    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, related_name='+')
-    is_publicated = models.BooleanField()
+    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='+')
+    is_published = models.BooleanField(default=False)
 
 
 class Check(models.Model):
@@ -57,8 +57,8 @@ class Review(models.Model):
     message = models.CharField(max_length=256, blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', null=True)
-    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+', null=True)
-    published_at = models.DateTimeField(default=None, null=True)
+    moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='+')
+    is_published = models.BooleanField(default=False)
 
 
 class Subscription(models.Model):
