@@ -186,7 +186,7 @@ class GetPageReports(generics.GenericAPIView):
         try:
             user = request.user
             data = getData(request)
-            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'])
+            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'], added_at=data['added_at'])
             report.save()
             return JsonResponse({'success': True})
         except Exception:
@@ -220,7 +220,7 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'subscribed': False})
         except Exception as ex:
-            return JsonResponse({'subscribed': "Exception"}, status=400)
+            return JsonResponse({'detail': "Exception"}, status=400)
 
     def post(self, request, id, *args, **kwargs):
         try:
@@ -233,7 +233,7 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'success': False})
         except Exception as ex:
-            return JsonResponse({'success': "Exception"}, status=400)
+            return JsonResponse({'detail': "Exception"}, status=400)
 
     def delete(self, request, id, *args, **kwargs):
         try:
@@ -245,4 +245,4 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'success': False})
         except Exception:
-            return JsonResponse({'success': "Exception"}, status=400)
+            return JsonResponse({'detail': "Exception"}, status=400)

@@ -172,3 +172,18 @@ class SetNewEmail(generics.GenericAPIView):
                 return JsonResponse({'detail': 'Неверный пароль'})
         except Exception:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+
+class UnlinkTelegram(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            user = User.objects.get(telegram_id=user.telegram_id)
+            user.telegram_id = None
+            user.save()
+            return JsonResponse({'success': True})
+        except Exception as ex:
+            return JsonResponse({'detail': False})
