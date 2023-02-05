@@ -9,6 +9,7 @@ import ErrorBag from "@/components/UI/ErrorBag.vue";
 import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
+import StarRating from "@/components/UI/StarRating.vue";
 
 export default [
     Btn,
@@ -21,5 +22,6 @@ export default [
     ErrorBag,
     Indicator,
     Modal,
-    ModalBtn
+    ModalBtn,
+    StarRating
 ]

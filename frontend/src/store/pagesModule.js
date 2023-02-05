@@ -7,6 +7,7 @@ const URLS = {
     getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
     getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
     getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
     subscriptionPage: id => `http://127.0.0.1:8000/api/v1/page/${id}/subscription/`,
 }
 

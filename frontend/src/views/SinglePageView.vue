@@ -85,7 +85,9 @@
   </Modal>
 
   <Modal id="creatingReviewModal" :title="`Добавление отзыва`">
-    Форма создания отзыва
+    <CreatingReviewForm :id="$route.params.id">
+
+    </CreatingReviewForm>
   </Modal>
 </template>
 
@@ -110,6 +112,7 @@ import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import CreatingReportForm from "@/components/forms/CreatingReportForm.vue";
+import CreatingReviewForm from "@/components/forms/CreatingReviewForm.vue";
 
 ChartJS.register(CategoryScale,
     LinearScale,
@@ -124,7 +127,9 @@ ChartJS.register(CategoryScale,
 
 export default {
   name: "SinglePageView",
-  components: {CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
+  components: {
+    CreatingReviewForm,
+    CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
       name: "МГТУ",
