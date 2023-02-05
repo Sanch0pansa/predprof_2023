@@ -10,12 +10,8 @@ export default {
     }),
     actions: {
 
-        // Получение данных по одной странице
+        // Сохранение данных репорта
         async createReport({state, commit, rootState}, {id, message, added_at}) {
-
-            let data = {};
-
-            // Получение данных самой страницы
             try {
                 const resp = await axios.post(
                     URLS.createPageReports(id),
@@ -30,12 +26,16 @@ export default {
                     }
                 );
 
-                data = resp.data;
+                if (resp.data.success) {
+                    return {success: true, detail: "Сообщение зарегистрировано"};
+                }
+
+                return {success: false, detail: "Что-то пошло не так"};
+
             } catch(e) {
 
+                return {success: false, detail: "Что-то пошло не так"};
             }
-
-            return data;
         }
     },
 

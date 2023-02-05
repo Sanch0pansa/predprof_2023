@@ -79,7 +79,7 @@
   </PageSection>
 
   <Modal id="creatingReportModal" :title="`Добавление сообщения о сбое`">
-    <CreatingReportForm>
+    <CreatingReportForm :id="$route.params.id">
 
     </CreatingReportForm>
   </Modal>

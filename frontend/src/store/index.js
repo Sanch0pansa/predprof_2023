@@ -3,6 +3,7 @@ import authModule from "@/store/authModule";
 import pagesModule from "@/store/pagesModule";
 import telegramModule from "@/store/telegramModule";
 import accountModule from "@/store/accountModule";
+import reportsModule from "@/store/reportsModule";
 
 export default createStore({
     state: {
@@ -13,5 +14,6 @@ export default createStore({
         pages: pagesModule,
         telegram: telegramModule,
         account: accountModule,
+        reports: reportsModule,
     }
 });
