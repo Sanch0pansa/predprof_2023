@@ -186,7 +186,7 @@ class GetPageReports(generics.GenericAPIView):
         try:
             user = request.user
             data = getData(request)
-            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'])
+            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'], added_at=data['added_at'])
             report.save()
             return JsonResponse({'success': True})
         except Exception:
