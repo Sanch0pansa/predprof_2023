@@ -50,16 +50,16 @@ def url_get_messages():
 @bot.message_handler(commands=['help', 'start'])
 def bot_start(message):
     if message.text == '/start':  # проверяем на наличие юзера
-        # try:
-        #     check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
-        #     check = check.json()
-        # except:
-        #     logging.error("No request to 'bot/check_user/'")
-        #     bot.send_message(message.from_user.id, 'Простите, но сейчас сервер недоступен. Попробуйте позже')
-        #     return
-        check = {
-            'user_verified': False
-        }
+        try:
+            check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
+            check = check.json()
+        except:
+            logging.error("No request to 'bot/check_user/'")
+            bot.send_message(message.from_user.id, 'Простите, но сейчас сервер недоступен. Попробуйте позже')
+            return
+        # check = {
+        #     'user_verified': False
+        # }
         if not check['user_verified']:
             bot.send_message(message.from_user.id,
                              '''Привет!\nОтправьте мне код аунтификации, который высвечен на сайте''')
@@ -97,18 +97,22 @@ def registration(message):
 Проверьте и введите код еще раз''')
         bot.register_next_step_handler(message, registration)
 
-    logging.info(f'Message from {message.from_user.id}')
+    logging.info(f'Message {message.text} from {message.from_user.id}')
 
 
 @bot.message_handler(commands=['last'])
 def bot_reply(message):
     logging.info(f"Message '{message.text}' from {message.from_user.id}")
+    if not last_data_telegram:
+        bot.send_message(message.from_user.id, 'Данных пока нет')
+        logging.error('No last data')
     try:
         bot.send_message(message.from_user.id, last_data_telegram['date'] + last_data_telegram[message.from_user.id],
                          disable_web_page_preview=True)
     except KeyError:
-        bot.send_message(message.from_user.id, 'Данных пока нет')
-        logging.error('No last data')
+        bot.send_message(message.from_user.id,  # Добавить ссылку на сайт
+                         'Вы не подписанны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
+        logging.info("'/last' from not subscriber")
 
 
 # @bot.message_handler(commands=['check'])
@@ -212,6 +216,6 @@ def check_bot_messages(dict_data):
 
 
 task_client = Thread(target=bot.infinity_polling)
-task_flask = Thread(target=app.run)
+task_flask = Thread(target=lambda: app.run(port=1000))
 task_client.start()
 task_flask.start()
