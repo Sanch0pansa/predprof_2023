@@ -5,6 +5,7 @@ import telegramModule from "@/store/telegramModule";
 import accountModule from "@/store/accountModule";
 import reportsModule from "@/store/reportsModule";
 import reviewsModule from "@/store/reviewsModule";
+import moderationModule from "@/store/moderationModule";
 
 export default createStore({
     state: {
@@ -16,6 +17,7 @@ export default createStore({
         telegram: telegramModule,
         account: accountModule,
         reports: reportsModule,
-        reviews: reviewsModule
+        reviews: reviewsModule,
+        moderation: moderationModule
     }
 });

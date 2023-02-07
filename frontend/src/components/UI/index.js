@@ -10,6 +10,7 @@ import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import StarRating from "@/components/UI/StarRating.vue";
+import Tabs from "@/components/UI/Tabs.vue";
 
 export default [
     Btn,
@@ -23,5 +24,6 @@ export default [
     Indicator,
     Modal,
     ModalBtn,
-    StarRating
+    StarRating,
+    Tabs
 ]

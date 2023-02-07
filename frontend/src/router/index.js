@@ -6,6 +6,8 @@ import AccountView from "@/views/account/AccountView.vue";
 import VerifyTelegramView from "@/views/Account/VerifyTelegramView.vue";
 import SinglePageView from "@/views/SinglePageView.vue";
 import CreatePageView from "@/views/CreatePageView.vue";
+import ModerationView from "@/views/Moderation/ModerationView.vue";
+import ModerationPagesView from "@/views/Moderation/ModerationPagesView.vue";
 
 
 const router = createRouter({
@@ -56,6 +58,26 @@ const router = createRouter({
       meta: {
         authRequired: true,
         authUpdate: true,
+      },
+    },
+    {
+      path: '/moderation/',
+      name: 'moderation',
+      component: ModerationView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+      },
+    },
+    {
+      path: '/moderation/pages/',
+      name: 'moderation_pages',
+      component: ModerationPagesView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
       },
     },
   ]

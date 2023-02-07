@@ -30,6 +30,11 @@ router.beforeEach(async (to, from) => {
         if (!store.state.auth.isAuth)
             return '/login'
     }
+
+    if (to.meta.moderatorRequired) {
+        if (!store.state.auth.isModerator)
+            return '/account'
+    }
 })
 
 

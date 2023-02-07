@@ -17,8 +17,14 @@
               <i class="ms-2 fas fa-user text-primary"></i>
             </a>
             <ul class="dropdown-menu" style="position: absolute; left: auto; right: 0px;">
-              <li class="dropdown-item" role="button"><RouterLink :to="{name: 'account'}">Личный кабинет</RouterLink></li>
-              <li class="dropdown-item text-danger" role="button" @click="logoutAction">Выход</li>
+              <li class="dropdown-item" role="button"><RouterLink :to="{name: 'account'}"><i class="text-primary fas fa-user"></i> Личный кабинет</RouterLink></li>
+              <li class="dropdown-item" role="button" v-if="isModerator">
+                <RouterLink :to="{name: 'moderation'}">
+                  <i class="text-primary fas fa-user-tie"></i>
+                  Модер. панель
+                </RouterLink>
+              </li>
+              <li class="dropdown-item text-danger" role="button" @click="logoutAction"><i class="text-danger fas fa-sign-out-alt"></i> Выход</li>
             </ul>
           </li>
           <li v-if="!isAuth" class="nav-item">
@@ -45,6 +51,7 @@ export default {
     ...mapState({
         isAuth: state => state.auth.isAuth,
         user: state => state.auth.user,
+        isModerator: state => state.auth.isModerator
       }),
   },
   methods: {

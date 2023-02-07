@@ -12,7 +12,9 @@ export default {
     state: () => ({
         isAuth: JSON.parse(localStorage.getItem('isAuth')),
         authToken: localStorage.getItem('authToken'),
-        user: JSON.parse(localStorage.getItem('user') ?? "{}")
+        user: JSON.parse(localStorage.getItem('user') ?? "{}"),
+        isAdmin: false,
+        isModerator: false,
     }),
     actions: {
         // Функция авторизации
@@ -77,7 +79,7 @@ export default {
         },
 
         // Получение данных пользователя
-        async getUserData({state, commit}) {
+        async getUserData({state, commit, dispatch}) {
             try {
                 const res = await axios.get(
                     URLS.getUserData, {
@@ -88,6 +90,13 @@ export default {
                 );
 
                 commit('setUser', res.data)
+                commit('setIsModerator', res.data.is_moderator)
+                commit('setIsAdmin', res.data.is_admin)
+
+                if (state.isModerator) {
+                    await dispatch('moderation/getModerationCategories', {}, {root: true});
+                }
+
             } catch (e) {
 
             }
@@ -110,6 +119,8 @@ export default {
             }
 
             commit("setIsAuth", false);
+            commit("setIsModerator", false);
+            commit("setIsAdmin", false);
             commit("setAuthToken", "");
             commit("setUser", {});
         }
@@ -118,6 +129,14 @@ export default {
         setIsAuth(state, isAuth) {
             state.isAuth = isAuth;
             localStorage.setItem("isAuth", isAuth);
+        },
+        setIsModerator(state, isModerator) {
+            state.isModerator = isModerator;
+            localStorage.setItem("isModerator", isModerator);
+        },
+        setIsAdmin(state, isAdmin) {
+            state.isAdmin = isAdmin;
+            localStorage.setItem("isAdmin", isAdmin);
         },
         setAuthToken(state, authToken) {
             state.authToken = authToken;
