@@ -8,6 +8,7 @@
             :url="page.url"
             :description="page.description"
             :name="page.name"
+            status="moderation"
             @action="action"
             v-for="page in pages.moderation">
 
@@ -22,6 +23,7 @@
             :url="page.url"
             :description="page.description"
             :name="page.name"
+            status="rejected"
             @action="action"
             v-for="page in pages.rejected">
 

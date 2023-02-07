@@ -14,9 +14,13 @@
 
     <div class="mt-3" v-if="opened">
       <p>{{ description }}</p>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2" v-if="status === 'moderation'">
         <Btn class="btn-success" @click="$emit('action', {id: id, action: 'accept'})">Одобрить</Btn>
         <Btn class="btn-warning" @click="$emit('action', {id: id, action: 'reject'})">Отклонить</Btn>
+        <Btn class="btn-danger" @click="$emit('action', {id: id, action: 'delete'})">Удалить</Btn>
+      </div>
+      <div class="d-flex gap-2" v-else>
+        <Btn class="btn-primary" @click="$emit('action', {id: id, action: 'revise'})">Пересмотреть</Btn>
         <Btn class="btn-danger" @click="$emit('action', {id: id, action: 'delete'})">Удалить</Btn>
       </div>
     </div>
@@ -48,6 +52,10 @@ export default {
       required: true,
       type: String,
     },
+    status: {
+      required: true,
+      type: String
+    }
   },
   data() {
     return {
