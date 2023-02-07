@@ -2,7 +2,7 @@ from django.urls import path
 from API.views import page
 
 urlpatterns = [
-    path('page/', page.PageListCreateView.as_view()),
+    path('page/', page.PageCreate.as_view()),
     path('pageR/<int:pk>/', page.PageRetrieveUpdateDestroyView.as_view()),
     path('page/get_popular_pages/', page.GetPopularPages.as_view()),
     path('page/get_statistic/', page.GetSiteStats.as_view()),
@@ -11,5 +11,6 @@ urlpatterns = [
     path('page/<int:id>/checks/', page.GetPageChecks.as_view()),
     path('page/<int:id>/reviews/', page.GetPageReviews.as_view()),
     path('page/<int:id>/reports/', page.GetPageReports.as_view()),
+    path('page/<int:id>/subscription/', page.Subscriptions.as_view()),
     path('page/<int:id>/', page.GetPageData.as_view())
 ]

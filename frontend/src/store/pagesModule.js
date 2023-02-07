@@ -7,7 +7,7 @@ const URLS = {
     getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
     getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
     getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
-    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
+    subscriptionPage: id => `http://127.0.0.1:8000/api/v1/page/${id}/subscription/`,
 }
 
 export default {
@@ -181,6 +181,76 @@ export default {
             }
 
             return page;
+        },
+
+        // Получение данных об отслеживании страницы
+        async getPageSubscription({state, commit, rootState}, {id}) {
+            try {
+                let res = await axios.get(
+                    URLS.subscriptionPage(id),
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                if (res.data.subscribed) {
+                    return {subscribed: true};
+                }
+
+                return {subscribed: false};
+
+            } catch (e) {
+                return {subscribed: false};
+            }
+        },
+
+        // Включение отслеживания
+        async subscribePage({state, commit, rootState}, {id}) {
+            try {
+                let res = await axios.post(
+                    URLS.subscriptionPage(id),
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                if (res.data.success) {
+                    return {success: true};
+                }
+
+                return {success: false};
+
+            } catch (e) {
+                return {success: false};
+            }
+        },
+
+        // Отключение отслеживания
+        async unsubscribePage({state, commit, rootState}, {id}) {
+            try {
+                let res = await axios.delete(
+                    URLS.subscriptionPage(id),
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                if (res.data.success) {
+                    return {success: true};
+                }
+
+                return {success: false};
+
+            } catch (e) {
+                return {success: false};
+            }
         }
     },
 

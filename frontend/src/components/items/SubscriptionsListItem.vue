@@ -5,8 +5,6 @@
       <Indicator :status="status"></Indicator>
       <i class="fas fa-ban text-danger"></i>
     </div>
-
-
   </Block>
 </template>
 

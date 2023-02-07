@@ -9,6 +9,7 @@ urlpatterns = [
     path('user/set_new_password/', user.SetNewPassword.as_view()),
     path('user/set_new_email/', user.SetNewEmail.as_view()),
     path('user/generate_telegram_code/', user.GenerateTelegramCode.as_view()),
+    path('user/unlink_telegram/', user.UnlinkTelegram.as_view()),
     path('user/me/', user.ShowMe.as_view()),
     path('user/list/', user.UserListView.as_view()),
     path('user/<int:pk>/', user.UserRetrieveUpdateDestroyView.as_view()),

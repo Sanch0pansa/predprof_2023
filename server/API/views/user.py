@@ -11,6 +11,8 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import BaseUserManager
 from API.funcs import getData
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
+
 
 class UserCreateView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -22,10 +24,10 @@ class UserCreateView(generics.GenericAPIView):
             if data is None:
                 return JsonResponse({'errors': {'email': ['Это поле не может быть пустым.'],
                                                 'username': ['Это поле не может быть пустым.'],
-                                                'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
-            data['email'] = data['email'] if 'email' in data else ""
-            data['username'] = data['username'] if 'username' in data else ""
-            user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']))
+                                                'password': ['Это поле не может быть пустым.']}}, status=400,
+                                    safe=False)
+            user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']),
+                        password=data['password'])
             try:
                 user.full_clean()
             except ValidationError as ex:
@@ -35,6 +37,7 @@ class UserCreateView(generics.GenericAPIView):
                 if 'email' in errors and 'Email' in errors['email'][0]:
                     errors['email'][0] = errors['email'][0].replace('таким Email', 'такой почтой')
                 return JsonResponse({'errors': errors}, status=400, safe=False)
+            user.set_password(data['password'])
             user.save()
             token = Token.objects.create(user=user)
             return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
@@ -51,11 +54,13 @@ class UserLoginView(generics.GenericAPIView):
             data = getData(request)
             if data is None:
                 return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.'],
-                                                'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
+                                                'password': ['Это поле не может быть пустым.']}}, status=400,
+                                    safe=False)
             elif 'login' not in data:
                 return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.']}}, status=400, safe=False)
             elif 'password' not in data:
-                return JsonResponse({'errors': {'password': ['Это поле не может быть пустым.']}}, status=400, safe=False)
+                return JsonResponse({'errors': {'password': ['Это поле не может быть пустым.']}}, status=400,
+                                    safe=False)
             try:
                 user = User.objects.get(username=data['login'])
             except Exception:
@@ -72,10 +77,11 @@ class UserLoginView(generics.GenericAPIView):
                     token = Token.objects.create(user=user)
                 return JsonResponse({'auth_token': token.key})
             else:
-                return JsonResponse({'errors': {'non_field_errors': ['Невозможно войти с предоставленными учетными данными.']}}, status=400)
+                return JsonResponse(
+                    {'errors': {'non_field_errors': ['Невозможно войти с предоставленными учетными данными.']}},
+                    status=400)
         except Exception as ex:
             return JsonResponse({'errors': str(ex)}, status=400, safe=False)
-
 
 
 class UserListView(generics.ListAPIView):
@@ -92,6 +98,7 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 class GenerateTelegramCode(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request, *args, **kwargs):
         try:
@@ -129,7 +136,21 @@ class ShowMe(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         try:
             user = request.user
-            return JsonResponse({'username': user.username, 'email': user.email, 'telegram_id': user.telegram_id})
+            if user.role_id == 1:
+                is_moderator = True
+                is_admin = True
+            elif user.role_id == 2:
+                is_moderator = True
+                is_admin = False
+            else:
+                is_moderator = False
+                is_admin = False
+            return JsonResponse({'username': user.username,
+                                 'email': user.email,
+                                 'telegram_id': user.telegram_id,
+                                 'role': user.role.name,
+                                 'is_moderator': is_moderator,
+                                 'is_admin': is_admin})
         except Exception as ex:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
@@ -168,3 +189,18 @@ class SetNewEmail(generics.GenericAPIView):
                 return JsonResponse({'detail': 'Неверный пароль'})
         except Exception:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+
+
+class UnlinkTelegram(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            user = User.objects.get(telegram_id=user.telegram_id)
+            user.telegram_id = None
+            user.save()
+            return JsonResponse({'success': True})
+        except Exception as ex:
+            return JsonResponse({'detail': False})

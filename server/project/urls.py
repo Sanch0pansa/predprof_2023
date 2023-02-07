@@ -47,5 +47,6 @@ urlpatterns = [
     path(ROOT_API_URL, include('API.urls.review')),
     path(ROOT_API_URL, include('API.urls.subscription')),
     path(ROOT_API_URL, include('API.urls.user')),
+    path(ROOT_API_URL, include('API.urls.moderation')),
     path(ROOT_API_URL+'auth/', include('djoser.urls.authtoken'))
 ]

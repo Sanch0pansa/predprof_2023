@@ -9,7 +9,8 @@
         <p>{{ description }}</p>
         <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
           <Link :href="`https://${url}`">Перейти на сайт</Link>
-          <Btn>Отслеживать состояние</Btn>
+          <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
+          <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
 
     </div>
@@ -62,7 +63,7 @@
     ></PageTable>
   </PageSection>
   <PageSection :title="`Сообщение о сбоях`">
-    <Btn :class="`mb-3`">Сообщить о сбое</Btn>
+    <ModalBtn :class="`mb-3`" id="creatingReportModal">Сообщить о сбое</ModalBtn>
     <PageTable
         v-if="reportsForTable.length"
         :data="reportsForTable"
@@ -72,10 +73,20 @@
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
   <PageSection :title="`Отзывы`">
-    <Btn :class="`mb-3`">Добавить отзыв</Btn>
+    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Сообщить отзыв</ModalBtn>
     <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
+
+  <Modal id="creatingReportModal" :title="`Добавление сообщения о сбое`">
+    <CreatingReportForm>
+
+    </CreatingReportForm>
+  </Modal>
+
+  <Modal id="creatingReviewModal" :title="`Добавление отзыва`">
+    Форма создания отзыва
+  </Modal>
 </template>
 
 <script>
@@ -96,6 +107,9 @@ import PageTable from "@/components/page/PageTable.vue";
 import {mapActions} from "vuex";
 import ReviewsList from "@/components/items/ReviewsList.vue";
 import Indicator from "@/components/UI/Indicator.vue";
+import Modal from "@/components/UI/Modal.vue";
+import ModalBtn from "@/components/UI/ModalBtn.vue";
+import CreatingReportForm from "@/components/forms/CreatingReportForm.vue";
 
 ChartJS.register(CategoryScale,
     LinearScale,
@@ -110,7 +124,7 @@ ChartJS.register(CategoryScale,
 
 export default {
   name: "SinglePageView",
-  components: {Indicator, ReviewsList, PageTable, PageSection, Link, Line},
+  components: {CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
       name: "МГТУ",
@@ -118,6 +132,7 @@ export default {
       description: "Просто описание сайта, которое может добавить пользователь при регистрации сайта в реестр",
       status: 2,
       rating: 0,
+      subscribed: false,
       lastCheck: {
         check_status: 3,
         response_time: 0,
@@ -159,7 +174,34 @@ export default {
   methods: {
     ...mapActions({
       getPageData: "pages/getPageData",
+      subscribePage: "pages/subscribePage",
+      unsubscribePage: "pages/unsubscribePage",
+      getPageSubscription: "pages/getPageSubscription"
     }),
+
+    async subscribe() {
+      let res = await this.subscribePage({id: this.$route.params.id});
+
+      if (res.success) {
+        this.subscribed = true;
+      }
+    },
+
+    async unsubscribe() {
+      let res = await this.unsubscribePage({id: this.$route.params.id});
+
+      if (res.success) {
+        this.subscribed = false;
+      }
+    },
+
+    async getSubscription() {
+      let res = await this.getPageSubscription({id: this.$route.params.id});
+
+      if (res.subscribed) {
+        this.subscribed = true;
+      }
+    },
 
     loadMore() {
       const statesNames = [
@@ -196,6 +238,7 @@ export default {
 
     async fetchPageData() {
       let data = await this.getPageData({id: this.$route.params.id});
+      await this.getSubscription();
 
       this.name = data.data.name;
       this.url = data.data.url;

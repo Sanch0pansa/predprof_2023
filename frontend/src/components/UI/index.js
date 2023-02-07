@@ -7,6 +7,8 @@ import Sel from "@/components/UI/Sel.vue";
 import TxtArea from "@/components/UI/TxtArea.vue";
 import ErrorBag from "@/components/UI/ErrorBag.vue";
 import Indicator from "@/components/UI/Indicator.vue";
+import Modal from "@/components/UI/Modal.vue";
+import ModalBtn from "@/components/UI/ModalBtn.vue";
 
 export default [
     Btn,
@@ -18,4 +20,6 @@ export default [
     TxtArea,
     ErrorBag,
     Indicator,
+    Modal,
+    ModalBtn
 ]
