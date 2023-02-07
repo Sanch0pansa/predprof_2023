@@ -21,7 +21,7 @@ class User(AbstractUser):
     telegram_id = models.IntegerField(null=True, blank=True)
     telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
     telegram_verification_code_date = models.DateTimeField(blank=True, default=None, null=True)
-    role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=1, related_name='users')
+    role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=3, related_name='users')
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'password']
 

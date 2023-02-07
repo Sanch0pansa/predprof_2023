@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import BaseUserManager
 from API.funcs import getData
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
 
 
 class UserCreateView(generics.GenericAPIView):
@@ -133,7 +134,21 @@ class ShowMe(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         try:
             user = request.user
-            return JsonResponse({'username': user.username, 'email': user.email, 'telegram_id': user.telegram_id})
+            if user.role_id == 1:
+                is_moderator = True
+                is_admin = True
+            elif user.role_id == 2:
+                is_moderator = True
+                is_admin = False
+            else:
+                is_moderator = False
+                is_admin = False
+            return JsonResponse({'username': user.username,
+                                 'email': user.email,
+                                 'telegram_id': user.telegram_id,
+                                 'role': user.role.name,
+                                 'is_moderator': is_moderator,
+                                 'is_admin': is_admin})
         except Exception as ex:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
