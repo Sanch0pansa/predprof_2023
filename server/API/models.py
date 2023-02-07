@@ -26,12 +26,12 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'password']
 
 class Page(models.Model):
-    added_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='pages')
     name = models.CharField(max_length=128)
     description = models.CharField(max_length=256, blank=True)
     url = models.URLField(max_length=128)
-    moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagesm')
+    added_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='pages')
     is_moderated = models.BooleanField(null=True, default=None, blank=True)
+    moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagesm')
     is_checking = models.BooleanField(default=False)
 
 
@@ -40,6 +40,7 @@ class Report(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reports')
     message = models.CharField(max_length=256)
     added_at = models.DateTimeField(auto_now_add=True)
+    is_moderated = models.BooleanField(null=True, default=None, blank=True)
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='+')
     is_published = models.BooleanField(default=False)
 
@@ -57,6 +58,7 @@ class Review(models.Model):
     message = models.CharField(max_length=256, blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     added_by_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', null=True)
+    is_moderated = models.BooleanField(null=True, default=None, blank=True)
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='+')
     is_published = models.BooleanField(default=False)
 
