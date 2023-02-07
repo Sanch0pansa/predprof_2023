@@ -19,7 +19,7 @@ export default {
         async authentificate({state, commit, dispatch}, {login, password}) {
             try {
                 // Пробуем получить ответ
-                const response = await axios.post(
+                const res = await axios.post(
                     URLS.login,
                     {
                         login: login,
@@ -27,7 +27,7 @@ export default {
                     }
                 );
 
-                const data = response.data;
+                const data = res.data;
 
                 // Если токен пришел, заполняем соответствующее состояние
                 if (data.auth_token) {
@@ -79,7 +79,7 @@ export default {
         // Получение данных пользователя
         async getUserData({state, commit}) {
             try {
-                const response = await axios.get(
+                const res = await axios.get(
                     URLS.getUserData, {
                         headers: {
                             Authorization: `Token ${state.authToken}`
@@ -87,7 +87,7 @@ export default {
                     },
                 );
 
-                commit('setUser', response.data)
+                commit('setUser', res.data)
             } catch (e) {
 
             }
@@ -96,7 +96,7 @@ export default {
         // Выход из лк
         async logout({state, commit}) {
             try {
-                const response = await axios.post(
+                const res = await axios.post(
                     URLS.logout,
                     {},
                     {headers: {
