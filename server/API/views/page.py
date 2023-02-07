@@ -22,10 +22,10 @@ class PageCreate(generics.GenericAPIView):
         try:
             data = getData(request)
             user = request.user
-            page = Page.objects.create(name=data['name'],
-                                       url=data['url'],
-                                       description=data['description'],
-                                       added_by_user_id=user.id)
+            page = Page(name=data['name'],
+                        url=data['url'],
+                        description=data['description'],
+                        added_by_user_id=user.id)
             try:
                 page.full_clean()
             except ValidationError as ex:
@@ -33,7 +33,6 @@ class PageCreate(generics.GenericAPIView):
             page.save()
             return JsonResponse({'success': True})
         except Exception as ex:
-            print(ex)
             return JsonResponse({'success': False}, status=400)
 
 
