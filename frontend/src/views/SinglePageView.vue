@@ -8,7 +8,7 @@
         </b>
         <p>{{ description }}</p>
         <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
-          <Link :href="`https://${url}`">Перейти на сайт</Link>
+          <Link :href="`${url}`" target="_blank">Перейти на сайт</Link>
           <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
           <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
@@ -164,6 +164,11 @@ export default {
           },
           interaction: {
             intersect: false,
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
           }
         },
       },
