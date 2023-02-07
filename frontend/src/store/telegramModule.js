@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const URLS = {
     generateTelegramCode: "http://127.0.0.1:8000/api/v1/user/generate_telegram_code/",
+    unlinkTelegram: "http://127.0.0.1:8000/api/v1/user/unlink_telegram/",
 }
 
 export default {
@@ -42,6 +43,38 @@ export default {
                 return {success: false, error: e.response.data};
             }
         },
+
+        // Отвязка телеграма
+        async unlinkTelegram({state, commit, rootState}) {
+            try {
+                const response = await axios.delete(
+                    URLS.unlinkTelegram,
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    },
+                );
+
+                if (!response.data.detail) {
+                    return {
+                        success: true,
+                        code: response.data.telegram_verification_code,
+                        remain_time: response.data.remain_time,
+                    };
+                } else {
+                    return {
+                        success: false,
+                        errors: response.data.errors,
+                        code: response.data.telegram_verification_code,
+                        remain_time: response.data.remain_time,
+                    };
+                }
+
+            } catch (e) {
+                return {success: false, error: e.response.data};
+            }
+        }
     },
 
 }
