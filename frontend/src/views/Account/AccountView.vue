@@ -13,9 +13,13 @@
     </div>
     <div class="col-md-4">
       <PageSection :title="`Отслеживаемые ресурсы`">
-        <SubscriptionsList :pages="pages">
+        <SubscriptionsList
+            v-model:pages="pages"
+            v-if="pages.length"
+        >
 
         </SubscriptionsList>
+        <p class="text-muted" v-else>Нет отслеживаемых ресурсов</p>
       </PageSection>
     </div>
   </div>

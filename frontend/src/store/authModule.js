@@ -12,14 +12,16 @@ export default {
     state: () => ({
         isAuth: JSON.parse(localStorage.getItem('isAuth')),
         authToken: localStorage.getItem('authToken'),
-        user: JSON.parse(localStorage.getItem('user') ?? "{}")
+        user: JSON.parse(localStorage.getItem('user') ?? "{}"),
+        isAdmin: false,
+        isModerator: false,
     }),
     actions: {
         // Функция авторизации
         async authentificate({state, commit, dispatch}, {login, password}) {
             try {
                 // Пробуем получить ответ
-                const response = await axios.post(
+                const res = await axios.post(
                     URLS.login,
                     {
                         login: login,
@@ -27,7 +29,7 @@ export default {
                     }
                 );
 
-                const data = response.data;
+                const data = res.data;
 
                 // Если токен пришел, заполняем соответствующее состояние
                 if (data.auth_token) {
@@ -77,9 +79,9 @@ export default {
         },
 
         // Получение данных пользователя
-        async getUserData({state, commit}) {
+        async getUserData({state, commit, dispatch}) {
             try {
-                const response = await axios.get(
+                const res = await axios.get(
                     URLS.getUserData, {
                         headers: {
                             Authorization: `Token ${state.authToken}`
@@ -87,7 +89,14 @@ export default {
                     },
                 );
 
-                commit('setUser', response.data)
+                commit('setUser', res.data)
+                commit('setIsModerator', res.data.is_moderator)
+                commit('setIsAdmin', res.data.is_admin)
+
+                if (state.isModerator) {
+                    await dispatch('moderation/getModerationCategories', {}, {root: true});
+                }
+
             } catch (e) {
 
             }
@@ -96,7 +105,7 @@ export default {
         // Выход из лк
         async logout({state, commit}) {
             try {
-                const response = await axios.post(
+                const res = await axios.post(
                     URLS.logout,
                     {},
                     {headers: {
@@ -110,6 +119,8 @@ export default {
             }
 
             commit("setIsAuth", false);
+            commit("setIsModerator", false);
+            commit("setIsAdmin", false);
             commit("setAuthToken", "");
             commit("setUser", {});
         }
@@ -118,6 +129,14 @@ export default {
         setIsAuth(state, isAuth) {
             state.isAuth = isAuth;
             localStorage.setItem("isAuth", isAuth);
+        },
+        setIsModerator(state, isModerator) {
+            state.isModerator = isModerator;
+            localStorage.setItem("isModerator", isModerator);
+        },
+        setIsAdmin(state, isAdmin) {
+            state.isAdmin = isAdmin;
+            localStorage.setItem("isAdmin", isAdmin);
         },
         setAuthToken(state, authToken) {
             state.authToken = authToken;
