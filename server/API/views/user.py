@@ -52,13 +52,14 @@ class UserLoginView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             data = getData(request)
-            if data is None:
+            print(data)
+            if data['login'] == '' and data['password'] == '':
                 return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.'],
                                                 'password': ['Это поле не может быть пустым.']}}, status=400,
                                     safe=False)
-            elif 'login' not in data:
+            elif data['login'] == '':
                 return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.']}}, status=400, safe=False)
-            elif 'password' not in data:
+            elif data['password'] == '':
                 return JsonResponse({'errors': {'password': ['Это поле не может быть пустым.']}}, status=400,
                                     safe=False)
             try:

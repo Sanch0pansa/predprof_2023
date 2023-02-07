@@ -97,19 +97,20 @@ class GetCheckingPages(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             data = getData(request)
-            pages = Check.objects \
-                .select_related('page') \
-                .values('page__id', 'page__name', 'page__url', 'check_status', 'response_time', 'checked_at') \
-                .order_by('-page__id', '-id') \
-                .distinct('page__id')
+            pages = Page.objects.raw('SELECT DISTINCT ON (pages.id) pages.id, pages.name, pages.url, '
+                                     'checks.response_time, checks.checked_at, checks.check_status '
+                                     'FROM "API_page" as pages '
+                                     'LEFT JOIN "API_check" as checks ON checks.page_id=pages.id '
+                                     'WHERE pages.is_checking = True '
+                                     'ORDER BY  pages.id ASC, checks.checked_at DESC ')
             result = []
             for i in pages:
-                result.append({'id': i['page__id'],
-                               'name': i['page__name'],
-                               'url': i['page__url'],
-                               'last_check_time': i['checked_at'],
-                               'last_check_timeout': i['response_time'],
-                               'check_status': i['check_status']})
+                result.append({'id': i.id,
+                               'name': i.name,
+                               'url': i.url,
+                               'last_check_time': i.checked_at,
+                               'last_check_timeout': i.response_time,
+                               'check_status': i.check_status})
             result = Paginator(result, 5)
             return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
         except Exception as ex:
@@ -125,7 +126,7 @@ class GetAccountData(generics.GenericAPIView):
             subs = Subscription.objects.raw(
                 'SELECT DISTINCT ON (checks.page_id) pages.id, pages.name, checks.check_status '
                 'FROM "API_subscription" as subs '
-                'JOIN "API_check" as checks ON checks.page_id=subs.page_id '
+                'LEFT JOIN "API_check" as checks ON checks.page_id=subs.page_id '
                 'JOIN "API_page" as pages ON subs.page_id=pages.id '
                 f'WHERE user_id={user.id} '
                 'ORDER BY checks.page_id DESC, checks.id DESC ')
