@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from API.funcs import getData
 from django.core.exceptions import ValidationError
 
+
 class PageListCreateView(generics.ListCreateAPIView):
     serializer_class = PageSerializer
     permission_classes = [IsAuthenticated]
@@ -268,4 +269,4 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'success': False})
         except Exception:
-            return JsonResponse({'detail': "Exception"}, status=400)
+            return JsonResponse({'detail': 'Exception'}, status=404)

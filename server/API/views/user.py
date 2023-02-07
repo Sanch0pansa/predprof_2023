@@ -26,7 +26,8 @@ class UserCreateView(generics.GenericAPIView):
                                                 'username': ['Это поле не может быть пустым.'],
                                                 'password': ['Это поле не может быть пустым.']}}, status=400,
                                     safe=False)
-            user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']), password=data['password'])
+            user = User(username=data['username'], email=BaseUserManager.normalize_email(data['email']),
+                        password=data['password'])
             try:
                 user.full_clean()
             except ValidationError as ex:
@@ -97,6 +98,7 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 class GenerateTelegramCode(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request, *args, **kwargs):
         try:
@@ -188,10 +190,10 @@ class SetNewEmail(generics.GenericAPIView):
         except Exception:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
+
 class UnlinkTelegram(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
-
 
     def delete(self, request, *args, **kwargs):
         try:
