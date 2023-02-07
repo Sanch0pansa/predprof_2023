@@ -39,7 +39,7 @@ def check_all_urls():
             logs.write('\n' + str(datetime.now().strftime("%d-%b-%Y %H:%M:%S")) + ' >>> \t' + str(info[0]) + '\t| ' + str('%.3f' % info[1]) + '\t| ' + str(url))
 
 
-schedule.every().second.do(check_all_urls)
+schedule.every().hour.do(check_all_urls)
 while True:
     schedule.run_pending()
     time.sleep(1)

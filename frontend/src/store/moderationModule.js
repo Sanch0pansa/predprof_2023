@@ -5,7 +5,7 @@ const URLS = {
     getModerationCategories: `http://127.0.0.1:8000/api/v1/moderation/get_categories/`,
     getModerationPages: `http://127.0.0.1:8000/api/v1/moderation/pages/`,
     getRejectedPages: `http://127.0.0.1:8000/api/v1/moderation/rejected_pages/`,
-    patchPageStatus: id => `http://127.0.0.1:8000/api/v1/moderation/page/${id}/`,
+    patchPageStatus: id => `http://127.0.0.1:8000/api/v1/moderation/moderate/page/${id}/`,
 }
 
 export default {

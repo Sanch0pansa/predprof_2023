@@ -6,7 +6,7 @@
         <p class="text-muted mb-0">{{ url }} <a class="ms-2" target="_blank" :href="url"><i class="fas fa-external-link-alt text-primary"></i></a></p>
       </div>
       <div class="">
-        <b class="text-primary">{{ user }}</b>
+        <b class="text-primary">{{ user.username }}</b>
       </div>
     </div>
 

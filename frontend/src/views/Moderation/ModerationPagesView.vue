@@ -38,7 +38,7 @@ export default {
     }),
     async fetchPages() {
       this.pages.moderation = await this.getModerationPages();
-      this.pages.rejected = await this.getModerationPages();
+      this.pages.rejected = await this.getRejectedPages();
     },
 
     async sendPatchPageStatus({id, action}) {
