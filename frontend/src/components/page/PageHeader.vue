@@ -8,6 +8,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li v-if="isAuth" class="nav-item me-3">
+            <RouterLink :to="{name: 'create_page'}" :class="['btn btn-primary']">Добавить ресурс</RouterLink>
+          </li>
           <li v-if="isAuth" class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{ user.username ? user.username : "" }}

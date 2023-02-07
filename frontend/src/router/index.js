@@ -5,6 +5,7 @@ import RegisterView from "@/views/RegisterView.vue";
 import AccountView from "@/views/account/AccountView.vue";
 import VerifyTelegramView from "@/views/Account/VerifyTelegramView.vue";
 import SinglePageView from "@/views/SinglePageView.vue";
+import CreatePageView from "@/views/CreatePageView.vue";
 
 
 const router = createRouter({
@@ -47,6 +48,15 @@ const router = createRouter({
       path: '/page/:id',
       name: 'single_page',
       component: SinglePageView,
+    },
+    {
+      path: '/create_page',
+      name: 'create_page',
+      component: CreatePageView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+      },
     },
   ]
 })
