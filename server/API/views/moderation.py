@@ -44,6 +44,30 @@ class GetModerationPages(generics.GenericAPIView):
             return JsonResponse({'detail': 'Exception'}, status=404)
 
 
+class GetRejectedModerationPages(generics.GenericAPIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            pages = list(Page.objects
+                         .filter(is_moderated=False)
+                         .select_related('added_by_user', 'moderated_by_user')
+                         .values('id', 'name', 'description', 'url', 'moderated_by_user', 'moderated_by_user__username', 'added_by_user', 'added_by_user__username'))
+            pagesForModerate = []
+            for i in pages:
+                pagesForModerate.append({'id': i['id'],
+                              'name': i['name'],
+                              'description': i['description'],
+                              'url': i['url'],
+                              'moderated_by_user': {'id': i['moderated_by_user'],
+                                                    'username': i['moderated_by_user__username']},
+                              'user': {'id': i['added_by_user'],
+                                       'username': i['added_by_user__username']}})
+            return JsonResponse(pagesForModerate, safe=False)
+        except Exception as ex:
+            print(ex)
+            return JsonResponse({'detail': 'Exception'}, status=404)
+
 class GetModerationReviews(generics.GenericAPIView):
     permission_classes = [IsAdminUser]
 
