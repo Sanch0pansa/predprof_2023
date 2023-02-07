@@ -31,8 +31,8 @@ class Page(models.Model):
     description = models.CharField(max_length=256, blank=True)
     url = models.URLField(max_length=128)
     moderated_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagesm')
-    is_moderated = models.BooleanField(null=True)
-    is_checking = models.BooleanField()
+    is_moderated = models.BooleanField(null=True, default=None, blank=True)
+    is_checking = models.BooleanField(default=False)
 
 
 class Report(models.Model):

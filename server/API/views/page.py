@@ -6,12 +6,35 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from API.funcs import getData
-import json
-
+from django.core.exceptions import ValidationError
 
 class PageListCreateView(generics.ListCreateAPIView):
     serializer_class = PageSerializer
+    permission_classes = [IsAuthenticated]
     queryset = Page.objects.all()
+
+
+class PageCreate(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PageSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = getData(request)
+            user = request.user
+            page = Page.objects.create(name=data['name'],
+                                       url=data['url'],
+                                       description=data['description'],
+                                       added_by_user_id=user.id)
+            try:
+                page.full_clean()
+            except ValidationError as ex:
+                return JsonResponse({'errors': dict(ex)})
+            page.save()
+            return JsonResponse({'success': True})
+        except Exception as ex:
+            print(ex)
+            return JsonResponse({'success': False}, status=400)
 
 
 class PageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -186,7 +209,8 @@ class GetPageReports(generics.GenericAPIView):
         try:
             user = request.user
             data = getData(request)
-            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'], added_at=data['added_at'])
+            report = Report.objects.create(added_by_user_id=user.id, page_id=id, message=data['message'],
+                                           added_at=data['added_at'])
             report.save()
             return JsonResponse({'success': True})
         except Exception:
