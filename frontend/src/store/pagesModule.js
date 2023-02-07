@@ -4,9 +4,11 @@ const URLS = {
     getPopularPages: "http://127.0.0.1:8000/api/v1/page/get_popular_pages/",
     getCheckingPages: "http://127.0.0.1:8000/api/v1/page/get_checking_pages/",
     getStatistics: "http://127.0.0.1:8000/api/v1/page/get_statistic/",
+    createPage: "http://127.0.0.1:8000/api/v1/page/",
     getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
     getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
     getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
     subscriptionPage: id => `http://127.0.0.1:8000/api/v1/page/${id}/subscription/`,
 }
 
@@ -250,6 +252,34 @@ export default {
 
             } catch (e) {
                 return {success: false};
+            }
+        },
+
+        // Добавление ресурса
+        async createPage({state, commit, rootState}, {name, description, url}) {
+            try {
+                let res = await axios.post(
+                    URLS.createPage,
+                    {
+                        name: name,
+                        description: description,
+                        url: url,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                if (res.data.success) {
+                    return {success: true, detail: "Страница успешно добавлена"}
+                } else {
+                    return {success: false, detail: res.data.errors}
+                }
+
+            } catch (e) {
+                return {success: false, detail: e.response.data.errors};
             }
         }
     },

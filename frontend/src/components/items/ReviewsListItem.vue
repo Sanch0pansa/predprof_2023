@@ -9,8 +9,12 @@
       }) }}</div>
     </div>
     <div class="review-mark">
-      <i class="fas fa-star"></i>
-      <b>{{ mark }}</b>
+      <i class="fas fa-star fs-5" v-for="i in 5"
+         :class="{
+            'text-warning': i <= mark ,
+            'text-secondary': i > mark
+         }"
+      ></i>
     </div>
     <div class="review-content">
       <p>{{ message }}</p>

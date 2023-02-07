@@ -3,7 +3,7 @@
     <RouterLink :to="href">{{ name }}</RouterLink>
     <div class="d-flex align-items-center gap-3">
       <Indicator :status="status"></Indicator>
-      <i class="fas fa-ban text-danger"></i>
+      <i @click="unsubscribe" class="fas fa-ban text-danger" role="button"></i>
     </div>
   </Block>
 </template>
@@ -16,6 +16,12 @@ export default {
     status: [Number],
     href: [String],
     name: [String],
+  },
+  methods: {
+
+    async unsubscribe(ev) {
+      this.$emit('unsubscribe', ev);
+    },
   }
 }
 </script>

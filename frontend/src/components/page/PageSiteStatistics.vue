@@ -2,7 +2,7 @@
   <PageSection :title="`Статистика`">
   <Block>
     <div class="row">
-      <div class="col-7">
+      <div class="col-md-7">
         <table class="fs-5 w-100 table-big">
           <tr>
             <td>Сайтов в реестре:</td>
@@ -22,7 +22,7 @@
           </tr>
         </table>
       </div>
-      <div class="col-5 d-grid" style="place-items: center">
+      <div class="col-md-5 d-none d-md-grid" style="place-items: center">
         <i class="fas fa-chart-pie text-primary" style="font-size: 120px;"></i>
       </div>
     </div>

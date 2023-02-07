@@ -8,7 +8,7 @@
         </b>
         <p>{{ description }}</p>
         <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
-          <Link :href="`https://${url}`">Перейти на сайт</Link>
+          <Link :href="`${url}`" target="_blank">Перейти на сайт</Link>
           <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
           <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
@@ -79,13 +79,15 @@
   </PageSection>
 
   <Modal id="creatingReportModal" :title="`Добавление сообщения о сбое`">
-    <CreatingReportForm>
+    <CreatingReportForm :id="$route.params.id">
 
     </CreatingReportForm>
   </Modal>
 
   <Modal id="creatingReviewModal" :title="`Добавление отзыва`">
-    Форма создания отзыва
+    <CreatingReviewForm :id="$route.params.id">
+
+    </CreatingReviewForm>
   </Modal>
 </template>
 
@@ -110,6 +112,7 @@ import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import CreatingReportForm from "@/components/forms/CreatingReportForm.vue";
+import CreatingReviewForm from "@/components/forms/CreatingReviewForm.vue";
 
 ChartJS.register(CategoryScale,
     LinearScale,
@@ -124,7 +127,9 @@ ChartJS.register(CategoryScale,
 
 export default {
   name: "SinglePageView",
-  components: {CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
+  components: {
+    CreatingReviewForm,
+    CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
       name: "МГТУ",
@@ -159,6 +164,11 @@ export default {
           },
           interaction: {
             intersect: false,
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
           }
         },
       },

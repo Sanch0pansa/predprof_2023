@@ -8,14 +8,18 @@
           <span class="d-block" v-if="user.telegram_id">Привязан</span>
           <span class="d-block" v-else><RouterLink :to="{name: 'verify_telegram'}">Привязать</RouterLink></span>
 
-          <i class="fas fa-ban text-danger fs-4 ms-2" role="button" v-if="user.telegram_id"></i>
+          <i class="fas fa-ban text-danger fs-4 ms-2" role="button" v-if="user.telegram_id" @click="unlinkTelegramAction"></i>
         </div>
     </div>
     <div class="col-md-4">
       <PageSection :title="`Отслеживаемые ресурсы`">
-        <SubscriptionsList :pages="pages">
+        <SubscriptionsList
+            v-model:pages="pages"
+            v-if="pages.length"
+        >
 
         </SubscriptionsList>
+        <p class="text-muted" v-else>Нет отслеживаемых ресурсов</p>
       </PageSection>
     </div>
   </div>
@@ -44,8 +48,17 @@ export default {
 
   methods: {
     ...mapActions({
-      getAccountSubscriptions: "account/getAccountSubscriptions"
-    })
+      getAccountSubscriptions: "account/getAccountSubscriptions",
+      unlinkTelegram: "telegram/unlinkTelegram",
+      getUserData: "auth/getUserData",
+    }),
+
+    async unlinkTelegramAction() {
+      if (confirm("Вы уверены, что хотите отвязать телеграм?")) {
+        await this.unlinkTelegram();
+        await this.getUserData();
+      }
+    },
   },
 
   async mounted() {

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const URLS = {
-    createPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    createPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
 }
 
 export default {
@@ -11,13 +11,13 @@ export default {
     actions: {
 
         // Сохранение данных репорта
-        async createReport({state, commit, rootState}, {id, message, added_at}) {
+        async createReview({state, commit, rootState}, {id, message, mark}) {
             try {
                 const resp = await axios.post(
-                    URLS.createPageReports(id),
+                    URLS.createPageReviews(id),
                     {
                         message: message,
-                        added_at: added_at
+                        mark: mark
                     },
                     {
                         headers: {
@@ -27,7 +27,7 @@ export default {
                 );
 
                 if (resp.data.success) {
-                    return {success: true, detail: "Сообщение зарегистрировано"};
+                    return {success: true, detail: "Отзыв зарегистрирован"};
                 }
 
                 return {success: false, detail: "Что-то пошло не так"};
