@@ -36,8 +36,8 @@ class GetModerationPages(generics.GenericAPIView):
                                          'name': i['name'],
                                          'description': i['description'],
                                          'url': i['url'],
-                                         'user': {'id': i['added_by_user'],
-                                                  'username': i['added_by_user__username']}})
+                                         'added_by_user': {'id': i['added_by_user'],
+                                                           'username': i['added_by_user__username']}})
             return JsonResponse(pagesForModerate, safe=False)
         except Exception as ex:
             print(ex)
@@ -89,8 +89,8 @@ class GetModerationReviews(generics.GenericAPIView):
                      'mark': i['mark'],
                      'message': i['message'],
                      'added_at': i['added_at'],
-                     'user': {'id': i['added_by_user'],
-                              'username': i['added_by_user__username']}})
+                     'added_by_user': {'id': i['added_by_user'],
+                                       'username': i['added_by_user__username']}})
             return JsonResponse(reviewsForModerate, safe=False)
         except Exception as ex:
             print(ex)
@@ -143,8 +143,8 @@ class GetModerationReports(generics.GenericAPIView):
                     {'id': i['id'],
                      'page': {'id': i['page__id'],
                               'name': i['page__name']},
-                     'user': {'id': i['added_by_user'],
-                              'username': i['added_by_user__username']},
+                     'added_by_user': {'id': i['added_by_user'],
+                                       'username': i['added_by_user__username']},
                      'message': i['message'],
                      'added_at': i['added_at']})
             return JsonResponse(reportsForModerate, safe=False)
