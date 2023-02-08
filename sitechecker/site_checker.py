@@ -27,7 +27,7 @@ Not Acceptable - 406
 unknown url type - -1
 ConnectionError - 808
 '''
-def check(url_to_check):
+def check(url_to_check, check_num=0):
     url = url_to_check
     if 'https://' not in url and 'http://' not in url:
         url = 'https://' + url
@@ -48,10 +48,14 @@ def check(url_to_check):
             status = 2
         else:
             status = 666
+            if check_num < 4:
+                return check(url_to_check, check_num + 1)
     except ValueError:
         status = -1
     except requests.exceptions.ConnectionError:
         status = 808
+        if check_num < 4:
+            return check(url_to_check, check_num + 1)
     else:
         if response_time >= LATE_TIME:
             status = 199
