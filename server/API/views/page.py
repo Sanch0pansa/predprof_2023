@@ -49,27 +49,31 @@ class GetPopularPages(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         try:
             try:
-                reviews = Review.objects.raw('SELECT pages.id, COUNT(revs.id) AS "total" '
-                                             'FROM "API_page" as pages '
-                                             'LEFT JOIN "API_review" as revs ON revs.page_id=pages.id '
+                reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(revs.id) AS "total" '
+                                             'FROM "API_page" AS pages '
+                                             'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
+                                             'WHERE revs.is_published = true '
                                              'GROUP BY pages.id '
                                              'ORDER BY total DESC '
-                                             'LIMIT 3')
+                                             'LIMIT 3 ')
                 pageIds = [i.id for i in reviews]
+                checks = Check.objects.raw('SELECT DISTINCT ON (pages.id) pages.id, checks.check_status '
+                                           'FROM "API_page" AS pages '
+                                           'JOIN "API_check" AS checks ON checks.page_id=pages.id '
+                                           f'WHERE pages.id in ({pageIds[0]}, {pageIds[1]}, {pageIds[2]}) '
+                                           'ORDER BY pages.id DESC, checks.id DESC')
             except Exception as ex:
-                return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов в базе'})
-            checks = list(Check.objects
-                          .prefetch_related('checks')
-                          .values('page_id', 'page__name', 'page__url', 'check_status')
-                          .filter(Q(page_id=pageIds[0]) | Q(page_id=pageIds[1]) | Q(page_id=pageIds[2]))
-                          .order_by('-page_id', '-checked_at')
-                          .distinct('page_id'))[:3]
+                return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов с подтверждёнными отзывами'}, status=400)
+            temp = {}
             for i in checks:
-                i['id'] = i.pop('page_id')
-                i['name'] = i.pop('page__name')
-                i['url'] = i.pop('page__url')
-                i['check_status'] = i.pop('check_status')
-            return JsonResponse(checks, safe=False)
+                temp[i.id] = i.check_status
+            res = []
+            for i in reviews:
+                res.append({'id': i.id,
+                            'name': i.name,
+                            'url': i.url,
+                            'check_status': temp[i.id]})
+            return JsonResponse(res, safe=False)
         except Exception as ex:
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
@@ -98,11 +102,14 @@ class GetCheckingPages(generics.GenericAPIView):
         try:
             data = getData(request)
             pages = Page.objects.raw('SELECT DISTINCT ON (pages.id) pages.id, pages.name, pages.url, '
-                                     'checks.response_time, checks.checked_at, checks.check_status '
-                                     'FROM "API_page" as pages '
-                                     'LEFT JOIN "API_check" as checks ON checks.page_id=pages.id '
-                                     'WHERE pages.is_checking = True '
-                                     'ORDER BY  pages.id ASC, checks.checked_at DESC ')
+                                     'checks.response_time, checks.checked_at, checks.check_status, '
+                                     'ROUND(AVG(reviews.mark), 2) as rating '
+                                     'FROM "API_page" AS pages '
+                                     'LEFT JOIN "API_check" AS checks ON checks.page_id=pages.id '
+                                     'LEFT JOIN "API_review" AS reviews ON pages.id=reviews.page_id '
+                                     'WHERE pages.is_checking = true '
+                                     'GROUP BY pages.id, checks.response_time, checks.checked_at, checks.check_status '
+                                     'ORDER BY pages.id DESC, checks.checked_at DESC ')
             result = []
             for i in pages:
                 result.append({'id': i.id,
@@ -110,7 +117,8 @@ class GetCheckingPages(generics.GenericAPIView):
                                'url': i.url,
                                'last_check_time': i.checked_at,
                                'last_check_timeout': i.response_time,
-                               'check_status': i.check_status})
+                               'check_status': i.check_status,
+                               'rating': i.rating})
             result = Paginator(result, 5)
             return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
         except Exception as ex:
