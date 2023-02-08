@@ -13,8 +13,8 @@ export default {
         isAuth: JSON.parse(localStorage.getItem('isAuth')),
         authToken: localStorage.getItem('authToken'),
         user: JSON.parse(localStorage.getItem('user') ?? "{}"),
-        isAdmin: false,
-        isModerator: false,
+        isAdmin: JSON.parse(localStorage.getItem('isAdmin')),
+        isModerator: JSON.parse(localStorage.getItem('isModerator')),
     }),
     actions: {
         // Функция авторизации

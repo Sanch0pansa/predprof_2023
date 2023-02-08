@@ -8,6 +8,8 @@ import SinglePageView from "@/views/SinglePageView.vue";
 import CreatePageView from "@/views/CreatePageView.vue";
 import ModerationView from "@/views/Moderation/ModerationView.vue";
 import ModerationPagesView from "@/views/Moderation/ModerationPagesView.vue";
+import ModerationReviewsView from "@/views/Moderation/ModerationReviewsView.vue";
+import ModerationReportsView from "@/views/Moderation/ModerationReportsView.vue";
 
 
 const router = createRouter({
@@ -74,6 +76,26 @@ const router = createRouter({
       path: '/moderation/pages/',
       name: 'moderation_pages',
       component: ModerationPagesView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+      },
+    },
+    {
+      path: '/moderation/reviews/',
+      name: 'moderation_reviews',
+      component: ModerationReviewsView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+      },
+    },
+    {
+      path: '/moderation/reports/',
+      name: 'moderation_reports',
+      component: ModerationReportsView,
       meta: {
         authRequired: true,
         authUpdate: true,

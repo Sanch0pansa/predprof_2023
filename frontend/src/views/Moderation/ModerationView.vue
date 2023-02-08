@@ -19,7 +19,7 @@
     </div>
 
     <div class="col-md-4 mt-3">
-      <RouterLink to="/account">
+      <RouterLink :to="{name: 'moderation_reviews'}">
         <Block class="d-flex align-items-center flex-column">
           <i class="fas fa-comments text-primary position-relative" style="font-size: 65px;">
             <span v-if="$store.state.moderation.reviews" style="font-size: 16px;" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -33,7 +33,7 @@
     </div>
 
     <div class="col-md-4 mt-3">
-      <RouterLink to="/account">
+      <RouterLink :to="{name: 'moderation_reports'}">
         <Block class="d-flex align-items-center flex-column">
           <i class="fas fa-exclamation-circle text-primary position-relative" style="font-size: 65px;">
             <span v-if="$store.state.moderation.reports" style="font-size: 16px;" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
