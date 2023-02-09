@@ -52,7 +52,7 @@ class GetPopularPages(generics.GenericAPIView):
                 reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(revs.id) AS "total" '
                                              'FROM "API_page" AS pages '
                                              'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
-                                             'WHERE revs.is_published = true '
+                                             'WHERE revs.is_published = true AND pages.is_checking = true '
                                              'GROUP BY pages.id '
                                              'ORDER BY total DESC '
                                              'LIMIT 3 ')
