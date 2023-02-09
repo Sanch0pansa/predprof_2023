@@ -64,6 +64,7 @@ export default {
                     if (state.pageNumber > state.totalPagesNumber) {
                         commit('setCanLoadMore', false);
                     }
+                    console.log(response.data.pages);
                     return response.data.pages;
                 }
 

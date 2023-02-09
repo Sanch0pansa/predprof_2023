@@ -59,19 +59,25 @@ export default {
 
       data.forEach(page => {
         let datetime = new Date(page.last_check_time);
+        let status = page.check_status;
+        let time = page.last_check_time ? datetime.toLocaleString("ru", {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric"
+        }).replaceAll(" г", "").replaceAll(".", "") : '-';
+        let timeout = page.last_check_timeout ? page.last_check_timeout : '-';
+        if (status == null) {
+          status = 3;
+        }
         this.pages.push([
             {text: page.name, href: {name: 'single_page', params: {id: page.id}}},
-            datetime.toLocaleString("ru", {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: "numeric",
-              minute: "numeric",
-              second: "numeric"
-            }).replaceAll(" г", "").replaceAll(".", ""),
-            `<b class="text-${statesColors[page.check_status]}">${statesNames[page.check_status]}</b>`,
-            `<b class="text-${statesColors[page.check_status]}">${page.last_check_timeout}</b>`,
-            100,
+            time,
+            `<b class="text-${statesColors[status]}">${statesNames[status]}</b>`,
+            `<b class="text-${statesColors[status]}">${timeout}</b>`,
+            Number(page.rating),
         ]);
       });
     }
