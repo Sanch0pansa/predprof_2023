@@ -175,7 +175,7 @@ class GetPageReviews(generics.GenericAPIView):
         try:
             checks = list(Review.objects.filter(page_id=id)
                           .select_related('added_by_user')
-                          .values('added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user')
+                          .values('id', 'added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user')
                           .filter(is_published=True))
             return JsonResponse(checks, safe=False)
         except Exception as ex:
@@ -208,7 +208,7 @@ class GetPageReports(generics.GenericAPIView):
         try:
             checks = list(Report.objects.filter(page_id=id)
                           .select_related('added_by_user')
-                          .values('added_at', 'message', 'added_by_user__username', 'added_by_user')
+                          .values('id', 'added_at', 'message', 'added_by_user__username', 'added_by_user')
                           .filter(is_published=True))
             return JsonResponse(checks, safe=False)
         except Exception:
