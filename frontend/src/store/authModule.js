@@ -150,6 +150,10 @@ export default {
     getters: {
         getAuthToken(state) {
             return state.authToken
+        },
+
+        getIsModerator(state) {
+            return state.isModerator;
         }
     }
 

@@ -12,6 +12,7 @@
           <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
           <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
+        <Btn class="btn-warning" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
 
     </div>
     <div class="col-md-1"></div>
@@ -106,7 +107,7 @@ import {Chart as ChartJS,
   Filler
 } from 'chart.js'
 import PageTable from "@/components/page/PageTable.vue";
-import {mapActions} from "vuex";
+import {mapActions, mapGetters, mapState} from "vuex";
 import ReviewsList from "@/components/items/ReviewsList.vue";
 import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
@@ -186,8 +187,18 @@ export default {
       getPageData: "pages/getPageData",
       subscribePage: "pages/subscribePage",
       unsubscribePage: "pages/unsubscribePage",
-      getPageSubscription: "pages/getPageSubscription"
+      getPageSubscription: "pages/getPageSubscription",
+      patchPageStatus: "moderation/patchPageStatus"
     }),
+
+    ...mapGetters({
+      getIsModerator: "auth/getIsModerator",
+    }),
+
+    async sendPageModeration() {
+      await this.patchPageStatus({id: this.$route.params.id, action: "revise"});
+      this.$router.replace({name: 'moderation_pages'});
+    },
 
     async subscribe() {
       let res = await this.subscribePage({id: this.$route.params.id});
