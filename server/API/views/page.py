@@ -52,7 +52,7 @@ class GetPopularPages(generics.GenericAPIView):
                 reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(revs.id) AS "total" '
                                              'FROM "API_page" AS pages '
                                              'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
-                                             'WHERE revs.is_published = true '
+                                             'WHERE revs.is_published = true AND pages.is_checking = true '
                                              'GROUP BY pages.id '
                                              'ORDER BY total DESC '
                                              'LIMIT 3 ')
@@ -175,7 +175,7 @@ class GetPageReviews(generics.GenericAPIView):
         try:
             checks = list(Review.objects.filter(page_id=id)
                           .select_related('added_by_user')
-                          .values('added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user')
+                          .values('id', 'added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user')
                           .filter(is_published=True))
             return JsonResponse(checks, safe=False)
         except Exception as ex:
@@ -208,7 +208,7 @@ class GetPageReports(generics.GenericAPIView):
         try:
             checks = list(Report.objects.filter(page_id=id)
                           .select_related('added_by_user')
-                          .values('added_at', 'message', 'added_by_user__username', 'added_by_user')
+                          .values('id', 'added_at', 'message', 'added_by_user__username', 'added_by_user')
                           .filter(is_published=True))
             return JsonResponse(checks, safe=False)
         except Exception:
