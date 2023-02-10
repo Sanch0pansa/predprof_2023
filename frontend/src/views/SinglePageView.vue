@@ -68,7 +68,7 @@
     <PageTable
         v-if="reportsForTable.length"
         :data="reportsForTable"
-        :headers="['Время сообщения', 'Подробности', 'Пользователь']"
+        :headers="reportsTableHeaders"
         :no-load-more="true"
     ></PageTable>
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
@@ -179,6 +179,7 @@ export default {
 
       checksForTable: [],
       reportsForTable: [],
+      reportsTableHeaders: ['Время сообщения', 'Подробности', 'Пользователь'],
     }
   },
 
@@ -188,7 +189,8 @@ export default {
       subscribePage: "pages/subscribePage",
       unsubscribePage: "pages/unsubscribePage",
       getPageSubscription: "pages/getPageSubscription",
-      patchPageStatus: "moderation/patchPageStatus"
+      patchPageStatus: "moderation/patchPageStatus",
+      patchReportStatus: "moderation/patchReportStatus",
     }),
 
     ...mapGetters({
@@ -334,9 +336,13 @@ export default {
 
       })
 
+      if (this.getIsModerator()) {
+        this.reportsTableHeaders = ['Время сообщения', 'Подробности', 'Пользователь', 'Действия'];
+      }
+
       this.reportsForTable = [];
       this.reports.forEach(report => {
-        this.reportsForTable.push([
+        let reportRow = [
           (new Date(report.added_at)).toLocaleString("ru", {
             year: 'numeric',
             month: 'short',
@@ -347,7 +353,16 @@ export default {
           }),
           report.message,
           {text: report.added_by_user__username, href: {name: 'home'}}
-        ]);
+        ];
+
+        if (this.getIsModerator()) {
+          reportRow.push({text: 'Отправить на модерацию', click: async () => {
+            await this.patchReportStatus({id: report.id, action: 'revise'});
+            this.$router.replace({name: 'moderation_reports'});
+            }, cls: "btn-warning"});
+        }
+
+        this.reportsForTable.push(reportRow);
       });
 
       this.chart.loaded = true;

@@ -18,14 +18,21 @@
     </div>
     <div class="review-content">
       <p>{{ message }}</p>
+      <Btn v-if="getIsModerator()" class="btn-warning mt-3" @click="sendPatchReviewStatus">Отправить на модерацию</Btn>
     </div>
   </li>
 </template>
 
 <script>
+import {mapActions, mapGetters} from "vuex";
+
 export default {
   name: "ReviewsListItem",
   props: {
+    id: {
+      required: true,
+      type: Number,
+    },
     added_by_user: {
       required: true,
       type: Number
@@ -45,6 +52,20 @@ export default {
     mark: {
       required: true,
       type: Number
+    }
+  },
+  methods: {
+    ...mapGetters({
+      getIsModerator: "auth/getIsModerator"
+    }),
+
+    ...mapActions({
+      patchReviewStatus: "moderation/patchReviewStatus"
+    }),
+
+    async sendPatchReviewStatus() {
+      await this.patchReviewStatus({id: this.id, action: 'revise'});
+      this.$router.replace({name: "moderation_reviews"});
     }
   }
 }

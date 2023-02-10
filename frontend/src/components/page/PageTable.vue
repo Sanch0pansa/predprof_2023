@@ -16,7 +16,8 @@
         <td v-for="column in row">
           <div v-if="typeof column != 'object'" v-html="column"></div>
           <div v-else>
-            <RouterLink :to="column.href">{{ column.text }}</RouterLink>
+            <RouterLink v-if="column.href" :to="column.href">{{ column.text }}</RouterLink>
+            <Btn v-if="column.click" :class="column.cls" @click="column.click">{{ column.text }}</Btn>
           </div>
         </td>
       </tr>
