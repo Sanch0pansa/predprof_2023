@@ -63,7 +63,11 @@ export default {
       let urlIsValid = urlRegExp.test(this.url);
 
       if (!urlIsValid) {
-        this.errorBag.url.push("Ссылка не валидна");
+        let invalidUrlErrorText = "Ссылка не валидна";
+        if (!this.errorBag.url.includes(invalidUrlErrorText)) {
+          this.errorBag.url.push(invalidUrlErrorText);
+        }
+
         return null;
       }
 
