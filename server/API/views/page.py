@@ -107,7 +107,7 @@ class GetCheckingPages(generics.GenericAPIView):
                                      'FROM "API_page" AS pages '
                                      'LEFT JOIN "API_check" AS checks ON checks.page_id=pages.id '
                                      'LEFT JOIN "API_review" AS reviews ON pages.id=reviews.page_id '
-                                     'WHERE pages.is_checking = true '
+                                     'WHERE pages.is_checking = true AND reviews.is_published = true '
                                      'GROUP BY pages.id, checks.response_time, checks.checked_at, checks.check_status '
                                      'ORDER BY pages.id DESC, checks.checked_at DESC ')
             result = []
