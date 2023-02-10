@@ -74,7 +74,7 @@
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
   <PageSection :title="`Отзывы`">
-    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Сообщить отзыв</ModalBtn>
+    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Добавить отзыв</ModalBtn>
     <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
