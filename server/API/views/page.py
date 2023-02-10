@@ -23,6 +23,9 @@ class PageCreate(generics.GenericAPIView):
         try:
             data = getData(request)
             user = request.user
+            page = list(Page.objects.filter(url=data['url']).exclude(is_moderated=False))
+            if page:
+                return JsonResponse({'errors': {'url': ['Сайт с такой ссылкой уже есть в базе']}})
             page = Page(name=data['name'],
                         url=data['url'],
                         description=data['description'],
@@ -34,6 +37,7 @@ class PageCreate(generics.GenericAPIView):
             page.save()
             return JsonResponse({'success': True})
         except Exception as ex:
+            print(ex)
             return JsonResponse({'success': False}, status=400)
 
 
@@ -106,8 +110,8 @@ class GetCheckingPages(generics.GenericAPIView):
                                      'ROUND(AVG(reviews.mark), 2) as rating '
                                      'FROM "API_page" AS pages '
                                      'LEFT JOIN "API_check" AS checks ON checks.page_id=pages.id '
-                                     'LEFT JOIN "API_review" AS reviews ON pages.id=reviews.page_id '
-                                     'WHERE pages.is_checking = true AND reviews.is_published = true '
+                                     'LEFT JOIN "API_review" AS reviews ON (pages.id=reviews.page_id AND reviews.is_published=true) '
+                                     'WHERE pages.is_checking = true '
                                      'GROUP BY pages.id, checks.response_time, checks.checked_at, checks.check_status '
                                      'ORDER BY pages.id DESC, checks.checked_at DESC ')
             result = []
