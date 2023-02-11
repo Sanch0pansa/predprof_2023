@@ -65,7 +65,7 @@ export default {
         return [];
       }
 
-      let res = await this.changeUserRights({id: this.user.id, rights: this.rights});
+      let res = await this.changeUserRights({id: this.user.id, newRight: this.rights});
       if (!res.success) {
         this.errorBag.non_field_errors.push("Что-то пошло не так");
       } else {

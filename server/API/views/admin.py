@@ -34,7 +34,7 @@ class StaffUsers(generics.GenericAPIView):
                 User.objects.filter(id=id).update(role=3, is_staff=False, is_superuser=False)
             elif data['rights'] == 'moderator':
                 User.objects.filter(id=id).update(role=2, is_staff=True, is_superuser=False)
-            elif data['action'] == 'admin':
+            elif data['rights'] == 'admin':
                 User.objects.filter(id=id).update(role=1, is_staff=True, is_superuser=True)
             return JsonResponse({'success': True})
         except Exception as ex:
