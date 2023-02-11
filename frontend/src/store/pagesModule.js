@@ -1,15 +1,16 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    getPopularPages: "http://127.0.0.1:8000/api/v1/page/get_popular_pages/",
-    getCheckingPages: "http://127.0.0.1:8000/api/v1/page/get_checking_pages/",
-    getStatistics: "http://127.0.0.1:8000/api/v1/page/get_statistic/",
-    createPage: "http://127.0.0.1:8000/api/v1/page/",
-    getPageData: id => `http://127.0.0.1:8000/api/v1/page/${id}/`,
-    getPageChecks: id => `http://127.0.0.1:8000/api/v1/page/${id}/checks/`,
-    getPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
-    getPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
-    subscriptionPage: id => `http://127.0.0.1:8000/api/v1/page/${id}/subscription/`,
+    getPopularPages: `${Url}/page/get_popular_pages/`,
+    getCheckingPages: `${Url}/page/get_checking_pages/`,
+    getStatistics: `${Url}/page/get_statistic/`,
+    createPage: `${Url}/page/`,
+    getPageData: id => `${Url}/page/${id}/`,
+    getPageChecks: id => `${Url}/page/${id}/checks/`,
+    getPageReports: id => `${Url}/page/${id}/reports/`,
+    getPageReviews: id => `${Url}/page/${id}/reviews/`,
+    subscriptionPage: id => `${Url}/page/${id}/subscription/`,
 }
 
 export default {

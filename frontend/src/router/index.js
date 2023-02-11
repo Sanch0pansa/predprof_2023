@@ -10,6 +10,7 @@ import ModerationView from "@/views/Moderation/ModerationView.vue";
 import ModerationPagesView from "@/views/Moderation/ModerationPagesView.vue";
 import ModerationReviewsView from "@/views/Moderation/ModerationReviewsView.vue";
 import ModerationReportsView from "@/views/Moderation/ModerationReportsView.vue";
+import AdminView from "@/views/Admin/AdminView.vue";
 
 
 const router = createRouter({
@@ -100,6 +101,17 @@ const router = createRouter({
         authRequired: true,
         authUpdate: true,
         moderatorRequired: true,
+      },
+    },
+    {
+      path: '/admin/',
+      name: 'admin',
+      component: AdminView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+        adminRequired: true,
       },
     },
   ]
