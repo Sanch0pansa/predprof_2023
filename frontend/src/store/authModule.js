@@ -1,10 +1,11 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    login: "http://127.0.0.1:8000/api/v1/auth/user/login/",
-    register: "http://127.0.0.1:8000/api/v1/auth/user/registration/",
-    getUserData: "http://127.0.0.1:8000/api/v1/user/me/",
-    logout: "http://127.0.0.1:8000/api/v1/auth/token/logout/"
+    login: `${Url}/auth/user/login/`,
+    register: `${Url}/auth/user/registration/`,
+    getUserData: `${Url}/user/me/`,
+    logout: `${Url}/auth/token/logout/`
 }
 
 export default {

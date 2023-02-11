@@ -1,17 +1,18 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 
 const URLS = {
-    getModerationCategories: `http://127.0.0.1:8000/api/v1/moderation/get_categories/`,
-    getModerationPages: `http://127.0.0.1:8000/api/v1/moderation/pages/`,
-    getRejectedPages: `http://127.0.0.1:8000/api/v1/moderation/rejected_pages/`,
-    getModerationReviews: `http://127.0.0.1:8000/api/v1/moderation/reviews/`,
-    getRejectedReviews: `http://127.0.0.1:8000/api/v1/moderation/rejected_reviews/`,
-    getModerationReports: `http://127.0.0.1:8000/api/v1/moderation/reports/`,
-    getRejectedReports: `http://127.0.0.1:8000/api/v1/moderation/rejected_reports/`,
-    patchPageStatus: id => `http://127.0.0.1:8000/api/v1/moderation/moderate/page/${id}/`,
-    patchReviewStatus: id => `http://127.0.0.1:8000/api/v1/moderation/moderate/review/${id}/`,
-    patchReportStatus: id => `http://127.0.0.1:8000/api/v1/moderation/moderate/report/${id}/`,
+    getModerationCategories: `${Url}/moderation/get_categories/`,
+    getModerationPages: `${Url}/moderation/pages/`,
+    getRejectedPages: `${Url}/moderation/rejected_pages/`,
+    getModerationReviews: `${Url}/moderation/reviews/`,
+    getRejectedReviews: `${Url}/moderation/rejected_reviews/`,
+    getModerationReports: `${Url}/moderation/reports/`,
+    getRejectedReports: `${Url}/moderation/rejected_reports/`,
+    patchPageStatus: id => `${Url}/moderation/moderate/page/${id}/`,
+    patchReviewStatus: id => `${Url}/moderation/moderate/review/${id}/`,
+    patchReportStatus: id => `${Url}/moderation/moderate/report/${id}/`,
 }
 
 export default {

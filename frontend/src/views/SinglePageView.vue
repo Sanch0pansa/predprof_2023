@@ -40,7 +40,7 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mt-3">
           <span>Рейтинг</span>
-          <span class="text-end">{{ rating }}</span>
+          <span class="text-end"><i class="fas fa-star text-warning"></i> {{ rating }}</span>
         </div>
       </Block>
     </div>

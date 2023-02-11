@@ -1,8 +1,9 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    generateTelegramCode: "http://127.0.0.1:8000/api/v1/user/generate_telegram_code/",
-    unlinkTelegram: "http://127.0.0.1:8000/api/v1/user/unlink_telegram/",
+    generateTelegramCode: `${Url}/user/generate_telegram_code/`,
+    unlinkTelegram: `${Url}/user/unlink_telegram/`,
 }
 
 export default {
