@@ -1,15 +1,15 @@
 from rest_framework import generics
 from API.models import Page, Review, Check, Report, Subscription
 from API.serializers.page import PageSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from API.permissions import IsAdmin
 from django.http import JsonResponse
-from django.db.models import Q
 from django.core.paginator import Paginator
 from API.funcs import getData
 from django.core.exceptions import ValidationError
 
 
-class PageListCreateView(generics.ListCreateAPIView):
+class PageListView(generics.ListAPIView):
     serializer_class = PageSerializer
     permission_classes = [IsAuthenticated]
     queryset = Page.objects.all()
@@ -42,6 +42,7 @@ class PageCreate(generics.GenericAPIView):
 
 
 class PageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdmin]
     serializer_class = PageSerializer
     queryset = Page.objects.all()
 
@@ -152,7 +153,7 @@ class GetAccountData(generics.GenericAPIView):
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
-class GetPageChecks(generics.GenericAPIView):
+class PageChecks(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = PageSerializer
 
@@ -164,7 +165,7 @@ class GetPageChecks(generics.GenericAPIView):
             return JsonResponse({'detail': 'Something went wrong'})
 
 
-class GetPageReviews(generics.GenericAPIView):
+class PageReviews(generics.GenericAPIView):
     serializer_class = PageSerializer
 
     def get_permissions(self):
@@ -173,7 +174,7 @@ class GetPageReviews(generics.GenericAPIView):
         elif self.request.method == 'POST':
             return [IsAuthenticated()]
         else:
-            return [IsAdminUser()]
+            return [IsAdmin()]
 
     def get(self, request, id, *args, **kwargs):
         try:
@@ -197,7 +198,7 @@ class GetPageReviews(generics.GenericAPIView):
             return JsonResponse({'success': False}, status=400)
 
 
-class GetPageReports(generics.GenericAPIView):
+class PageReports(generics.GenericAPIView):
     serializer_class = PageSerializer
 
     def get_permissions(self):
@@ -206,7 +207,7 @@ class GetPageReports(generics.GenericAPIView):
         elif self.request.method == 'POST':
             return [IsAuthenticated()]
         else:
-            return [IsAdminUser()]
+            return [IsAdmin()]
 
     def get(self, request, id, *args, **kwargs):
         try:

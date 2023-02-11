@@ -8,9 +8,9 @@ urlpatterns = [
     path('page/get_statistic/', page.GetSiteStats.as_view()),
     path('page/get_checking_pages/', page.GetCheckingPages.as_view()),
     path('page/get_account_data/', page.GetAccountData.as_view()),
-    path('page/<int:id>/checks/', page.GetPageChecks.as_view()),
-    path('page/<int:id>/reviews/', page.GetPageReviews.as_view()),
-    path('page/<int:id>/reports/', page.GetPageReports.as_view()),
+    path('page/<int:id>/checks/', page.PageChecks.as_view()),
+    path('page/<int:id>/reviews/', page.PageReviews.as_view()),
+    path('page/<int:id>/reports/', page.PageReports.as_view()),
     path('page/<int:id>/subscription/', page.Subscriptions.as_view()),
     path('page/<int:id>/', page.GetPageData.as_view())
 ]

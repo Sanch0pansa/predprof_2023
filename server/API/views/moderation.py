@@ -1,12 +1,12 @@
 from API.funcs import getData
 from rest_framework import generics
 from API.models import Page, Review, Report
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from API.permissions import IsAdmin, IsModerator
 from django.http import JsonResponse
 
 
 class GetModerateCategories(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -22,7 +22,7 @@ class GetModerateCategories(generics.GenericAPIView):
 
 
 class GetModerationPages(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -45,7 +45,7 @@ class GetModerationPages(generics.GenericAPIView):
 
 
 class GetRejectedModerationPages(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -71,7 +71,7 @@ class GetRejectedModerationPages(generics.GenericAPIView):
 
 
 class GetModerationReviews(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -98,7 +98,7 @@ class GetModerationReviews(generics.GenericAPIView):
 
 
 class GetRejectedModerationReviews(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -128,7 +128,7 @@ class GetRejectedModerationReviews(generics.GenericAPIView):
 
 
 class GetModerationReports(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -154,7 +154,7 @@ class GetModerationReports(generics.GenericAPIView):
 
 
 class GetRejectedModerationReports(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -182,7 +182,7 @@ class GetRejectedModerationReports(generics.GenericAPIView):
 
 
 class Moderate(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin | IsModerator]
 
     def patch(self, request, category, id, *args, **kwargs):
         try:
