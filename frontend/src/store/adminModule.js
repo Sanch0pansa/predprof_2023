@@ -33,7 +33,7 @@ export default {
                     }
                 );
 
-                return {success: false};
+                return {success: true};
 
             } catch(e) {
                 return {success: false};
