@@ -1,7 +1,6 @@
 import telebot
 import requests
 from threading import Thread
-from timeloop import Timeloop
 import datetime
 
 import logging
@@ -14,8 +13,6 @@ app = Flask('SiteChecker')
 
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
-
-tl = Timeloop()
 
 my_id = 1080913894
 
@@ -106,11 +103,12 @@ def bot_reply(message):
     if not last_data_telegram:
         bot.send_message(message.from_user.id, 'Данных пока нет')
         logging.error('No last data')
+        return
     try:
         bot.send_message(message.from_user.id, last_data_telegram['date'] + last_data_telegram[message.from_user.id],
                          disable_web_page_preview=True)
     except KeyError:
-        bot.send_message(message.from_user.id,  # Добавить ссылку на сайт
+        bot.send_message(message.from_user.id,
                          'Вы не подписанны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
         logging.info("'/last' from not subscriber")
 
@@ -161,12 +159,12 @@ def check_bot_messages():
             array[user] = text
 
     for i in dict_data:
-        # if i['response_status_code'] == '200':
-        #     for id in i['subscribers_telegram']:
-        #         add_message(tg_message, id, f'✅ {i["url"]} \n')
-        #     for mail in i['subscribers_email']:
-        #         add_message(mail_messages, mail, f'✅ {i["url"]}\n')
-        if i['response_status_code'][0] == '4':
+        if i['response_status_code'] == '200':
+            for id in i['subscribers_telegram']:
+                add_message(tg_message, id, '')
+            for mail in i['subscribers_email']:
+                add_message(mail_messages, mail, '')
+        elif i['response_status_code'][0] == '4':
             for id in i['subscribers_telegram']:
                 add_message(tg_message, id, f'❌ {i["url"]} (ошибка клиента)\n')
             for mail in i['subscribers_email']:
@@ -187,6 +185,14 @@ def check_bot_messages():
     month = MONTHS[datetime.date.today().month - 1]
     day = datetime.date.today().day
     current_time = datetime.datetime.now().time().isoformat()[:5]
+
+    for id in tg_message:
+        if not tg_message[id]:
+            tg_message[id] = '✅ Все сайты работают'
+
+    for mail in mail_messages:
+        if not mail_messages[mail]:
+            mail_messages = '✅ Все сайты работают'
 
     last_data_telegram = tg_message.copy()
     last_data_telegram['date'] = f'Последнее обновление {day} {month} в {current_time}\n'
@@ -211,7 +217,7 @@ def check_bot_messages():
         mail.sendmail(bot_mail, to_mail, message.encode('utf8'))
 
     for message in mail_messages:
-        send_email(message, f'На момент {day} {month} {current_time} не работали сайты:\n' +
+        send_email(message, f'На момент {day} {month} {current_time}:\n' +
                    mail_messages[message] + '\nС уважением Bot Checker!')
 
 
@@ -219,3 +225,6 @@ task_client = Thread(target=bot.infinity_polling)
 task_flask = Thread(target=lambda: app.run(port=1000))
 task_client.start()
 task_flask.start()
+
+# Сделать получение времени
+# Добавить ссылку на сайт
