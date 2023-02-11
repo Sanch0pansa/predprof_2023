@@ -3,9 +3,10 @@ from API.models import Check, Page
 from API.serializers.check import CheckSerializer
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
+import requests
 
 config = [i.split() for i in open('tokens.txt').readlines()][1]
-
+bot_token = [i.split() for i in open('tokens.txt').readlines()][0]
 
 class GetPagesForCheck(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -44,6 +45,8 @@ class CheckCreateView(generics.GenericAPIView):
                               response_time=data['response_time'],
                               check_status=last_check_result)
                 check.save()
+                if check.page_id == list(Page.objects.filter(is_checking=True).order_by('-id').values('id'))[0]['id']:
+                    data = requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
                 return JsonResponse({'success': True})
         except Exception as ex:
             print(ex)

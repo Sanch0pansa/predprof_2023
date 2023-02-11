@@ -23,7 +23,8 @@ class GetBotMessages(generics.GenericAPIView):
                 '            ORDER BY subs.id ASC, checks.page_id ASC, checked_at DESC) as sub1\n'
                 '            ON pages.id=sub1.page_id\n'
                 'JOIN "API_user" as users\n'
-                'ON users.id=sub1.user_id\n')
+                'ON users.id=sub1.user_id\n'
+                'WHERE NOT (sub1.response_status_code=\'200\')')
             checks = (Check.objects.raw(query))
             pages = {}
             for i in checks:
