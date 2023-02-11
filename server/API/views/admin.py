@@ -34,8 +34,20 @@ class StaffUsers(generics.GenericAPIView):
                 User.objects.filter(id=id).update(role=3, is_staff=False, is_superuser=False)
             elif data['rights'] == 'moderator':
                 User.objects.filter(id=id).update(role=2, is_staff=True, is_superuser=False)
-            elif data['action'] == 'promote':
+            elif data['action'] == 'admin':
                 User.objects.filter(id=id).update(role=1, is_staff=True, is_superuser=True)
             return JsonResponse({'success': True})
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=404)
+
+
+class UserSearch(generics.GenericAPIView):
+    permission_classes = [IsAdmin]
+    serializer_class = UserSerializer
+
+    def get(self, request, username):
+        try:
+            users = list(User.objects.filter(username__icontains=username, role=3).values('id', 'username'))
+            return JsonResponse(users, safe=False)
         except Exception as ex:
             return JsonResponse({'success': False}, status=404)
