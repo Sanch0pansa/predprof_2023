@@ -41,7 +41,7 @@ def url_get_messages():
     data = request.get_json()
     if data['_token'] == _token:
         logging.info('Call from server')
-        check_bot_messages(data)
+        check_bot_messages()
     else:
         logging.info('Call from OUTSIDE')
     return 'None'
@@ -116,15 +116,15 @@ def bot_reply(message):
 
 
 # @bot.message_handler(commands=['check'])
-def check_bot_messages(dict_data):
+def check_bot_messages():
     global last_data_telegram
     logging.info("Run 'check_bot_messages' function")
-    # try:
-    #     data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
-    #     dict_data = data.json()
-    # except:
-    #     logging.error("No request to 'bot/get_bot_messages/'")
-    #     return "Hello, World!"
+    try:
+        data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
+        dict_data = data.json()
+    except:
+        logging.error("No request to 'bot/get_bot_messages/'")
+        return
     # dict_data = [
     #     {
     #         'url': 'https://dontsu.ru',  # 2xx - хороший сайт
@@ -161,12 +161,12 @@ def check_bot_messages(dict_data):
             array[user] = text
 
     for i in dict_data:
-        if i['response_status_code'] == '200':
-            for id in i['subscribers_telegram']:
-                add_message(tg_message, id, f'✅ {i["url"]} \n')
-            for mail in i['subscribers_email']:
-                add_message(mail_messages, mail, f'✅ {i["url"]}\n')
-        elif i['response_status_code'][0] == '4':
+        # if i['response_status_code'] == '200':
+        #     for id in i['subscribers_telegram']:
+        #         add_message(tg_message, id, f'✅ {i["url"]} \n')
+        #     for mail in i['subscribers_email']:
+        #         add_message(mail_messages, mail, f'✅ {i["url"]}\n')
+        if i['response_status_code'][0] == '4':
             for id in i['subscribers_telegram']:
                 add_message(tg_message, id, f'❌ {i["url"]} (ошибка клиента)\n')
             for mail in i['subscribers_email']:
