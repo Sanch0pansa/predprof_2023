@@ -76,7 +76,7 @@
   <PageSection :title="`Отзывы`">
     <ModalBtn :class="`mb-3`" id="creatingReviewModal">Добавить отзыв</ModalBtn>
     <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
-    <div class="text-muted" v-else>Сообщений о сбоях не было</div>
+    <div class="text-muted" v-else>Отзывов нет</div>
   </PageSection>
 
   <Modal id="creatingReportModal" :title="`Добавление сообщения о сбое`">
@@ -133,9 +133,9 @@ export default {
     CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
-      name: "МГТУ",
-      url: "mgtu.ru",
-      description: "Просто описание сайта, которое может добавить пользователь при регистрации сайта в реестр",
+      name: "",
+      url: "",
+      description: "",
       status: 2,
       rating: 0,
       subscribed: false,

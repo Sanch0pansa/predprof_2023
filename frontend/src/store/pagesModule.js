@@ -178,6 +178,7 @@ export default {
             }
 
             // Рассчёт среднего рейтинга
+            page.data.rating = 0;
             if (page.reviews.length) {
                 let sum = 0;
                 page.reviews.forEach(review => sum += Number(review.mark));
