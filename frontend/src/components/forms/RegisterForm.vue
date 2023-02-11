@@ -3,7 +3,7 @@
     <FormEl @handle="handle">
       <Inp
           :name="`login`"
-          :label="`Логин:`"
+          :label="`Email:`"
           v-model="login"
           v-model:errors="errorBag.email">
       </Inp>

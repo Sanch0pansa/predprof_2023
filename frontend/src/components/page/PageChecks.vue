@@ -77,7 +77,7 @@ export default {
             time,
             `<b class="text-${statesColors[status]}">${statesNames[status]}</b>`,
             `<b class="text-${statesColors[status]}">${timeout}</b>`,
-            Number(page.rating),
+            `<i class="fas fa-star text-warning"></i> ${Number(page.rating)}`,
         ]);
       });
     }
