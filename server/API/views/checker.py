@@ -4,6 +4,7 @@ from API.serializers.check import CheckSerializer
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 import requests
+from API.funcs import getData
 
 config = [i.split() for i in open('tokens.txt').readlines()][1]
 bot_token = [i.split() for i in open('tokens.txt').readlines()][0]
@@ -13,8 +14,8 @@ class GetPagesForCheck(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
-            sites = {'pages': []}
+            data = getData(request)
+            sites = {'pages': []} # {'url': page_id, ...}
             if data['_token'] == config[1]:
                 pages = list((Page.objects.filter(is_checking=True)).values())
                 for i in pages:
@@ -31,25 +32,27 @@ class CheckCreateView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
+            data = getData(request)
             if data['_token'] == config[1]:
-                page = list((Page.objects.filter(url=data['url'])).values())[0]
-                if data['response_status_code'] != '200':
-                    last_check_result = 0
-                elif int(data['response_time']) < 1000:
-                    last_check_result = 2
-                elif int(data['response_time']) >= 1000:
-                    last_check_result = 1
-                check = Check(page_id=page['id'],
-                              response_status_code=data['response_status_code'],
-                              response_time=data['response_time'],
-                              check_status=last_check_result)
-                check.save()
-                if check.page_id == list(Page.objects.filter(is_checking=True).order_by('-id').values('id'))[0]['id']:
-                    data = requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
+                pages = data['data']
+                for i in pages:
+                    page_id = list((Page.objects.filter(url=i)).values())[0]['id']
+                    res_code = pages[i][0]
+                    res_time = pages[i][1] * 1000
+                    if res_code != 200:
+                        last_check_result = 0
+                    elif res_time < 1000:
+                        last_check_result = 2
+                    elif res_time >= 1000:
+                        last_check_result = 1
+                    check = Check(page_id=page_id,
+                                  response_status_code=res_code,
+                                  response_time=res_time,
+                                  check_status=last_check_result)
+                    check.save()
+                requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
                 return JsonResponse({'success': True})
         except Exception as ex:
-            print(ex)
             return JsonResponse({'success': False})
 
 
