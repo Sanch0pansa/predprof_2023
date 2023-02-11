@@ -2,7 +2,8 @@ from rest_framework import generics
 from API.models import User
 from django.http import JsonResponse
 from API.serializers.user import UserSerializer, UserRegisterSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from API.permissions import IsAdmin
 from rest_framework.authtoken.models import Token
 from django.utils import timezone
 from random import seed, randint
@@ -11,7 +12,6 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import BaseUserManager
 from API.funcs import getData
 from django.core.exceptions import ValidationError
-from django.contrib.auth import authenticate
 
 
 class UserCreateView(generics.GenericAPIView):
@@ -52,7 +52,6 @@ class UserLoginView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             data = getData(request)
-            print(data)
             if data['login'] == '' and data['password'] == '':
                 return JsonResponse({'errors': {'login': ['Это поле не может быть пустым.'],
                                                 'password': ['Это поле не может быть пустым.']}}, status=400,
@@ -86,13 +85,13 @@ class UserLoginView(generics.GenericAPIView):
 
 
 class UserListView(generics.ListAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin]
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin]
     serializer_class = UserSerializer
     queryset = User.objects.all()
 

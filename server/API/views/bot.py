@@ -2,12 +2,17 @@ from rest_framework import generics
 from django.http import JsonResponse
 from API.models import Check, User
 from django.utils import timezone
+from API.funcs import getData
 from rest_framework.permissions import AllowAny
+
 config = [i.split() for i in open('tokens.txt').readlines()][0]
+
+
 class GetBotMessages(generics.GenericAPIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
-        data = request.POST
+        data = getData(request)
         if data['_token'] == config[1]:
             query = (
                 'SELECT 1 as id, pages.url, users.email, users.telegram_id, sub1.response_status_code, sub1.response_time\n'
@@ -41,13 +46,13 @@ class GetBotMessages(generics.GenericAPIView):
 
 class VerifyUser(generics.GenericAPIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
+            data = getData(request)
             if data['_token'] == config[1]:
                 try:
-                    checkJson = ((User.objects.filter(telegram_verification_code=data['telegram_verification_code'])).values())[
-                        0]
+                    checkJson = ((User.objects.filter(telegram_verification_code=data['telegram_verification_code'])).values())[0]
                     checkData = User.objects.get(pk=checkJson['id'])
                 except Exception:
                     return JsonResponse({'succes': False})
@@ -68,9 +73,10 @@ class VerifyUser(generics.GenericAPIView):
 
 class CheckUser(generics.GenericAPIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST
+            data = getData(request)
             if data['_token'] == config[1]:
                 user = list((User.objects.filter(telegram_id=data['telegram_id'])).values())
                 if user != []:

@@ -1,14 +1,14 @@
 from rest_framework import generics
 from API.models import User
 from API.serializers.user import UserSerializer
-from rest_framework.permissions import IsAdminUser
+from API.permissions import IsAdmin
 from django.db.models import Q
 from django.http import JsonResponse
 from API.funcs import getData
 
 
 class StaffUsers(generics.GenericAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin]
     serializer_class = UserSerializer
 
     def get(self, request):

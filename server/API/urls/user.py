@@ -1,7 +1,5 @@
 from django.urls import path
 from API.views import user
-from rest_framework.authtoken import views as authViews
-
 
 urlpatterns = [
     path('auth/user/registration/', user.UserCreateView.as_view()),
