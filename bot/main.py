@@ -27,8 +27,8 @@ with open('conf.txt') as file:
     bot_mail = config[1][1]
     mail_password = config[2][1]
 
-mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
-mail.login(bot_mail, mail_password)
+Mailing_Мail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
+Mailing_Мail.login(bot_mail, mail_password)
 
 last_data_telegram = {}
 
@@ -192,7 +192,7 @@ def check_bot_messages():
 
     for mail in mail_messages:
         if not mail_messages[mail]:
-            mail_messages = '✅ Все сайты работают'
+            mail_messages[mail] = '✅ Все сайты работают'
 
     last_data_telegram = tg_message.copy()
     last_data_telegram['date'] = f'Последнее обновление {day} {month} в {current_time}\n'
@@ -214,11 +214,11 @@ def check_bot_messages():
         theme = 'Оповещение о работе сайта'
         message = f'From: {bot_mail}\r\nTo: {to_mail}]\r\nContent-Type: text/plain; charset="utf-8"\r\nSubject: {theme}\r\n\r\n'
         message += text
-        mail.sendmail(bot_mail, to_mail, message.encode('utf8'))
+        Mailing_Мail.sendmail(bot_mail, to_mail, message.encode('utf8'))
 
     for message in mail_messages:
         send_email(message, f'На момент {day} {month} {current_time}:\n' +
-                   mail_messages[message] + '\nС уважением Bot Checker!')
+                   mail_messages[message] + '\nС уважением Site Checker!')
 
 
 task_client = Thread(target=bot.infinity_polling)
@@ -228,3 +228,4 @@ task_flask.start()
 
 # Сделать получение времени
 # Добавить ссылку на сайт
+# 'checked_at'
