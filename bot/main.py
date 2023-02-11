@@ -1,7 +1,6 @@
 import telebot
 import requests
 from threading import Thread
-from timeloop import Timeloop
 import datetime
 
 import logging
@@ -14,8 +13,6 @@ app = Flask('SiteChecker')
 
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
-
-tl = Timeloop()
 
 my_id = 1080913894
 
@@ -111,7 +108,7 @@ def bot_reply(message):
         bot.send_message(message.from_user.id, last_data_telegram['date'] + last_data_telegram[message.from_user.id],
                          disable_web_page_preview=True)
     except KeyError:
-        bot.send_message(message.from_user.id,  # Добавить ссылку на сайт
+        bot.send_message(message.from_user.id,
                          'Вы не подписанны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
         logging.info("'/last' from not subscriber")
 
@@ -197,6 +194,9 @@ def check_bot_messages():
         if not mail_messages[mail]:
             mail_messages = '✅ Все сайты работают'
 
+    last_data_telegram = tg_message.copy()
+    last_data_telegram['date'] = f'Последнее обновление {day} {month} в {current_time}\n'
+
     for message in tg_message:
         if message == 'date':
             continue
@@ -220,9 +220,6 @@ def check_bot_messages():
         send_email(message, f'На момент {day} {month} {current_time}:\n' +
                    mail_messages[message] + '\nС уважением Bot Checker!')
 
-    last_data_telegram = tg_message.copy()
-    last_data_telegram['date'] = f'Последнее обновление {day} {month} в {current_time}\n'
-
 
 task_client = Thread(target=bot.infinity_polling)
 task_flask = Thread(target=lambda: app.run(port=1000))
@@ -230,4 +227,4 @@ task_client.start()
 task_flask.start()
 
 # Сделать получение времени
-# Переделать сообщения в тг и на мэил
+# Добавить ссылку на сайт
