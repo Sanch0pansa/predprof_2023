@@ -1,6 +1,7 @@
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen, Request
 import requests
+from datetime import datetime
 
 
 TIMEOUT_TIME = 7
@@ -61,4 +62,4 @@ def check(url_to_check, check_num=0):
             status = 199
         else:
             status = website.getcode()
-    return status, round(response_time, 3)
+    return url, status, int(response_time * 1000), datetime.now().isoformat()
