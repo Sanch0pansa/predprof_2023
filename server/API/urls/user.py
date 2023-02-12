@@ -10,5 +10,8 @@ urlpatterns = [
     path('user/unlink_telegram/', user.UnlinkTelegram.as_view()),
     path('user/me/', user.ShowMe.as_view()),
     path('user/list/', user.UserListView.as_view()),
-    path('user/<int:pk>/', user.UserRetrieveUpdateDestroyView.as_view()),
+    path('user/retrive/<int:pk>/', user.UserRetrieveUpdateDestroyView.as_view()),
+    path('user/<int:id>/', user.UserInfo.as_view()),
+
+
 ]
