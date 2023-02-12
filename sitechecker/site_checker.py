@@ -5,7 +5,6 @@ from datetime import datetime
 
 
 TIMEOUT_TIME = 7
-LATE_TIME = 5
 
 
 def opening_time(url):
@@ -58,8 +57,5 @@ def check(url_to_check, check_num=0):
         if check_num < 4:
             return check(url_to_check, check_num + 1)
     else:
-        if response_time >= LATE_TIME:
-            status = 199
-        else:
-            status = website.getcode()
+        status = website.getcode()
     return url, status, int(response_time * 1000), datetime.now().isoformat()
