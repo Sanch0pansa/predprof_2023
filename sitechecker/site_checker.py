@@ -58,4 +58,4 @@ def check(url_to_check, check_num=0):
             return check(url_to_check, check_num + 1)
     else:
         status = website.getcode()
-    return url, status, int(response_time * 1000), datetime.now().isoformat()
+    return status, int(response_time * 1000), datetime.now().isoformat()
