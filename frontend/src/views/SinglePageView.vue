@@ -352,7 +352,7 @@ export default {
             second: "numeric"
           }),
           report.message,
-          {text: report.added_by_user__username, href: {name: 'home'}}
+          {username: report.added_by_user__username, id: report.added_by_user}
         ];
 
         if (this.getIsModerator()) {

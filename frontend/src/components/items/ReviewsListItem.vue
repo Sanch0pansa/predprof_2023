@@ -1,11 +1,14 @@
 <template>
   <li class="review">
     <div class="review-header">
-      <Link :href="`https://google.com`">{{ added_by_user__username }}</Link>
-      <div class="text-muted">{{ (new Date(added_at)).toLocaleDateString("ru", {
+      <Username :username="added_by_user__username" :id="added_by_user"></Username>br
+      <div class="text-muted">{{ (new Date(added_at)).toLocaleString("ru", {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric"
       }) }}</div>
     </div>
     <div class="review-mark">
@@ -25,9 +28,11 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import Username from "@/components/UI/Username.vue";
 
 export default {
   name: "ReviewsListItem",
+  components: {Username},
   props: {
     id: {
       required: true,

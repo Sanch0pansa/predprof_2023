@@ -11,6 +11,7 @@ import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import StarRating from "@/components/UI/StarRating.vue";
 import Tabs from "@/components/UI/Tabs.vue";
+import Username from "@/components/UI/Username.vue";
 
 export default [
     Btn,
@@ -25,5 +26,6 @@ export default [
     Modal,
     ModalBtn,
     StarRating,
-    Tabs
+    Tabs,
+    Username
 ]
