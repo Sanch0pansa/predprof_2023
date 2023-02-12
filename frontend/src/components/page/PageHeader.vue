@@ -35,7 +35,9 @@
                   Админ. панель
                 </RouterLink>
               </li>
-              <li class="dropdown-item text-danger" role="button" @click="logoutAction"><i class="text-danger fas fa-sign-out-alt"></i> Выход</li>
+              <li class="dropdown-item text-danger" role="button" @click="logoutAction">
+                <a href="#" class="text-danger"><i class="text-danger fas fa-sign-out-alt"></i> Выход</a>
+                </li>
             </ul>
           </li>
           <li v-if="!isAuth" class="nav-item">
