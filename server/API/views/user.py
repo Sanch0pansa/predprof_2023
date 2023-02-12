@@ -1,5 +1,5 @@
 from rest_framework import generics
-from API.models import User
+from API.models import User, Subscription,Review, Report
 from django.http import JsonResponse
 from API.serializers.user import UserSerializer, UserRegisterSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -204,3 +204,18 @@ class UnlinkTelegram(generics.GenericAPIView):
             return JsonResponse({'success': True})
         except Exception as ex:
             return JsonResponse({'detail': False})
+
+
+class UserInfo(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+
+    def get(self, request, id):
+        try:
+            subscriptions = Subscription.objects.only('id').filter(user=id).count()
+            reports = Report.objects.only('id').filter(added_by_user=id).count()
+            reviews = Review.objects.only('id').filter(added_by_user=id).count()
+            joined = list(User.objects.filter(id=id).values('date_joined'))[0]['date_joined']
+            return JsonResponse({'reviews': reviews, 'reports': reports, 'subscriptions': subscriptions, 'joined': joined})
+        except Exception:
+            return JsonResponse({'success': False}, status=404)

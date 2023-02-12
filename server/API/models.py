@@ -18,7 +18,7 @@ class User(AbstractUser):
     email = models.EmailField(max_length=128, unique=True)
     password = models.CharField(validators=[MinLengthValidator(8)], max_length=128)
     username = models.CharField(max_length=128, unique=True)
-    telegram_id = models.IntegerField(null=True, blank=True)
+    telegram_id = models.IntegerField(null=True, blank=True, unique=True)
     telegram_verification_code = models.IntegerField(blank=True, default=None, null=True, unique=True)
     telegram_verification_code_date = models.DateTimeField(blank=True, default=None, null=True)
     role = models.ForeignKey(Role, on_delete=models.SET_DEFAULT, default=3, related_name='users')
@@ -39,7 +39,7 @@ class Report(models.Model):
     added_by_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='reports')
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reports')
     message = models.CharField(max_length=256)
-    added_at = models.DateTimeField(auto_now_add=True)
+    added_at = models.DateTimeField()
     is_moderated = models.BooleanField(null=True, default=None, blank=True)
     moderated_by_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='+')
     is_published = models.BooleanField(default=False)
@@ -47,7 +47,7 @@ class Report(models.Model):
 
 class Check(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='checks')
-    checked_at = models.DateTimeField(auto_now_add=True)
+    checked_at = models.DateTimeField()
     response_status_code = models.CharField(max_length=3)
     response_time = models.SmallIntegerField()
     check_status = models.PositiveSmallIntegerField(validators=[MaxValueValidator(3), MinValueValidator(0)], default=3)

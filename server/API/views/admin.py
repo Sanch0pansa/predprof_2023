@@ -8,7 +8,6 @@ from API.funcs import getData
 
 
 class StaffUsers(generics.GenericAPIView):
-    permission_classes = [IsAdmin]
     serializer_class = UserSerializer
 
     def get(self, request):
