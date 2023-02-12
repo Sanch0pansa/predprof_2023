@@ -7,6 +7,7 @@ import reportsModule from "@/store/reportsModule";
 import reviewsModule from "@/store/reviewsModule";
 import moderationModule from "@/store/moderationModule";
 import adminModule from "@/store/adminModule";
+import userModule from "@/store/userModule";
 
 export default createStore({
     state: {
@@ -21,5 +22,6 @@ export default createStore({
         reviews: reviewsModule,
         moderation: moderationModule,
         admin: adminModule,
+        user: userModule
     }
 });

@@ -1,12 +1,16 @@
 <template>
   <li class="review">
     <div class="review-header">
-      <Link :href="`https://google.com`">{{ added_by_user.username }}</Link><br>
+      <Username :username="added_by_user.username" :id="added_by_user.id"></Username>
+      <br>
       Сайт: <RouterLink :to="{name: 'single_page', params: {id: page.id}}">{{ page.name }}</RouterLink>
-      <div class="text-muted">{{ (new Date(added_at)).toLocaleDateString("ru", {
+      <div class="text-muted">{{ (new Date(added_at)).toLocaleString("ru", {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric"
       }) }}</div>
     </div>
 

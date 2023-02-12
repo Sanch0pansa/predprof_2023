@@ -33,7 +33,7 @@ export default {
                     }
                 );
 
-                return {success: true};
+                return {success: resp.data.success};
 
             } catch(e) {
                 return {success: false};
