@@ -20,6 +20,7 @@ export default {
                 joined: 'нет данных',
                 reviews: 'нет данных',
                 reports: 'нет данных',
+                subscriptions: 'нет данных',
             };
 
             try {

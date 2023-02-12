@@ -94,10 +94,6 @@ export default {
                 commit('setIsModerator', res.data.is_moderator)
                 commit('setIsAdmin', res.data.is_admin)
 
-                if (state.isModerator) {
-                    await dispatch('moderation/getModerationCategories', {}, {root: true});
-                }
-
             } catch (e) {
 
             }

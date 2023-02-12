@@ -5,6 +5,7 @@
     <p>
       Оставлено сообщений о сбоях: <b>{{reports}}</b><br>
       Оставлено отзывов: <b>{{ reviews }}</b><br>
+      Отслеживает ресурсов: <b>{{ subscriptions }}</b><br>
       Зарегистрирован: <b>{{ joined }}</b>
     </p>
   </Modal>
@@ -31,7 +32,8 @@ export default {
     return {
       reviews: 0,
       reports: 0,
-      joined: '23 янв 2022'
+      joined: '23 янв 2022',
+      subscriptions: 0,
     }
   },
   methods: {
@@ -45,7 +47,15 @@ export default {
 
       this.reviews = res.reviews;
       this.reports = res.reports;
-      this.joined = res.joined;
+      this.subscriptions = res.subscriptions;
+      this.joined = (new Date(res.joined)).toLocaleString("ru", {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric"
+      });
     },
   }
 }

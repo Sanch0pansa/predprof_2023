@@ -1,7 +1,7 @@
 <template>
   <li class="review">
     <div class="review-header">
-      <Username :username="added_by_user__username" :id="added_by_user"></Username>br
+      <Username :username="added_by_user__username" :id="added_by_user"></Username>
       <div class="text-muted">{{ (new Date(added_at)).toLocaleString("ru", {
         year: 'numeric',
         month: 'short',
