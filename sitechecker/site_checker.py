@@ -2,6 +2,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import urlopen, Request
 import requests
 from datetime import datetime
+import pytz
 
 
 TIMEOUT_TIME = 7
@@ -58,4 +59,4 @@ def check(url_to_check, check_num=0):
             return check(url_to_check, check_num + 1)
     else:
         status = website.getcode()
-    return status, int(response_time * 1000), datetime.now().isoformat()
+    return status, int(response_time * 1000), datetime.now(pytz.timezone('Europe/Moscow')).isoformat()
