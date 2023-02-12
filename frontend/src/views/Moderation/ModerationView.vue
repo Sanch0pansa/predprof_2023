@@ -50,6 +50,7 @@
 
 <script>
 import Block from "@/components/UI/Block.vue";
+import {mapActions} from "vuex";
 
 export default {
   name: "ModerationView",
@@ -63,11 +64,13 @@ export default {
   },
 
   methods: {
-
+    ...mapActions({
+      getModerationCategories: "moderation/getModerationCategories"
+    })
   },
 
   async mounted() {
-
+    await this.getModerationCategories();
   }
 }
 </script>
