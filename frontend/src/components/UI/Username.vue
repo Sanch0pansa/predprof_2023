@@ -1,6 +1,6 @@
 <template>
-<b data-bs-toggle="modal" :data-bs-target="`#modal-for-${username}`" class="text-primary" role="button" @click="fetchUserData">{{ username }}</b>
-  <Modal :id="`modal-for-${username}`" :title="username">
+<b data-bs-toggle="modal" :data-bs-target="`#modal-for-${id}`" class="text-primary" role="button" @click="fetchUserData">{{ username }}</b>
+  <Modal :id="`modal-for-${id}`" :title="username">
     <p class="text-muted">Информация о пользователе: </p>
     <p>
       Оставлено сообщений о сбоях: <b>{{reports}}</b><br>

@@ -22,6 +22,11 @@
         <p class="text-muted" v-else>Нет отслеживаемых ресурсов</p>
       </PageSection>
     </div>
+    <div class="col-md-8">
+      <PageSection :title="`События отслеживаемых ресурсов`">
+        <PageEvents></PageEvents>
+      </PageSection>
+    </div>
   </div>
 </template>
 
@@ -30,10 +35,11 @@ import {mapActions, mapState} from "vuex";
 import PageSection from "@/components/UI/Section.vue";
 import PagesList from "@/App.vue";
 import SubscriptionsList from "@/components/items/SubscriptionsList.vue";
+import PageEvents from "@/components/page/PageEvents.vue";
 
 export default {
   name: "AccountView.vue",
-  components: {SubscriptionsList, PagesList, PageSection},
+  components: {PageEvents, SubscriptionsList, PagesList, PageSection},
   data() {
     return {
       pages: [],
