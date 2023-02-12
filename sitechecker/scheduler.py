@@ -1,7 +1,6 @@
 import schedule
 import time
 import requests
-from datetime import datetime
 
 from site_checker import check
 
@@ -16,27 +15,37 @@ main_url = 'http://127.0.0.1:8000/api/v1/checker'
 def get_urls():
     data = requests.post(f'{main_url}/get_pages_for_check/', data={'_token': checker_token})
     urls_data = data.json()
-    urls = urls_data['pages']
-    #urls = ['donstu.ru', 'https://donstu.ru']
-    return urls
+    '''urls_data = {
+        "1": "https://donstu.ru",
+        "4": "https://www.msu.ru",
+        "5": "https://www.mirea.ru",
+        "6": "https://mephi.ru",
+        "8": "https://mtuci.ru",
+        "9": "https://www.ranepa.ru",
+        "29": "https://mai.ru",
+        "17": "https://www.sevsu.ru",
+        "30": "https://itmo.ru",
+        "31": "http://www.simbip.ru",
+        "3": "https://misis.ru",
+        "33": "https://www.tsu.ru"
+    }'''
+    return urls_data.items()
 
 
 def check_all_urls():
     results = {}
-    for url in get_urls():
-        results[url] = check(url)
-
+    for page_id, url in get_urls():
+        results[page_id] = check(url)
     print(results)
 
     # Отправка
-    for url, info in results.items():
-        response = requests.post(f'{main_url}/check/', data={'_token': checker_token, 'url': url, 'response_status_code': info[0], 'response_time': int(info[1] * 1000)})
-        print(response.json())
+    response = requests.post(f'{main_url}/check/', json={'_token': checker_token, 'data': results})
+    print(response.json())
 
     # Логи
     with open('logs.log', 'a') as logs:
-        for url, info in results.items():
-            logs.write('\n' + str(datetime.now().strftime("%d-%b-%Y %H:%M:%S")) + ' >>> \t' + str(info[0]) + '\t| ' + str('%.3f' % info[1]) + '\t| ' + str(url))
+        for info in results.values():
+            logs.write('\n' + info[3] + ' >>> \t' + str(info[1]) + '\t| ' + str(info[2]) + '\t| ' + info[0])
 
 
 schedule.every().hour.do(check_all_urls)
