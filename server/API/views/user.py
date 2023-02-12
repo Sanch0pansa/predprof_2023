@@ -164,13 +164,44 @@ class SetNewPassword(generics.GenericAPIView):
             user = request.user
             data = getData(request)
             if check_password(data['current_password'], user.password):
+                if check_password(data['new_password'], user.password):
+                    return JsonResponse({'errors': {'new_password': ['Новый пароль совпадает со старым']}}, status=400)
+                user.password = data['new_password']
+                try:
+                    user.clean_fields()
+                except ValidationError as ex:
+                    return JsonResponse({'errors': dict(ex)})
                 user.set_password(data['new_password'])
                 user.save()
-                return JsonResponse({'detail': 'Пароль изменён'})
+                return JsonResponse({'success': True})
             else:
-                return JsonResponse({'detail': 'Неверный пароль'})
-        except Exception:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=404)
+
+
+class SetNewUsername(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            data = getData(request)
+            if check_password(data['current_password'], user.password):
+                if user.username == data['new_username']:
+                    return JsonResponse({'errors': {'new_username': ['Новое имя пользователя совпадает со старым']}}, status=400)
+                user.username = data['new_username']
+                try:
+                    user.clean_fields()
+                except ValidationError as ex:
+                    return JsonResponse({'errors': dict(ex)})
+                user.save()
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=404)
 
 
 class SetNewEmail(generics.GenericAPIView):
@@ -182,13 +213,19 @@ class SetNewEmail(generics.GenericAPIView):
             user = request.user
             data = getData(request)
             if check_password(data['current_password'], user.password):
-                user.email = data['new_email']
+                if user.email == data['new_email']:
+                    return JsonResponse({'errors': {'new_email': ['Новая почта совпадает со старой']}})
+                user.email = BaseUserManager.normalize_email(data['new_email'])
+                try:
+                    user.clean_fields()
+                except ValidationError as ex:
+                    return JsonResponse({'errors': dict(ex)}, status=400)
                 user.save()
-                return JsonResponse({'detail': 'Почта изменена'})
+                return JsonResponse({'success': True})
             else:
-                return JsonResponse({'detail': 'Неверный пароль'})
-        except Exception:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=404)
 
 
 class UnlinkTelegram(generics.GenericAPIView):
@@ -203,7 +240,7 @@ class UnlinkTelegram(generics.GenericAPIView):
             user.save()
             return JsonResponse({'success': True})
         except Exception as ex:
-            return JsonResponse({'detail': False})
+            return JsonResponse({'detail': False}, status=404)
 
 
 class UserInfo(generics.GenericAPIView):
