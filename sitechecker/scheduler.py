@@ -34,8 +34,11 @@ def get_urls():
 
 def check_all_urls():
     results = {}
+    res_for_logs = {}
     for page_id, url in get_urls():
-        results[page_id] = check(url)
+        res = check(url)
+        results[page_id] = res
+        res_for_logs[url] = res
     print(results)
 
     # Отправка
@@ -44,8 +47,8 @@ def check_all_urls():
 
     # Логи
     with open('logs.log', 'a') as logs:
-        for info in results.values():
-            logs.write('\n' + info[3] + ' >>> \t' + str(info[1]) + '\t| ' + str(info[2]) + '\t| ' + info[0])
+        for url, info in res_for_logs.items():
+            logs.write('\n' + info[2] + ' >>> \t' + str(info[0]) + '\t| ' + str(info[1]) + '\t| ' + url)
 
 
 schedule.every().hour.do(check_all_urls)
