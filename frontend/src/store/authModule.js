@@ -5,7 +5,8 @@ const URLS = {
     login: `${Url}/auth/user/login/`,
     register: `${Url}/auth/user/registration/`,
     getUserData: `${Url}/user/me/`,
-    logout: `${Url}/auth/token/logout/`
+    logout: `${Url}/auth/token/logout/`,
+    patchUserData: `${Url}/user/patch/`
 }
 
 export default {
@@ -120,6 +121,37 @@ export default {
             commit("setIsAdmin", false);
             commit("setAuthToken", "");
             commit("setUser", {});
+        },
+
+
+        // Изменение данных пользователя
+        async patchUserData({state, commit, rootState}, data) {
+            try {
+                // Пробуем получить ответ
+                await axios.patch(
+                    URLS.patchUserData,
+                    data,
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                // Если ошибок нет, то есть, вернулся 2хх код, пробуем автоматически получить данные
+                const res = await dispatch('getUserData');
+
+                // Если получение новых данных прошло успешно, то есть, пользователь изменил данные, возвращаем успех
+                if (res.success) {
+                    return {success: true, detail: "Изменение данных успешно"}
+                } else {
+                    return {success: false, detail: {non_field_errors: ["Что-то пошло не так"]}}
+                }
+
+            } catch (e) {
+
+                return {success: false, detail: e.response.data.errors};
+            }
         }
     },
     mutations: {
