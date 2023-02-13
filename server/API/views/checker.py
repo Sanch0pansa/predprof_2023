@@ -55,7 +55,7 @@ class CheckCreateView(generics.GenericAPIView):
                 requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
                 return JsonResponse({'success': True})
         except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
+            return JsonResponse({'success': False}, status=500)
 
 
 class CheckRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

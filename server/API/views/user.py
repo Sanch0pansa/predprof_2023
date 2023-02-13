@@ -32,10 +32,12 @@ class UserCreateView(generics.GenericAPIView):
                 user.full_clean()
             except ValidationError as ex:
                 errors = dict(ex)
-                if 'username' in errors and 'Username' in errors['username'][0]:
+                if 'username' in errors:
                     errors['username'][0] = errors['username'][0].replace('Username', 'именем пользователя')
-                if 'email' in errors and 'Email' in errors['email'][0]:
+                if 'email' in errors:
                     errors['email'][0] = errors['email'][0].replace('таким Email', 'такой почтой')
+                if 'password' in errors:
+                    errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
                 return JsonResponse({'errors': errors}, status=400, safe=False)
             user.set_password(data['password'])
             user.save()
@@ -155,77 +157,37 @@ class ShowMe(generics.GenericAPIView):
             return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
 
 
-class SetNewPassword(generics.GenericAPIView):
+class ChangePersonalData(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
-    def post(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         try:
             user = request.user
             data = getData(request)
             if check_password(data['current_password'], user.password):
-                if check_password(data['new_password'], user.password):
-                    return JsonResponse({'errors': {'new_password': ['Новый пароль совпадает со старым']}}, status=400)
-                user.password = data['new_password']
+                if user.username != data['username']:
+                    user.username = data['username']
+                if user.email != data['email']:
+                    user.email = BaseUserManager.normalize_email(data['email'])
+                if 'password' in data:
+                    if not check_password(user.password, data['password']):
+                        user.password = data['password']
                 try:
                     user.clean_fields()
                 except ValidationError as ex:
-                    return JsonResponse({'errors': dict(ex)})
-                user.set_password(data['new_password'])
+                    errors = dict(ex)
+                    errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
+                    return JsonResponse({'errors': errors}, status=400)
+                if 'password' in data:
+                    user.set_password(data['password'])
                 user.save()
                 return JsonResponse({'success': True})
             else:
-                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
+                return JsonResponse({'errors': {'current_password': ['Неправильный пароль']}}, status=400)
         except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
-
-
-class SetNewUsername(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user = request.user
-            data = getData(request)
-            if check_password(data['current_password'], user.password):
-                if user.username == data['new_username']:
-                    return JsonResponse({'errors': {'new_username': ['Новое имя пользователя совпадает со старым']}}, status=400)
-                user.username = data['new_username']
-                try:
-                    user.clean_fields()
-                except ValidationError as ex:
-                    return JsonResponse({'errors': dict(ex)})
-                user.save()
-                return JsonResponse({'success': True})
-            else:
-                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
-        except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
-
-
-class SetNewEmail(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user = request.user
-            data = getData(request)
-            if check_password(data['current_password'], user.password):
-                if user.email == data['new_email']:
-                    return JsonResponse({'errors': {'new_email': ['Новая почта совпадает со старой']}})
-                user.email = BaseUserManager.normalize_email(data['new_email'])
-                try:
-                    user.clean_fields()
-                except ValidationError as ex:
-                    return JsonResponse({'errors': dict(ex)}, status=400)
-                user.save()
-                return JsonResponse({'success': True})
-            else:
-                return JsonResponse({'errors': {'password': ['Неправильный пароль']}}, status=400)
-        except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
+            print(ex)
+            return JsonResponse({'success': False}, status=500)
 
 
 class UnlinkTelegram(generics.GenericAPIView):
@@ -240,7 +202,7 @@ class UnlinkTelegram(generics.GenericAPIView):
             user.save()
             return JsonResponse({'success': True})
         except Exception as ex:
-            return JsonResponse({'detail': False}, status=404)
+            return JsonResponse({'detail': False}, status=500)
 
 
 class UserInfo(generics.GenericAPIView):
@@ -255,4 +217,4 @@ class UserInfo(generics.GenericAPIView):
             joined = list(User.objects.filter(id=id).values('date_joined'))[0]['date_joined']
             return JsonResponse({'reviews': reviews, 'reports': reports, 'subscriptions': subscriptions, 'joined': joined})
         except Exception:
-            return JsonResponse({'success': False}, status=404)
+            return JsonResponse({'success': False}, status=500)

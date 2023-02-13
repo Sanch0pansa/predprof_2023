@@ -299,7 +299,7 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'success': False})
         except Exception:
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class Events(generics.GenericAPIView):
@@ -329,7 +329,7 @@ class Events(generics.GenericAPIView):
                                           checked_at__range=(time - timedelta(days=3), time)) \
                 .select_related('page') \
                 .exclude(check_status='2') \
-                .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'check_status') \
+                .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'response_time', 'check_status') \
                 .distinct('page_id') \
                 .order_by('page_id', '-id')
 
@@ -352,16 +352,19 @@ class Events(generics.GenericAPIView):
                     continue
                 elif i['check_status'] == '1':
                     pType = 'lazy_loading'
+                    errors['lazy']['time'] = i['response_time']
                     detail = errors['lazy']
+                    # print(detail)
                 else:
                     pType = 'failure'
                     detail = errors[i['response_status_code']]
+                # print(i, i['page__name'], detail['time'])
                 result['events'].append({'type': pType,
                                          'page': {'id': i['page_id'],
                                                   'name': i['page__name']},
                                          'detail': detail,
                                          'message_datetime': i['checked_at']})
-
+                print(result)
             for i in reports:
                 result['events'].append({'type': 'report',
                                          'page': {'id': i['page'],
@@ -395,4 +398,4 @@ class Events(generics.GenericAPIView):
 
         except Exception as ex:
             print(ex)
-            return JsonResponse({'success': False}, status=404)
+            return JsonResponse({'success': False}, status=500)

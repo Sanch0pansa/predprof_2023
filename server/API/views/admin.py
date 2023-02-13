@@ -24,7 +24,7 @@ class StaffUsers(generics.GenericAPIView):
                                'is_admin': is_admin})
             return JsonResponse(result, safe=False)
         except Exception:
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
     def post(self, request, id):
         try:
@@ -37,7 +37,7 @@ class StaffUsers(generics.GenericAPIView):
                 User.objects.filter(id=id).update(role=1, is_staff=True, is_superuser=True)
             return JsonResponse({'success': True})
         except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
+            return JsonResponse({'success': False}, status=500)
 
 
 class UserSearch(generics.GenericAPIView):
@@ -49,4 +49,4 @@ class UserSearch(generics.GenericAPIView):
             users = list(User.objects.filter(username__icontains=username, role=3).values('id', 'username'))
             return JsonResponse(users, safe=False)
         except Exception as ex:
-            return JsonResponse({'success': False}, status=404)
+            return JsonResponse({'success': False}, status=500)

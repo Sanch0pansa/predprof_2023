@@ -18,7 +18,7 @@ class GetModerateCategories(generics.GenericAPIView):
                                  'reports': reports})
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetModerationPages(generics.GenericAPIView):
@@ -41,7 +41,7 @@ class GetModerationPages(generics.GenericAPIView):
             return JsonResponse(pagesForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetRejectedModerationPages(generics.GenericAPIView):
@@ -67,7 +67,7 @@ class GetRejectedModerationPages(generics.GenericAPIView):
             return JsonResponse(pagesForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetModerationReviews(generics.GenericAPIView):
@@ -94,7 +94,7 @@ class GetModerationReviews(generics.GenericAPIView):
             return JsonResponse(reviewsForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetRejectedModerationReviews(generics.GenericAPIView):
@@ -124,7 +124,7 @@ class GetRejectedModerationReviews(generics.GenericAPIView):
             return JsonResponse(reviewsForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetModerationReports(generics.GenericAPIView):
@@ -150,7 +150,7 @@ class GetModerationReports(generics.GenericAPIView):
             return JsonResponse(reportsForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class GetRejectedModerationReports(generics.GenericAPIView):
@@ -178,7 +178,7 @@ class GetRejectedModerationReports(generics.GenericAPIView):
             return JsonResponse(reportsForModerate, safe=False)
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
 
 
 class Moderate(generics.GenericAPIView):
@@ -223,4 +223,4 @@ class Moderate(generics.GenericAPIView):
             return JsonResponse({'success': True})
         except Exception as ex:
             print(ex)
-            return JsonResponse({'detail': 'Exception'}, status=404)
+            return JsonResponse({'detail': 'Exception'}, status=500)
