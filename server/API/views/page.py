@@ -15,12 +15,6 @@ errors = {'500': {'error_description': 'Ошибка сервера',
                       'Перезагрузка сервера',
                       'Ошибка в коде сервера',
                       'Ошибка в файле .htaccess']},
-          'lazy': {
-              'time': 1215,
-              'reasons': [
-                  'Большой трафик',
-                  'DDOS',
-                  'т.д.']},
           '808': {'error_description': 'Неизвестная ошибка',
                   'reasons': ['Сайт обрывает соединение']}}
 
@@ -329,7 +323,8 @@ class Events(generics.GenericAPIView):
                                           checked_at__range=(time - timedelta(days=3), time)) \
                 .select_related('page') \
                 .exclude(check_status='2') \
-                .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'response_time', 'check_status') \
+                .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'response_time',
+                        'check_status') \
                 .distinct('page_id') \
                 .order_by('page_id', '-id')
 
@@ -351,20 +346,21 @@ class Events(generics.GenericAPIView):
                 if i['response_status_code'] == '200' and i['check_status'] == '2':
                     continue
                 elif i['check_status'] == '1':
-                    pType = 'lazy_loading'
-                    errors['lazy']['time'] = i['response_time']
-                    detail = errors['lazy']
-                    # print(detail)
+                    result['events'].append({'type': 'lazy_loading',
+                                             'page': {'id': i['page_id'],
+                                                      'name': i['page__name']},
+                                             'detail': {'time': i['response_time'],
+                                                        'reasons': [
+                                                            'Большой трафик',
+                                                            'DDOS',
+                                                            'т.д.']},
+                                             'message_datetime': i['checked_at']})
                 else:
-                    pType = 'failure'
-                    detail = errors[i['response_status_code']]
-                # print(i, i['page__name'], detail['time'])
-                result['events'].append({'type': pType,
-                                         'page': {'id': i['page_id'],
-                                                  'name': i['page__name']},
-                                         'detail': detail,
-                                         'message_datetime': i['checked_at']})
-                print(result)
+                    result['events'].append({'type': 'failure',
+                                             'page': {'id': i['page_id'],
+                                                      'name': i['page__name']},
+                                             'detail': errors[i['response_status_code']],
+                                             'message_datetime': i['checked_at']})
             for i in reports:
                 result['events'].append({'type': 'report',
                                          'page': {'id': i['page'],
