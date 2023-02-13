@@ -58,7 +58,7 @@ def bot_start(message):
 
         if not check['user_verified']:
             bot.send_message(message.from_user.id,
-                             '''Привет!\nОтправьте мне код аунтификации, который высвечен на сайте''')
+                             '''Привет!\nОтправьте мне код, который показан на сайте''')
 
             bot.register_next_step_handler(message, registration)
         else:
@@ -105,7 +105,7 @@ def bot_reply(message):
                          disable_web_page_preview=True)
     except KeyError:
         bot.send_message(message.from_user.id,
-                         'Вы не подписанны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
+                         'Вы не подписаны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
         logging.info("'/last' from not subscriber")
 
 
@@ -192,8 +192,12 @@ def check_bot_messages():
         Mailing_Mail.sendmail(bot_mail, to_mail, e_mail.encode('utf8'))
 
     for message in mail_messages:
-        send_email(message, f'На момент {day} {month}:\n' +
-                   mail_messages[message] + '\nС уважением Site Checker!')
+        try:
+            send_email(message, f'На момент {day} {month}:\n' +
+                       mail_messages[message] + '\nС уважением Site Checker!')
+        except Exception as ex:
+            print(ex)
+            continue
 
 
 task_client = Thread(target=bot.infinity_polling)
