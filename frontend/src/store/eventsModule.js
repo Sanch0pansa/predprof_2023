@@ -3,7 +3,7 @@ import Url from "@/store/url";
 
 
 const URLS = {
-    getEvents: `${Url}/account/get_events/`,
+    getEvents: `${Url}/page/account/events/`,
 }
 
 export default {

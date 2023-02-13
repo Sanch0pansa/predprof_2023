@@ -21,6 +21,12 @@
         </SubscriptionsList>
         <p class="text-muted" v-else>Нет отслеживаемых ресурсов</p>
       </PageSection>
+      <PageSection :title="`Отзывы`">
+        <PersonalReviewsList></PersonalReviewsList>
+      </PageSection>
+      <PageSection :title="`Сообщения о сбоях`">
+        <PersonalReportsList></PersonalReportsList>
+      </PageSection>
     </div>
     <div class="col-md-8">
       <PageSection :title="`События отслеживаемых ресурсов`">
@@ -36,10 +42,13 @@ import PageSection from "@/components/UI/Section.vue";
 import PagesList from "@/App.vue";
 import SubscriptionsList from "@/components/items/SubscriptionsList.vue";
 import PageEvents from "@/components/page/PageEvents.vue";
+import ModalBtn from "@/components/UI/ModalBtn.vue";
+import PersonalReviewsList from "@/components/items/PersonalReviewsList.vue";
+import PersonalReportsList from "@/components/items/PersonalReportsList.vue";
 
 export default {
   name: "AccountView.vue",
-  components: {PageEvents, SubscriptionsList, PagesList, PageSection},
+  components: {PersonalReportsList, PersonalReviewsList, ModalBtn, PageEvents, SubscriptionsList, PagesList, PageSection},
   data() {
     return {
       pages: [],
