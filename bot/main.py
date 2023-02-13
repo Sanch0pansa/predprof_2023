@@ -162,7 +162,7 @@ def check_bot_messages():
     for tg in tg_message:
         if not tg_message[tg]:
 
-            tg_message[tg] = f'✅ Все сайты работают на момент времени {date}\n'
+            tg_message[tg] = f'✅ Все сайты работают на момент времени {time}\n'
 
     for mail in mail_messages:
         if not mail_messages[mail]:
