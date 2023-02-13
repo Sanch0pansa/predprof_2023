@@ -141,12 +141,7 @@ export default {
                 // Если ошибок нет, то есть, вернулся 2хх код, пробуем автоматически получить данные
                 const res = await dispatch('getUserData');
 
-                // Если получение новых данных прошло успешно, то есть, пользователь изменил данные, возвращаем успех
-                if (res.success) {
-                    return {success: true, detail: "Изменение данных успешно"}
-                } else {
-                    return {success: false, detail: {non_field_errors: ["Что-то пошло не так"]}}
-                }
+                return {success: true, detail: "Изменение данных успешно"}
 
             } catch (e) {
 
