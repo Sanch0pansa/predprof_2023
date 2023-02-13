@@ -1,5 +1,5 @@
 from rest_framework import generics
-from API.models import Page, Review, Check, Report, Subscription
+from API.models import Page, Review, Check, Report, Subscription, User
 from API.serializers.page import PageSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from API.permissions import IsAdmin
@@ -7,6 +7,22 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from API.funcs import getData
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from datetime import datetime, timedelta
+
+errors = {'500': {'error_description': 'Ошибка сервера',
+                  'reasons': [
+                      'Перезагрузка сервера',
+                      'Ошибка в коде сервера',
+                      'Ошибка в файле .htaccess']},
+          'lazy': {
+              'time': 1215,
+              'reasons': [
+                  'Большой трафик',
+                  'DDOS',
+                  'т.д.']},
+          '808': {'error_description': 'Неизвестная ошибка',
+                  'reasons': ['Сайт обрывает соединение']}}
 
 
 class PageListView(generics.ListAPIView):
@@ -258,7 +274,7 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'subscribed': False})
         except Exception as ex:
-            return JsonResponse({'detail': "Exception"}, status=400)
+            return JsonResponse({'detail': 'Exception'}, status=400)
 
     def post(self, request, id, *args, **kwargs):
         try:
@@ -271,7 +287,7 @@ class Subscriptions(generics.GenericAPIView):
             else:
                 return JsonResponse({'success': False})
         except Exception as ex:
-            return JsonResponse({'detail': "Exception"}, status=400)
+            return JsonResponse({'detail': 'Exception'}, status=400)
 
     def delete(self, request, id, *args, **kwargs):
         try:
@@ -284,3 +300,99 @@ class Subscriptions(generics.GenericAPIView):
                 return JsonResponse({'success': False})
         except Exception:
             return JsonResponse({'detail': 'Exception'}, status=404)
+
+
+class Events(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            result = {'working': 0,
+                      'lazy_loading': 0,
+                      'not_working': 0}
+            subPages = Subscription.objects.filter(user_id=user.id).values('page_id')
+            pageIds = [i['page_id'] for i in subPages]
+            time = timezone.now()
+            reports = Report.objects.filter(page_id__in=pageIds,
+                                            is_published=True,
+                                            added_at__range=(time - timedelta(days=3), time)) \
+                .select_related('page', 'added_by_user') \
+                .values('page', 'page__name', 'added_at', 'message', 'added_by_user', 'added_by_user__username')
+            reviews = Review.objects.filter(page_id__in=pageIds,
+                                            is_published=True,
+                                            added_at__range=(time - timedelta(days=3), time)) \
+                .select_related('page', 'added_by_user') \
+                .values('page', 'page__name', 'added_at', 'mark', 'message', 'added_by_user', 'added_by_user__username')
+
+            checks = Check.objects.filter(page_id__in=pageIds,
+                                          checked_at__range=(time - timedelta(days=3), time)) \
+                .select_related('page') \
+                .exclude(check_status='2') \
+                .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'check_status') \
+                .distinct('page_id') \
+                .order_by('page_id', '-id')
+
+            pages = Check.objects.filter(page_id__in=pageIds) \
+                .values('check_status') \
+                .distinct('page_id') \
+                .order_by('page_id', '-id')
+            for i in pages:
+                if i['check_status'] == '2':
+                    result['working'] += 1
+                if i['check_status'] == '1':
+                    result['lazy_loading'] += 1
+                elif i['check_status'] == '0' or i['check_status'] == '3':
+                    result['not_working'] += 1
+
+            result['events'] = []
+
+            for i in checks:
+                if i['response_status_code'] == '200' and i['check_status'] == '2':
+                    continue
+                elif i['check_status'] == '1':
+                    pType = 'lazy_loading'
+                    detail = errors['lazy']
+                else:
+                    pType = 'failure'
+                    detail = errors[i['response_status_code']]
+                result['events'].append({'type': pType,
+                                         'page': {'id': i['page_id'],
+                                                  'name': i['page__name']},
+                                         'detail': detail,
+                                         'message_datetime': i['checked_at']})
+
+            for i in reports:
+                result['events'].append({'type': 'report',
+                                         'page': {'id': i['page'],
+                                                  'name': i['page__name']},
+                                         'detail': {
+                                             'message': i['message'],
+                                             'user': {
+                                                 'id': i['added_by_user'],
+                                                 'username': i['added_by_user__username']
+                                             }
+                                         },
+                                         'message_datetime': i['added_at']
+                                         })
+
+            for i in reviews:
+                result['events'].append({'type': 'review',
+                                         'page': {'id': i['page'],
+                                                  'name': i['page__name']},
+                                         'detail': {
+                                             'mark': i['mark'],
+                                             'message': i['message'],
+                                             'user': {
+                                                 'id': i['added_by_user'],
+                                                 'username': i['added_by_user__username']
+                                             }
+                                         },
+                                         'message_datetime': i['added_at']
+                                         })
+
+            return JsonResponse(result, safe=False)
+
+        except Exception as ex:
+            print(ex)
+            return JsonResponse({'success': False}, status=404)
