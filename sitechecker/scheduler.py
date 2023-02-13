@@ -1,6 +1,7 @@
 import schedule
 import time
 import requests
+from threading import Thread
 
 from site_checker import check
 
@@ -10,6 +11,18 @@ for l in open('conf.txt', 'r').readlines():
     config[l.split(': ')[0]] = l.split(': ')[1]
 checker_token = config['checker_token'].rstrip('\n')
 main_url = 'http://127.0.0.1:8000/api/v1/checker'
+
+
+class SitechekerThread(Thread):
+    def __init__(self, urls):
+        Thread.__init__(self)
+        self.urls = urls
+        self.results = {}
+
+    def run(self):
+        time.sleep(1)
+        for page_id, url in self.urls:
+            self.results[page_id] = check(url)
 
 
 def get_urls():
@@ -29,23 +42,29 @@ def get_urls():
         "3": "https://misis.ru",
         "33": "https://www.tsu.ru"
     }'''
-    return urls_data.items()
+    return urls_data
 
 
 def check_all_urls():
-    results = {}
-    res_for_logs = {}
-    for page_id, url in get_urls():
-        res = check(url)
-        results[page_id] = res
-        res_for_logs[url] = res
-    print(results)
+    urls = get_urls().items()
+    threads = []
+    for i in range(4):
+        t = SitechekerThread(list(urls)[len(urls) * i // 4:len(urls) * (i + 1) // 4])
+        threads.append(t)
+        t.start()
+
+    for t in threads:
+        t.join()
+
+    results = {**threads[0].results, **threads[1].results, **threads[2].results, **threads[3].results}
 
     # Отправка
     response = requests.post(f'{main_url}/check/', json={'_token': checker_token, 'data': results})
-    print(response.json())
 
     # Логи
+    res_for_logs = {}
+    for page_id, url in urls:
+        res_for_logs[url] = results[page_id]
     with open('logs.log', 'a') as logs:
         for url, info in res_for_logs.items():
             logs.write('\n' + info[2] + ' >>> \t' + str(info[0]) + '\t| ' + str(info[1]) + '\t| ' + url)
