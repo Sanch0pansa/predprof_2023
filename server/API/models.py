@@ -50,7 +50,7 @@ class Check(models.Model):
     checked_at = models.DateTimeField()
     response_status_code = models.CharField(max_length=3)
     response_time = models.SmallIntegerField()
-    check_status = models.PositiveSmallIntegerField(validators=[MaxValueValidator(3), MinValueValidator(0)], default=3)
+    check_status = models.CharField(default=3, max_length=1)
 
 class Review(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reviews')

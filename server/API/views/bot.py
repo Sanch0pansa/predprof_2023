@@ -29,12 +29,12 @@ class GetBotMessages(generics.GenericAPIView):
             for i in checks:
                 if i.url not in pages:
                     pages[i.url] = {
-                        "url": i.url,
-                        "response_status_code": i.response_status_code,
-                        "response_time": i.response_time,
+                        'url': i.url,
+                        'response_status_code': i.response_status_code,
+                        'response_time': i.response_time,
                         'checked_at': i.checked_at,
-                        "subscribers_telegram": [],
-                        "subscribers_email": []
+                        'subscribers_telegram': [],
+                        'subscribers_email': []
                     }
                 pages[i.url]['subscribers_email'].append(i.email)
                 if i.telegram_id is not None:

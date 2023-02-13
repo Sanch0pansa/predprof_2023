@@ -41,11 +41,11 @@ class CheckCreateView(generics.GenericAPIView):
                     res_time = pages[i][1]
                     checked_at = pages[i][2]
                     if res_code != 200:
-                        last_check_result = 0
+                        last_check_result = '0'
                     elif res_time < 1000:
-                        last_check_result = 2
+                        last_check_result = '2'
                     elif res_time >= 1000:
-                        last_check_result = 1
+                        last_check_result = '1'
                     check = Check(page_id=page_id,
                                   response_status_code=res_code,
                                   response_time=res_time,
