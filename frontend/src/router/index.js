@@ -11,6 +11,7 @@ import ModerationPagesView from "@/views/Moderation/ModerationPagesView.vue";
 import ModerationReviewsView from "@/views/Moderation/ModerationReviewsView.vue";
 import ModerationReportsView from "@/views/Moderation/ModerationReportsView.vue";
 import AdminView from "@/views/Admin/AdminView.vue";
+import AccountEditView from "@/views/Account/AccountEditView.vue";
 
 
 const router = createRouter({
@@ -44,6 +45,15 @@ const router = createRouter({
       path: '/account/verify_telegram',
       name: 'verify_telegram',
       component: VerifyTelegramView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+      },
+    },
+    {
+      path: '/account/edit',
+      name: 'edit_account',
+      component: AccountEditView,
       meta: {
         authRequired: true,
         authUpdate: true,
