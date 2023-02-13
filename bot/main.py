@@ -1,7 +1,7 @@
 import telebot
 import requests
 from threading import Thread
-# import datetime
+import datetime
 
 import logging
 
@@ -131,10 +131,11 @@ def check_bot_messages():
             array[user] = text
 
     for i in dict_data:
-        if i['checked_at'].minute < 10:
-            time = f"{i['checked_at'].hour}:0{i['checked_at'].minute}"
+        time = datetime.datetime.fromisoformat(i['checked_at'].replace('T', ' ').replace('Z', ''))
+        if time.minute < 10:
+            time = f"{time.hour}:0{time.minute}"
         else:
-            time = f"{i['checked_at'].hour}:{i['checked_at'].minute}"
+            time = f"{time.hour}:{time.minute}"
         if i['response_status_code'] == '200':
             for tg_id in i['subscribers_telegram']:
                 add_message(tg_message, tg_id, '')
@@ -147,21 +148,25 @@ def check_bot_messages():
             for mail in i['subscribers_email']:
                 add_message(mail_messages, mail,
                             f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
-
-    month = dict_data[0]['checked_at'].month
-    day = dict_data[0]['checked_at'].day
+    date = datetime.datetime.fromisoformat(dict_data[0]['checked_at'].replace('T', ' ').replace('Z', ''))
+    month = date.month
+    day = date.day
+    if date.minute < 10:
+        time = f"{date.hour}:0{date.minute}"
+    else:
+        time = f"{date.hour}:{date.minute}"
 
     MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября',
               'Декабря']
     month = MONTHS[month - 1]
-
     for tg in tg_message:
         if not tg_message[tg]:
-            tg_message[tg] = '✅ Все сайты работают\n'
+
+            tg_message[tg] = f'✅ Все сайты работают на момент времени {date}\n'
 
     for mail in mail_messages:
         if not mail_messages[mail]:
-            mail_messages[mail] = '✅ Все сайты работают\n'
+            mail_messages[mail] = f'✅ Все сайты работают на момент времени {time}\n'
 
     last_data_telegram = tg_message.copy()
     last_data_telegram['date'] = f'Последнее обновление {day} {month}\n'
