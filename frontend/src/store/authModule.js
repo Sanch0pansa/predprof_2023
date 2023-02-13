@@ -6,7 +6,7 @@ const URLS = {
     register: `${Url}/auth/user/registration/`,
     getUserData: `${Url}/user/me/`,
     logout: `${Url}/auth/token/logout/`,
-    patchUserData: `${Url}/user/patch/`
+    patchUserData: `${Url}/user/change_account_info/`
 }
 
 export default {
