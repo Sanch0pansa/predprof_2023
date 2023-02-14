@@ -125,7 +125,7 @@ export default {
 
 
         // Изменение данных пользователя
-        async patchUserData({state, commit, rootState}, data) {
+        async patchUserData({state, commit, rootState, dispatch}, data) {
             try {
                 // Пробуем получить ответ
                 await axios.patch(
