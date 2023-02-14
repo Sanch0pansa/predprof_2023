@@ -1,7 +1,7 @@
 <template>
   <ul class="reviews" v-if="loaded">
     <PersonalReviewsListItem
-        v-for="review in reviews"
+        v-for="review in getReviews()"
         :mark="review.mark"
         :message="review.message"
         :added_at="review.added_at"
@@ -10,6 +10,7 @@
         :status="review.status"
         @delete="sendRemovePersonalReview"
     ></PersonalReviewsListItem>
+    <li><b class="text-primary" v-if="reviews.length > 3" role="button" @click="() => {opened = !opened}">{{ opened ? "Свернуть" : `Развернуть (eщё ${reviews.length - 3})` }} </b></li>
   </ul>
   <Btn v-else @click="fetchPersonalReviews">Показать</Btn>
 </template>
@@ -26,6 +27,7 @@ export default {
     return {
       reviews: [],
       loaded: false,
+      opened: false,
     }
   },
   methods: {
@@ -41,6 +43,14 @@ export default {
 
     async sendRemovePersonalReview(id) {
       await this.removePersonalReview({id: id});
+    },
+
+    getReviews() {
+      if (this.opened) {
+        return this.reviews;
+      } else {
+        return this.reviews.slice(0, 3);
+      }
     }
   },
 }
