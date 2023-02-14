@@ -41,7 +41,7 @@ export default {
         },
 
         // Получение популярных страниц
-        async getCheckingPages({state, commit}, {first=false}) {
+        async getCheckingPages({state, commit}, {first=false, search=''}) {
             try {
                 if (first) {
                     commit('setCanLoadMore', true);
@@ -52,6 +52,7 @@ export default {
                     URLS.getCheckingPages,
                     {
                         page_number: state.pageNumber,
+                        search: search
                     }
                 );
 
