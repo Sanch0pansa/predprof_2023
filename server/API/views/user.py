@@ -1,5 +1,5 @@
 from rest_framework import generics
-from API.models import User, Subscription,Review, Report
+from API.models import User, Subscription, Review, Report
 from django.http import JsonResponse
 from API.serializers.user import UserSerializer, UserRegisterSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -186,7 +186,6 @@ class ChangePersonalData(generics.GenericAPIView):
             else:
                 return JsonResponse({'errors': {'current_password': ['Неправильный пароль']}}, status=400)
         except Exception as ex:
-            print(ex)
             return JsonResponse({'success': False}, status=500)
 
 
@@ -215,6 +214,82 @@ class UserInfo(generics.GenericAPIView):
             reports = Report.objects.only('id').filter(added_by_user=id).count()
             reviews = Review.objects.only('id').filter(added_by_user=id).count()
             joined = list(User.objects.filter(id=id).values('date_joined'))[0]['date_joined']
-            return JsonResponse({'reviews': reviews, 'reports': reports, 'subscriptions': subscriptions, 'joined': joined})
-        except Exception:
+            return JsonResponse(
+                {'reviews': reviews, 'reports': reports, 'subscriptions': subscriptions, 'joined': joined})
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=500)
+
+
+class UserReports(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            result = []
+            reports = Report.objects.filter(added_by_user_id=user.id) \
+                .select_related('page') \
+                .order_by('-id') \
+                .values('id', 'page', 'page__name', 'message', 'added_at', 'is_moderated')
+            for i in reports:
+                if i['is_moderated'] is None:
+                    status = 'moderation'
+                elif i['is_moderated']:
+                    status = 'accepted'
+                else:
+                    status = 'rejected'
+                result.append({'id': i['id'],
+                               'page': {'id': i['page'],
+                                        'name': i['page__name']},
+                               'message': i['message'],
+                               'added_at': i['added_at'],
+                               'status': status})
+            return JsonResponse(result, safe=False)
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=500)
+
+    def delete(self, request, id):
+        try:
+            report = Report.objects.get(id=id)
+            report.delete()
+            return JsonResponse({'success': True})
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=500)
+
+
+class UserReviews(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            result = []
+            reviews = Review.objects.filter(added_by_user_id=user.id) \
+                .select_related('page') \
+                .order_by('-id') \
+                .values('id', 'page', 'page__name', 'message', 'mark', 'added_at', 'is_moderated')
+            for i in reviews:
+                if i['is_moderated'] is None:
+                    status = 'moderation'
+                elif i['is_moderated']:
+                    status = 'accepted'
+                else:
+                    status = 'rejected'
+                result.append({'id': i['id'],
+                               'page': {'id': i['page'],
+                                        'name': i['page__name']},
+                               'message': i['message'],
+                               'mark': i['mark'],
+                               'added_at': i['added_at'],
+                               'status': status})
+            return JsonResponse(result, safe=False)
+        except Exception as ex:
+            return JsonResponse({'success': False}, status=500)
+
+    def delete(self, request, id):
+        try:
+            review = Review.objects.get(id=id)
+            review.delete()
+            return JsonResponse({'success': True})
+        except Exception as ex:
             return JsonResponse({'success': False}, status=500)

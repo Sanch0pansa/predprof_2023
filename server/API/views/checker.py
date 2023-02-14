@@ -22,9 +22,9 @@ class GetPagesForCheck(generics.GenericAPIView):
                     sites[i['id']] = i['url']
                 return JsonResponse(sites)
             else:
-                return JsonResponse({'detail': 'Неправильный токен'})
+                return JsonResponse({'detail': 'Неправильный токен'}, status=400)
         except Exception:
-            return JsonResponse({'detail': 'Something went wrong'})
+            return JsonResponse({'success': False}, status=500)
 
 
 class CheckCreateView(generics.GenericAPIView):
@@ -52,7 +52,10 @@ class CheckCreateView(generics.GenericAPIView):
                                   check_status=last_check_result,
                                   checked_at=checked_at)
                     check.save()
-                requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
+                try:
+                    requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
+                except Exception:
+                    print('Бот не запущен')
                 return JsonResponse({'success': True})
         except Exception as ex:
             return JsonResponse({'success': False}, status=500)

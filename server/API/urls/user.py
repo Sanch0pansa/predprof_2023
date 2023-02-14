@@ -11,6 +11,8 @@ urlpatterns = [
     path('user/list/', user.UserListView.as_view()),
     path('user/retrive/<int:pk>/', user.UserRetrieveUpdateDestroyView.as_view()),
     path('user/<int:id>/', user.UserInfo.as_view()),
-
-
+    path('user/report/', user.UserReports.as_view()),
+    path('user/report/<int:id>/', user.UserReports.as_view()),
+    path('user/review/', user.UserReviews.as_view()),
+    path('user/review/<int:id>/', user.UserReviews.as_view())
 ]
