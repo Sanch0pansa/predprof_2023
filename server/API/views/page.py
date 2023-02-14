@@ -1,5 +1,5 @@
 from rest_framework import generics
-from API.models import Page, Review, Check, Report, Subscription, User
+from API.models import Page, Review, Check, Report, Subscription, User, CheckReport
 from API.serializers.page import PageSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from API.permissions import IsAdmin
@@ -128,8 +128,8 @@ class GetCheckingPages(generics.GenericAPIView):
             result = []
             for i in pages:
                 if data['search'] == '' or (data['search'].lower() in i.name.lower()) or \
-                   (data['search'].lower() in i.description.lower() or \
-                   (data['search'].lower() in i.url.lower())):
+                        (data['search'].lower() in i.description.lower() or \
+                         (data['search'].lower() in i.url.lower())):
                     result.append({'id': i.id,
                                    'name': i.name,
                                    'url': i.url,
@@ -401,3 +401,129 @@ class Events(generics.GenericAPIView):
         except Exception as ex:
             print(ex)
             return JsonResponse({'success': False}, status=500)
+
+
+from ping3 import ping as ping3
+from urllib.parse import urlparse
+import requests
+
+class DeepCheck(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, level):
+        data = getData(request)  # url, start_date, end_date
+        print(data)
+        try:
+            if level == 1:
+                try:
+                    url = data['url']
+                    ping = None
+                    response = None
+                    response_code = None
+                    response_time = None
+                    num = 0
+                    while num < 5:
+                        try:
+                            num += 1
+                            domain = urlparse(url).netloc
+                            response = requests.get(url)
+                            ping = round(ping3(domain) * 1000)
+                            response_code = response.status_code
+                            response_time = round(response.elapsed.total_seconds() * 1000)
+                            break
+                        except Exception:
+                            continue
+                    check_report = CheckReport(requested_url=url,
+                                               ping=ping,
+                                               response_status_code=str(response_code),
+                                               response_time=response_time)
+                    has_data = False
+                    page = list(Page.objects.filter(url=data['url'], is_checking=True).values('id'))
+                    if page:
+                        check_report.page_id = page[0]['id']
+                        has_data = True
+                    check_report.save()
+                    return JsonResponse({'id': check_report.id,
+                                         'page_id': check_report.page_id,
+                                         'has_data': has_data,
+                                         'ping': ping,
+                                         'response_status_code': response_code,
+                                         'response_time': response_time})
+                except Exception as ex:
+                    print(ex)
+                    return JsonResponse({'success': False}, status=500)
+            elif level == 2:
+                try:
+                    check_report = CheckReport.objects.get(id=int(data['id']))
+                    token = "AIzaSyD_mPUNnDh_8UY2Ba3Aj9I0zAiWxjP2zDU"
+                    req = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={check_report.requested_url}&key={token}"
+                    GPSI = requests.get(req).json()
+                    print(GPSI)
+                    try:
+                        first_content_loading_time = GPSI['lighthouseResult']['audits']['first-contentful-paint'][
+                            'numericValue']
+                    except Exception:
+                        first_content_loading_time = None
+                    try:
+                        first_meaningful_content_loading_time = \
+                        GPSI['lighthouseResult']['audits']['first-meaningful-paint']['numericValue']
+                    except Exception:
+                        first_meaningful_content_loading_time = None
+                    try:
+                        largest_content_loading_time = GPSI['lighthouseResult']['audits']['largest-contentful-paint'][
+                            'numericValue']
+                    except Exception:
+                        largest_content_loading_time = None
+                    try:
+                        speed_index = round(GPSI['lighthouseResult']['audits']['speed-index']['numericValue'])
+                    except Exception:
+                        speed_index = None
+                    try:
+                        score = round(GPSI['lighthouseResult']['audits']['speed-index']['score'] * 100)
+                    except Exception:
+                        score = None
+                    try:
+                        full_page_loading_time = round(GPSI['lighthouseResult']['timing']['total'])
+                    except Exception:
+                        full_page_loading_time = None
+                    print(first_content_loading_time, first_meaningful_content_loading_time, largest_content_loading_time, speed_index, score, full_page_loading_time)
+                    check_report.first_content_loading_time = first_content_loading_time
+                    check_report.first_meaningful_content_loading_time = first_meaningful_content_loading_time
+                    check_report.largest_content_loading_time = largest_content_loading_time
+                    check_report.speed_index = speed_index
+                    check_report.score = score
+                    check_report.full_page_loading_time = full_page_loading_time
+                    check_report.save()
+                    return JsonResponse({'first_contentful_paint': first_content_loading_time,
+                                         'first_meaningful_paint': first_meaningful_content_loading_time,
+                                         'largest_contentful_paint': largest_content_loading_time,
+                                         'speed_index': speed_index,
+                                         'score': score,
+                                         'full_page_loading_time': full_page_loading_time})
+                except Exception as ex:
+                    print(ex)
+                    return JsonResponse({'success': False}, status=500)
+            elif level == 3:
+                try:
+                    result = []
+                    check_report = CheckReport.objects.get(id=data['id'])
+                    if check_report.page_id is not None:
+                        date_from = data['date_from']
+                        date_to = data['date_to']
+                        checks = list(Check.objects.filter(checked_at__range=(date_from, date_to),
+                                                           page_id=check_report.page_id)
+                                      .values('response_time', 'checked_at', 'response_status_code'))
+                        reports = list(Report.objects.filter(added_at__range=(date_from, date_to),
+                                                             page_id=check_report.page_id,
+                                                             is_published=True)
+                                       .values('added_at', 'message'))
+                        result.append(checks)
+                        result.append(reports)
+                        return JsonResponse(result, safe=False)
+                    else:
+                        return JsonResponse({'success': True})
+                except Exception as ex:
+                    print(ex)
+                    return JsonResponse({'success': False}, status=500)
+        except Exception:
+            return JsonResponse({'success': False}, status=400)

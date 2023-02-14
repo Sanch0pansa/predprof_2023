@@ -14,4 +14,5 @@ urlpatterns = [
     path('page/<int:id>/subscription/', page.Subscriptions.as_view()),
     path('page/<int:id>/', page.GetPageData.as_view()),
     path('page/account/events/', page.Events.as_view()),
+    path('page/make_report/<int:level>/', page.DeepCheck.as_view()),
 ]

@@ -49,7 +49,7 @@ class Check(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='checks')
     checked_at = models.DateTimeField()
     response_status_code = models.CharField(max_length=3)
-    response_time = models.SmallIntegerField()
+    response_time = models.PositiveSmallIntegerField()
     check_status = models.CharField(default=3, max_length=1)
 
 class Review(models.Model):
@@ -67,3 +67,19 @@ class Subscription(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='subscriptions')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
     subscripted_at = models.DateTimeField(auto_now_add=True)
+
+
+class CheckReport(models.Model):
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, null=True, default=None)
+    requested_url = models.CharField(max_length=128)
+    ping = models.PositiveSmallIntegerField(null=True, default=None)
+    response_status_code = models.CharField(max_length=3)
+    response_time = models.PositiveSmallIntegerField(null=True, default=None)
+    first_content_loading_time = models.PositiveIntegerField(null=True, default=None)
+    first_meaningful_content_loading_time = models.PositiveIntegerField(null=True, default=None)
+    largest_content_loading_time = models.PositiveIntegerField(null=True, default=None)
+    speed_index = models.PositiveIntegerField(null=True, default=None)
+    score = models.PositiveSmallIntegerField(null=True, default=None)
+    full_page_loading_time = models.PositiveIntegerField(null=True, default=None)
+    report_file = models.FileField(null=True, default=None, blank=True)
+
