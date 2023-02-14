@@ -2,7 +2,7 @@ import telebot
 import requests
 from threading import Thread
 import datetime
-
+import json
 import logging
 
 import smtplib
@@ -27,26 +27,35 @@ with open('conf.txt') as file:
     bot_mail = config[1][1]
     mail_password = config[2][1]
 
+try:
+    with open('last_data.json', 'r') as file:
+        last_data_telegram = json.load(file)
+        print('Successful load file\n', last_data_telegram)
+except Exception as er:
+    last_data_telegram = {}
+    print('Unsuccessful load file\n', er)
+
+
 Mailing_Mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
 Mailing_Mail.login(bot_mail, mail_password)
-
-last_data_telegram = {}
 
 
 @app.post('/check_messages')
 def url_get_messages():
     data = request.get_json()
     if data['_token'] == _token:
+        print('Call from server')
         logging.info('Call from server')
         check_bot_messages()
     else:
         logging.info('Call from OUTSIDE')
+    print('End Check')
     return 'None'
 
 
 @bot.message_handler(commands=['help', 'start'])
 def bot_start(message):
-    if message.text == '/start':  # проверяем на наличие юзера
+    if message.text == '/start':
         try:
             check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
             check = check.json()
@@ -101,21 +110,23 @@ def bot_reply(message):
         logging.error('No last data')
         return
     try:
-        bot.send_message(message.from_user.id, last_data_telegram['date'] + last_data_telegram[message.from_user.id],
+        bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
+                         last_data_telegram[str(message.from_user.id)],
                          disable_web_page_preview=True)
     except KeyError:
-        bot.send_message(message.from_user.id,
-                         'Вы не подписаны не на один сайт. \n Вы можете сделать это через официальный сайт ...')
-        logging.info("'/last' from not subscriber")
+        bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
+                         f"✅ Все сайты работали на момент времени {last_data_telegram['date'][1]}")
 
 
 # @bot.message_handler(commands=['check'])
 def check_bot_messages():
     global last_data_telegram
+    print("Run 'check_bot_messages' function")
     logging.info("Run 'check_bot_messages' function")
     try:
         data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
         dict_data = data.json()
+        print('Successful connection')
     except Exception as ex:
         print(ex)
         logging.error("No request to 'bot/get_bot_messages/'")
@@ -123,32 +134,32 @@ def check_bot_messages():
 
     tg_message = {}
     mail_messages = {}
+    print(dict_data)
 
     def add_message(array, user, text):
         if user in array:
             array[user] += text
         else:
             array[user] = text
-
+    print('Processing data')
     for i in dict_data:
         time = datetime.datetime.fromisoformat(i['checked_at'].replace('T', ' ').replace('Z', ''))
         if time.minute < 10:
             time = f"{time.hour}:0{time.minute}"
         else:
             time = f"{time.hour}:{time.minute}"
-        if i['response_status_code'] == '200':
-            for tg_id in i['subscribers_telegram']:
-                add_message(tg_message, tg_id, '')
-            for mail in i['subscribers_email']:
-                add_message(mail_messages, mail, '')
-        else:
-            for tg_id in i['subscribers_telegram']:
-                add_message(tg_message, tg_id,
-                            f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
-            for mail in i['subscribers_email']:
-                add_message(mail_messages, mail,
-                            f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
-    date = datetime.datetime.fromisoformat(dict_data[0]['checked_at'].replace('T', ' ').replace('Z', ''))
+
+        for tg_id in i['subscribers_telegram']:
+            add_message(tg_message, str(tg_id),
+                        f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
+        for mail in i['subscribers_email']:
+            add_message(mail_messages, mail,
+                        f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
+    if dict_data:
+        date = datetime.datetime.fromisoformat(dict_data[0]['checked_at'].replace('T', ' ').replace('Z', ''))
+    else:
+        date = datetime.datetime.now()
+        print(date)
     month = date.month
     day = date.day
     if date.minute < 10:
@@ -159,30 +170,24 @@ def check_bot_messages():
     MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября',
               'Декабря']
     month = MONTHS[month - 1]
-    for tg in tg_message:
-        if not tg_message[tg]:
-
-            tg_message[tg] = f'✅ Все сайты работают на момент времени {time}\n'
-
-    for mail in mail_messages:
-        if not mail_messages[mail]:
-            mail_messages[mail] = f'✅ Все сайты работают на момент времени {time}\n'
 
     last_data_telegram = tg_message.copy()
-    last_data_telegram['date'] = f'Последнее обновление {day} {month}\n'
+    last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', time]
 
+    print('Load the last date to file')
+    with open('last_data.json', 'w') as write_file:
+        json.dump(last_data_telegram, write_file)
+
+    print('Send messages to telegram')
     for message in tg_message:
-        if message == 'date':
-            continue
         try:
-            bot.send_message(message, last_data_telegram['date'] + tg_message[message], disable_web_page_preview=True)
+            bot.send_message(message, last_data_telegram['date'][0] + tg_message[message],
+                             disable_web_page_preview=True)
         except telebot.apihelper.ApiException:
             logging.error(f"Can't send message to {message}")
-            continue
         except Exception as ex:
             logging.error(ex)
             print(ex)
-            continue
 
     def send_email(to_mail, text):
         theme = 'Оповещение о работе сайта'
@@ -191,13 +196,13 @@ def check_bot_messages():
         e_mail += text
         Mailing_Mail.sendmail(bot_mail, to_mail, e_mail.encode('utf8'))
 
+    print('Send messages to mail')
     for message in mail_messages:
         try:
             send_email(message, f'На момент {day} {month}:\n' +
                        mail_messages[message] + '\nС уважением Site Checker!')
         except Exception as ex:
             print(ex)
-            continue
 
 
 task_client = Thread(target=bot.infinity_polling)
