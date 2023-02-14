@@ -127,13 +127,16 @@ class GetCheckingPages(generics.GenericAPIView):
                                      'ORDER BY pages.id DESC, checks.checked_at DESC ')
             result = []
             for i in pages:
-                result.append({'id': i.id,
-                               'name': i.name,
-                               'url': i.url,
-                               'last_check_time': i.checked_at,
-                               'last_check_timeout': i.response_time,
-                               'check_status': i.check_status,
-                               'rating': i.rating})
+                if data['search'] == '' or (data['search'].lower() in i.name.lower()) or \
+                   (data['search'].lower() in i.description.lower() or \
+                   (data['search'].lower() in i.url.lower())):
+                    result.append({'id': i.id,
+                                   'name': i.name,
+                                   'url': i.url,
+                                   'last_check_time': i.checked_at,
+                                   'last_check_timeout': i.response_time,
+                                   'check_status': i.check_status,
+                                   'rating': i.rating})
             result = Paginator(result, 5)
             return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
         except Exception as ex:
