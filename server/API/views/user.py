@@ -165,27 +165,34 @@ class ChangePersonalData(generics.GenericAPIView):
         try:
             user = request.user
             data = getData(request)
+            is_password = 'password' in data
             if check_password(data['current_password'], user.password):
                 if user.username != data['username']:
                     user.username = data['username']
                 if user.email != data['email']:
                     user.email = BaseUserManager.normalize_email(data['email'])
-                if 'password' in data:
+                if is_password:
                     if not check_password(user.password, data['password']):
                         user.password = data['password']
                 try:
-                    user.clean_fields()
+                    user.validate_unique()
                 except ValidationError as ex:
                     errors = dict(ex)
-                    errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
+                    if 'password' in errors:
+                        errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
+                    if 'username' in errors:
+                        errors['username'][0] = errors['username'][0].replace('Username', 'именем пользователя')
+                    if 'email' in errors:
+                        errors['email'][0] = errors['email'][0].replace('таким Email', 'такой почтой')
                     return JsonResponse({'errors': errors}, status=400)
-                if 'password' in data:
+                if is_password:
                     user.set_password(data['password'])
                 user.save()
                 return JsonResponse({'success': True})
             else:
                 return JsonResponse({'errors': {'current_password': ['Неправильный пароль']}}, status=400)
         except Exception as ex:
+            print(ex)
             return JsonResponse({'success': False}, status=500)
 
 
