@@ -169,7 +169,10 @@ class PageChecks(generics.GenericAPIView):
 
     def get(self, request, id, *args, **kwargs):
         try:
-            checks = list(Check.objects.filter(page_id=id).values('checked_at', 'response_time', 'check_status'))
+            time = timezone.now()
+            checks = list(Check.objects.filter(page_id=id, checked_at__range=(time - timedelta(days=3), time))
+                          .values('checked_at', 'response_time', 'check_status')
+                          .order_by('id'))
             return JsonResponse(checks, safe=False)
         except Exception:
             return JsonResponse({'detail': 'Something went wrong'})
