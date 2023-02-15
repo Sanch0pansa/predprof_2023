@@ -1,5 +1,10 @@
 <template>
   <PageSection :title="`Все ресурсы`">
+    <Block class="mb-2 d-flex align-items-end">
+      <Inp v-model="search" label="Поиск по сайтам" class="w-100 me-3"></Inp>
+      <Btn @click="fetchCheckingPages">Искать</Btn>
+    </Block>
+
     <PageTable
         :headers="['Сайт', 'Последняя проверка', 'Состояние', 'Задержка ответа, мс', 'Рейтинг']"
         :data="pages"
@@ -13,10 +18,11 @@
 import PageTable from "@/components/page/PageTable.vue";
 import {mapActions, mapState} from "vuex";
 import {RouterLink} from "vue-router";
+import Block from "@/components/UI/Block.vue";
 
 export default {
   name: "PageChecks",
-  components: {PageTable, RouterLink},
+  components: {Block, PageTable, RouterLink},
   data() {
     return {
       headers: [
@@ -26,8 +32,8 @@ export default {
         'Задержка ответа, мс',
         'Рейтинг'
       ],
-
       pages: [],
+      search: "",
     }
   },
 
@@ -41,7 +47,10 @@ export default {
     },
 
     async fetchCheckingPages(first=false) {
-      const data = await this.getCheckingPages({first});
+      if (this.search) {
+        this.pages = [];
+      }
+      const data = await this.getCheckingPages({first: first || this.search, search: this.search});
 
       const statesNames = [
           "Не работает",
@@ -59,19 +68,25 @@ export default {
 
       data.forEach(page => {
         let datetime = new Date(page.last_check_time);
+        let status = page.check_status;
+        let time = page.last_check_time ? datetime.toLocaleString("ru", {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric"
+        }).replaceAll(" г", "").replaceAll(".", "") : '-';
+        let timeout = page.last_check_timeout ? page.last_check_timeout : '-';
+        if (status == null) {
+          status = 3;
+        }
         this.pages.push([
             {text: page.name, href: {name: 'single_page', params: {id: page.id}}},
-            datetime.toLocaleString("ru", {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: "numeric",
-              minute: "numeric",
-              second: "numeric"
-            }).replaceAll(" г", "").replaceAll(".", ""),
-            `<b class="text-${statesColors[page.check_status]}">${statesNames[page.check_status]}</b>`,
-            `<b class="text-${statesColors[page.check_status]}">${page.last_check_timeout}</b>`,
-            100,
+            time,
+            `<b class="text-${statesColors[status]}">${statesNames[status]}</b>`,
+            `<b class="text-${statesColors[status]}">${timeout}</b>`,
+            `<i class="fas fa-star text-warning"></i> ${Number(page.rating)}`,
         ]);
       });
     }

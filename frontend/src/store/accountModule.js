@@ -1,7 +1,8 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    getAccountSubscriptions: "http://127.0.0.1:8000/api/v1/page/get_account_data/",
+    getAccountSubscriptions: `${Url}/page/account/data/`,
 }
 
 export default {

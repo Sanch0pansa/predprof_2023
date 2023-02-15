@@ -3,12 +3,14 @@
     <!--  <PagesListItem v-for="obj in [0, 1, 2]" :status="obj" :href="`https://google.com`"></PagesListItem>-->
     <SubscriptionsListItem
         @unsubscribe="unsubscribe(obj.id)"
-        v-for="obj in pages" :status="obj.check_status"
+        v-for="obj in getPages()" :status="obj.check_status"
         :href="{name: 'single_page', params: {id: obj.id}}"
         :name="obj.name"
     >
 
     </SubscriptionsListItem>
+
+    <b class="text-primary" v-if="pages.length > 3" role="button" @click="() => {opened = !opened}">{{ opened ? "Свернуть" : `Развернуть (eщё ${pages.length - 3})` }} </b>
   </div>
 </template>
 
@@ -19,6 +21,11 @@ import {mapActions} from "vuex";
 export default {
   components: {SubscriptionsListItem},
   name: "SubscriptionsList",
+  data() {
+    return {
+      opened: false,
+    }
+  },
   props: {
     pages: {
       required: true,
@@ -38,6 +45,14 @@ export default {
          this.$emit('update:pages', this.pages.filter(page => page.id !== id));
       }
     },
+
+    getPages() {
+      if (this.opened) {
+        return this.pages;
+      } else {
+        return this.pages.slice(0, 3);
+      }
+    }
   }
 }
 </script>

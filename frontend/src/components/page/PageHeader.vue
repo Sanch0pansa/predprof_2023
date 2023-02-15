@@ -8,13 +8,20 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item me-3">
+            <RouterLink :to="{name: 'checker'}" class="btn btn-primary">Проверить сайт</RouterLink>
+          </li>
           <li v-if="isAuth" class="nav-item me-3">
             <RouterLink :to="{name: 'create_page'}" :class="['btn btn-primary']">Добавить ресурс</RouterLink>
           </li>
           <li v-if="isAuth" class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{ user.username ? user.username : "" }}
-              <i class="ms-2 fas fa-user text-primary"></i>
+              <i class="ms-2 fas text-primary" :class="{
+                'fa-user': !isModerator && !isAdmin,
+                'fa-user-tie': isModerator && !isAdmin,
+                'fa-crown': isModerator && isAdmin,
+                }"></i>
             </a>
             <ul class="dropdown-menu" style="position: absolute; left: auto; right: 0px;">
               <li class="dropdown-item" role="button"><RouterLink :to="{name: 'account'}"><i class="text-primary fas fa-user"></i> Личный кабинет</RouterLink></li>
@@ -24,7 +31,16 @@
                   Модер. панель
                 </RouterLink>
               </li>
-              <li class="dropdown-item text-danger" role="button" @click="logoutAction"><i class="text-danger fas fa-sign-out-alt"></i> Выход</li>
+              <li class="dropdown-item" role="button" v-if="isAdmin">
+                <RouterLink :to="{name: 'admin'}">
+<!--                  <i class="text-primary fas fa-crown"></i>-->
+                  <i class="text-primary fas fa-crown" style="margin-left: -3px;"></i>
+                  Админ. панель
+                </RouterLink>
+              </li>
+              <li class="dropdown-item text-danger" role="button" @click="logoutAction">
+                <a href="#" class="text-danger"><i class="text-danger fas fa-sign-out-alt"></i> Выход</a>
+                </li>
             </ul>
           </li>
           <li v-if="!isAuth" class="nav-item">
@@ -51,7 +67,8 @@ export default {
     ...mapState({
         isAuth: state => state.auth.isAuth,
         user: state => state.auth.user,
-        isModerator: state => state.auth.isModerator
+        isModerator: state => state.auth.isModerator,
+        isAdmin: state => state.auth.isAdmin,
       }),
   },
   methods: {

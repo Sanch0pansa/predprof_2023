@@ -1,7 +1,10 @@
-import axios from 'axios'
+import axios from 'axios';
+import Url from "@/store/url";
 
 const URLS = {
-    createPageReviews: id => `http://127.0.0.1:8000/api/v1/page/${id}/reviews/`,
+    createPageReviews: id => `${Url}/page/${id}/reviews/`,
+    getPersonalReviews: `${Url}/user/review/`,
+    removePersonalReview: id => `${Url}/user/review/${id}/`,
 }
 
 export default {
@@ -36,7 +39,56 @@ export default {
 
                 return {success: false, detail: "Что-то пошло не так"};
             }
-        }
+        },
+
+        // Получение отзывов пользователя
+        async getPersonalReviews({rootState}) {
+            try {
+                const resp = await axios.get(
+                    URLS.getPersonalReviews,
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                return resp.data;
+
+            } catch(e) {
+                return [
+                    {
+                        id: 1,
+                        page: {
+                            id: 2,
+                            name: "МИРЭА"
+                        },
+                        message: "Test",
+                        mark: 4.0,
+                        status: "accepted"
+                    }
+                ];
+            }
+        },
+
+        // Удаление пользовательского отзыва
+        async removePersonalReview({state, commit, rootState}, {id}) {
+            try {
+                const resp = await axios.delete(
+                    URLS.removePersonalReview(id),
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                return {success: resp.data.success};
+
+            } catch(e) {
+                return {success: false};
+            }
+        },
     },
 
 }

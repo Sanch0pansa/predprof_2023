@@ -4,7 +4,7 @@
       <div class="d-flex flex-column gap-3">
         <ModerationPagesListItem
             :id="page.id"
-            :user="page.user"
+            :added_by_user="page.added_by_user"
             :url="page.url"
             :description="page.description"
             :name="page.name"
@@ -19,7 +19,7 @@
       <div class="d-flex flex-column gap-3">
         <ModerationPagesListItem
             :id="page.id"
-            :user="page.user"
+            :added_by_user="page.added_by_user"
             :url="page.url"
             :description="page.description"
             :name="page.name"

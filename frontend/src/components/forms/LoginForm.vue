@@ -5,7 +5,7 @@
           :name="`login`"
           :label="`Логин:`"
           v-model="login"
-          v-model:errors="errorBag.email">
+          v-model:errors="errorBag.login">
       </Inp>
       <br>
 
@@ -37,7 +37,7 @@ export default {
       login: "",
       password: "",
       errorBag: {
-        email: [],
+        login: [],
         password: [],
         non_field_errors: [],
         success: "",

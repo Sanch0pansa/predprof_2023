@@ -14,10 +14,21 @@
       <tr v-for="row in data">
 
         <td v-for="column in row">
-          <div v-if="typeof column != 'object'" v-html="column"></div>
-          <div v-else>
-            <RouterLink :to="column.href">{{ column.text }}</RouterLink>
+          <div v-if="typeof column == 'string' || typeof column == 'number'" v-html="column"></div>
+          <div v-if="column.text">
+            <RouterLink v-if="column.href" :to="column.href">{{ column.text }}</RouterLink>
+            <Btn v-if="column.click" :class="column.cls" @click="column.click">{{ column.text }}</Btn>
           </div>
+          <div class="" v-if="column.username">
+            <Username :id="column.id" :username="column.username"></Username>
+          </div>
+          <div v-else>
+            <template v-for="col in column">
+              <RouterLink v-if="col.href" :to="col.href">{{ col.text }}</RouterLink>
+              <Btn v-if="col.click" :class="col.cls" @click="col.click">{{ col.text }}</Btn>
+            </template>
+          </div>
+
         </td>
       </tr>
 
@@ -34,8 +45,11 @@
 </template>
 
 <script>
+import Username from "@/components/UI/Username.vue";
+
 export default {
   name: "PageTable",
+  components: {Username},
   props: {
     headers: {
       required: false,

@@ -8,6 +8,11 @@ import SinglePageView from "@/views/SinglePageView.vue";
 import CreatePageView from "@/views/CreatePageView.vue";
 import ModerationView from "@/views/Moderation/ModerationView.vue";
 import ModerationPagesView from "@/views/Moderation/ModerationPagesView.vue";
+import ModerationReviewsView from "@/views/Moderation/ModerationReviewsView.vue";
+import ModerationReportsView from "@/views/Moderation/ModerationReportsView.vue";
+import AdminView from "@/views/Admin/AdminView.vue";
+import AccountEditView from "@/views/Account/AccountEditView.vue";
+import CheckerView from "@/views/CheckerView.vue";
 
 
 const router = createRouter({
@@ -47,6 +52,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/account/edit',
+      name: 'edit_account',
+      component: AccountEditView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+      },
+    },
+    {
       path: '/page/:id',
       name: 'single_page',
       component: SinglePageView,
@@ -78,6 +92,44 @@ const router = createRouter({
         authRequired: true,
         authUpdate: true,
         moderatorRequired: true,
+      },
+    },
+    {
+      path: '/moderation/reviews/',
+      name: 'moderation_reviews',
+      component: ModerationReviewsView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+      },
+    },
+    {
+      path: '/moderation/reports/',
+      name: 'moderation_reports',
+      component: ModerationReportsView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+      },
+    },
+    {
+      path: '/admin/',
+      name: 'admin',
+      component: AdminView,
+      meta: {
+        authRequired: true,
+        authUpdate: true,
+        moderatorRequired: true,
+        adminRequired: true,
+      },
+    },
+    {
+      path: '/checker/',
+      name: 'checker',
+      component: CheckerView,
+      meta: {
       },
     },
   ]

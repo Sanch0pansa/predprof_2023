@@ -1,10 +1,12 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    login: "http://127.0.0.1:8000/api/v1/auth/user/login/",
-    register: "http://127.0.0.1:8000/api/v1/auth/user/registration/",
-    getUserData: "http://127.0.0.1:8000/api/v1/user/me/",
-    logout: "http://127.0.0.1:8000/api/v1/auth/token/logout/"
+    login: `${Url}/auth/user/login/`,
+    register: `${Url}/auth/user/registration/`,
+    getUserData: `${Url}/user/me/`,
+    logout: `${Url}/auth/token/logout/`,
+    patchUserData: `${Url}/user/change_account_info/`
 }
 
 export default {
@@ -13,8 +15,8 @@ export default {
         isAuth: JSON.parse(localStorage.getItem('isAuth')),
         authToken: localStorage.getItem('authToken'),
         user: JSON.parse(localStorage.getItem('user') ?? "{}"),
-        isAdmin: false,
-        isModerator: false,
+        isAdmin: JSON.parse(localStorage.getItem('isAdmin')),
+        isModerator: JSON.parse(localStorage.getItem('isModerator')),
     }),
     actions: {
         // Функция авторизации
@@ -93,10 +95,6 @@ export default {
                 commit('setIsModerator', res.data.is_moderator)
                 commit('setIsAdmin', res.data.is_admin)
 
-                if (state.isModerator) {
-                    await dispatch('moderation/getModerationCategories', {}, {root: true});
-                }
-
             } catch (e) {
 
             }
@@ -123,6 +121,32 @@ export default {
             commit("setIsAdmin", false);
             commit("setAuthToken", "");
             commit("setUser", {});
+        },
+
+
+        // Изменение данных пользователя
+        async patchUserData({state, commit, rootState, dispatch}, data) {
+            try {
+                // Пробуем получить ответ
+                await axios.patch(
+                    URLS.patchUserData,
+                    data,
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                // Если ошибок нет, то есть, вернулся 2хх код, пробуем автоматически получить данные
+                const res = await dispatch('getUserData');
+
+                return {success: true, detail: "Изменение данных успешно"}
+
+            } catch (e) {
+
+                return {success: false, detail: e.response.data.errors};
+            }
         }
     },
     mutations: {
@@ -150,6 +174,10 @@ export default {
     getters: {
         getAuthToken(state) {
             return state.authToken
+        },
+
+        getIsModerator(state) {
+            return state.isModerator;
         }
     }
 

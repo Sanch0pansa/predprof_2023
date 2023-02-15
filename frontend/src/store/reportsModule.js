@@ -1,7 +1,10 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 const URLS = {
-    createPageReports: id => `http://127.0.0.1:8000/api/v1/page/${id}/reports/`,
+    createPageReports: id => `${Url}/page/${id}/reports/`,
+    getPersonalReports: `${Url}/user/report/`,
+    removePersonalReport: id => `${Url}/user/report/${id}/`,
 }
 
 export default {
@@ -36,7 +39,56 @@ export default {
 
                 return {success: false, detail: "Что-то пошло не так"};
             }
-        }
+        },
+
+
+        // Получение репортов пользователя
+        async getPersonalReports({rootState}) {
+            try {
+                const resp = await axios.get(
+                    URLS.getPersonalReports,
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                return resp.data;
+
+            } catch(e) {
+                return [
+                    {
+                        id: 1,
+                        page: {
+                            id: 2,
+                            name: "МИРЭА"
+                        },
+                        message: "Test",
+                        status: "accepted"
+                    }
+                ];
+            }
+        },
+
+        // Удаление пользовательского отзыва
+        async removePersonalReport({state, commit, rootState}, {id}) {
+            try {
+                const resp = await axios.delete(
+                    URLS.removePersonalReport(id),
+                    {
+                        headers: {
+                            Authorization: `Token ${rootState.auth.authToken}`
+                        }
+                    }
+                );
+
+                return {success: resp.data.success};
+
+            } catch(e) {
+                return {success: false};
+            }
+        },
     },
 
 }

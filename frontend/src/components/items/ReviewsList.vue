@@ -1,6 +1,7 @@
 <template>
   <ul class="reviews">
     <ReviewsListItem v-for="review in reviews"
+                     :id="review.id"
                      :mark="review.mark"
                      :message="review.message"
                      :added_at="review.added_at"

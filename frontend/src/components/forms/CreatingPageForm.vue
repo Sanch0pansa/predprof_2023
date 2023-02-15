@@ -59,11 +59,15 @@ export default {
     }),
 
     async handle() {
-      let urlRegExp = /^(https?):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
+      let urlRegExp = /^(https?):\/\/([А-Яа-яa-zA-Z0-9.-]+(:[А-Яа-яa-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([А-Яа-яa-zA-Z0-9-]+\.)*[А-Яа-яa-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|онлайн|москва|[А-Яа-яa-zA-Z]{2}))(:[0-9]+)*(\/($|[А-Яа-яa-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
       let urlIsValid = urlRegExp.test(this.url);
 
       if (!urlIsValid) {
-        this.errorBag.url.push("Ссылка не валидна");
+        let invalidUrlErrorText = "Ссылка не валидна";
+        if (!this.errorBag.url.includes(invalidUrlErrorText)) {
+          this.errorBag.url.push(invalidUrlErrorText);
+        }
+
         return null;
       }
 

@@ -12,6 +12,8 @@
           <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
           <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
+        <Btn class="btn-warning" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
+        <br>
 
     </div>
     <div class="col-md-1"></div>
@@ -39,8 +41,10 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mt-3">
           <span>Рейтинг</span>
-          <span class="text-end">{{ rating }}</span>
+          <span class="text-end"><i class="fas fa-star text-warning"></i> {{ rating }}</span>
         </div>
+        <br>
+        <RouterLink :to="`/checker/?url=${url}`" class="btn btn-primary" >Отчёт по сайту</RouterLink>
       </Block>
     </div>
   </div>
@@ -67,15 +71,15 @@
     <PageTable
         v-if="reportsForTable.length"
         :data="reportsForTable"
-        :headers="['Время сообщения', 'Подробности', 'Пользователь']"
+        :headers="reportsTableHeaders"
         :no-load-more="true"
     ></PageTable>
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
   <PageSection :title="`Отзывы`">
-    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Сообщить отзыв</ModalBtn>
+    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Добавить отзыв</ModalBtn>
     <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
-    <div class="text-muted" v-else>Сообщений о сбоях не было</div>
+    <div class="text-muted" v-else>Отзывов нет</div>
   </PageSection>
 
   <Modal id="creatingReportModal" :title="`Добавление сообщения о сбое`">
@@ -106,7 +110,7 @@ import {Chart as ChartJS,
   Filler
 } from 'chart.js'
 import PageTable from "@/components/page/PageTable.vue";
-import {mapActions} from "vuex";
+import {mapActions, mapGetters, mapState} from "vuex";
 import ReviewsList from "@/components/items/ReviewsList.vue";
 import Indicator from "@/components/UI/Indicator.vue";
 import Modal from "@/components/UI/Modal.vue";
@@ -132,9 +136,9 @@ export default {
     CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {
     return {
-      name: "МГТУ",
-      url: "mgtu.ru",
-      description: "Просто описание сайта, которое может добавить пользователь при регистрации сайта в реестр",
+      name: "",
+      url: "",
+      description: "",
       status: 2,
       rating: 0,
       subscribed: false,
@@ -178,6 +182,7 @@ export default {
 
       checksForTable: [],
       reportsForTable: [],
+      reportsTableHeaders: ['Время сообщения', 'Подробности', 'Пользователь'],
     }
   },
 
@@ -186,8 +191,19 @@ export default {
       getPageData: "pages/getPageData",
       subscribePage: "pages/subscribePage",
       unsubscribePage: "pages/unsubscribePage",
-      getPageSubscription: "pages/getPageSubscription"
+      getPageSubscription: "pages/getPageSubscription",
+      patchPageStatus: "moderation/patchPageStatus",
+      patchReportStatus: "moderation/patchReportStatus",
     }),
+
+    ...mapGetters({
+      getIsModerator: "auth/getIsModerator",
+    }),
+
+    async sendPageModeration() {
+      await this.patchPageStatus({id: this.$route.params.id, action: "revise"});
+      this.$router.replace({name: 'moderation_pages'});
+    },
 
     async subscribe() {
       let res = await this.subscribePage({id: this.$route.params.id});
@@ -228,7 +244,7 @@ export default {
         "secondary"
       ];
       let ln = this.checksForTable.length;
-      [...this.checks].reverse().slice(ln, ln + 3).forEach(check => {
+      [...this.checks].reverse().slice(ln, ln + 10).forEach(check => {
         let checkRow = [
           (new Date(check.checked_at)).toLocaleString("ru", {
             year: 'numeric',
@@ -323,9 +339,13 @@ export default {
 
       })
 
+      if (this.getIsModerator()) {
+        this.reportsTableHeaders = ['Время сообщения', 'Подробности', 'Пользователь', 'Действия'];
+      }
+
       this.reportsForTable = [];
       this.reports.forEach(report => {
-        this.reportsForTable.push([
+        let reportRow = [
           (new Date(report.added_at)).toLocaleString("ru", {
             year: 'numeric',
             month: 'short',
@@ -335,8 +355,17 @@ export default {
             second: "numeric"
           }),
           report.message,
-          {text: report.added_by_user__username, href: {name: 'home'}}
-        ]);
+          {username: report.added_by_user__username, id: report.added_by_user}
+        ];
+
+        if (this.getIsModerator()) {
+          reportRow.push({text: 'Отправить на модерацию', click: async () => {
+            await this.patchReportStatus({id: report.id, action: 'revise'});
+            this.$router.replace({name: 'moderation_reports'});
+            }, cls: "btn-warning"});
+        }
+
+        this.reportsForTable.push(reportRow);
       });
 
       this.chart.loaded = true;

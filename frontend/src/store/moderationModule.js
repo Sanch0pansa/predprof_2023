@@ -1,11 +1,18 @@
 import axios from 'axios'
+import Url from "@/store/url";
 
 
 const URLS = {
-    getModerationCategories: `http://127.0.0.1:8000/api/v1/moderation/get_categories/`,
-    getModerationPages: `http://127.0.0.1:8000/api/v1/moderation/pages/`,
-    getRejectedPages: `http://127.0.0.1:8000/api/v1/moderation/rejected_pages/`,
-    patchPageStatus: id => `http://127.0.0.1:8000/api/v1/moderation/moderate/page/${id}/`,
+    getModerationCategories: `${Url}/moderation/get_categories/`,
+    getModerationPages: `${Url}/moderation/pages/`,
+    getRejectedPages: `${Url}/moderation/rejected_pages/`,
+    getModerationReviews: `${Url}/moderation/reviews/`,
+    getRejectedReviews: `${Url}/moderation/rejected_reviews/`,
+    getModerationReports: `${Url}/moderation/reports/`,
+    getRejectedReports: `${Url}/moderation/rejected_reports/`,
+    patchPageStatus: id => `${Url}/moderation/moderate/page/${id}/`,
+    patchReviewStatus: id => `${Url}/moderation/moderate/review/${id}/`,
+    patchReportStatus: id => `${Url}/moderation/moderate/report/${id}/`,
 }
 
 export default {
@@ -41,16 +48,15 @@ export default {
             }
         },
 
-        // Получение модерируемых страниц
-        async getModerationPages({state, commit, rootState}) {
-
+        // Получение элементов для модерации
+        async getItems({rootState}, {url}) {
             if (!rootState.auth.isModerator) {
                 return [];
             }
 
             try {
                 const resp = await axios.get(
-                    URLS.getModerationPages,
+                    url,
                     {
                         headers: {
                             Authorization: `Token ${rootState.auth.authToken}`
@@ -66,38 +72,44 @@ export default {
         },
 
         // Получение отклонённых страниц
-        async getRejectedPages({state, commit, rootState}) {
-
-            if (!rootState.auth.isModerator) {
-                return [];
-            }
-
-            try {
-                const resp = await axios.get(
-                    URLS.getRejectedPages,
-                    {
-                        headers: {
-                            Authorization: `Token ${rootState.auth.authToken}`
-                        }
-                    }
-                );
-
-                return resp.data;
-
-            } catch(e) {
-                return [];
-            }
+        async getRejectedPages({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getRejectedPages});
         },
 
-        // Изменение статуса страницы
-        async patchPageStatus({state, commit, rootState}, {id, action}) {
+        // Получение модерируемых страниц
+        async getModerationPages({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getModerationPages});
+        },
+
+        // Получение отклонённых отзывов
+        async getRejectedReviews({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getRejectedReviews});
+        },
+
+        // Получение модерируемых отзывов
+        async getModerationReviews({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getModerationReviews});
+        },
+
+        // Получение отклонённых сообщений о сбоях
+        async getRejectedReports({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getRejectedReports});
+        },
+
+        // Получение модерируемых сообщений о сбоях
+        async getModerationReports({dispatch}) {
+            return await dispatch("getItems", {url: URLS.getModerationReports});
+        },
+
+        // Изменение статуса модерируемого контента
+        async patchItemStatus({state, commit, rootState}, {url, action}) {
             if (!rootState.auth.isModerator) {
                 return {success: false};
             }
 
             try {
                 const resp = await axios.patch(
-                    URLS.patchPageStatus(id),
+                    url,
                     {
                         action: action
                     },
@@ -113,6 +125,21 @@ export default {
             } catch(e) {
                 return {success: false};
             }
+        },
+
+        // Изменение статуса страницы
+        async patchPageStatus({dispatch}, {id, action}) {
+            return await dispatch("patchItemStatus", {url: URLS.patchPageStatus(id), action: action});
+        },
+
+        // Изменение статуса отзывов
+        async patchReviewStatus({dispatch}, {id, action}) {
+            return await dispatch("patchItemStatus", {url: URLS.patchReviewStatus(id), action: action});
+        },
+
+        // Изменение статуса сообщений о сбоях
+        async patchReportStatus({dispatch}, {id, action}) {
+            return await dispatch("patchItemStatus", {url: URLS.patchReportStatus(id), action: action});
         }
     },
 

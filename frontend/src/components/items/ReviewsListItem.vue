@@ -1,11 +1,14 @@
 <template>
   <li class="review">
     <div class="review-header">
-      <Link :href="`https://google.com`">{{ added_by_user__username }}</Link>
-      <div class="text-muted">{{ (new Date(added_at)).toLocaleDateString("ru", {
+      <Username :username="added_by_user__username" :id="added_by_user"></Username>
+      <div class="text-muted">{{ (new Date(added_at)).toLocaleString("ru", {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric"
       }) }}</div>
     </div>
     <div class="review-mark">
@@ -18,14 +21,23 @@
     </div>
     <div class="review-content">
       <p>{{ message }}</p>
+      <Btn v-if="getIsModerator()" class="btn-warning mt-3" @click="sendPatchReviewStatus">Отправить на модерацию</Btn>
     </div>
   </li>
 </template>
 
 <script>
+import {mapActions, mapGetters} from "vuex";
+import Username from "@/components/UI/Username.vue";
+
 export default {
   name: "ReviewsListItem",
+  components: {Username},
   props: {
+    id: {
+      required: true,
+      type: Number,
+    },
     added_by_user: {
       required: true,
       type: Number
@@ -45,6 +57,20 @@ export default {
     mark: {
       required: true,
       type: Number
+    }
+  },
+  methods: {
+    ...mapGetters({
+      getIsModerator: "auth/getIsModerator"
+    }),
+
+    ...mapActions({
+      patchReviewStatus: "moderation/patchReviewStatus"
+    }),
+
+    async sendPatchReviewStatus() {
+      await this.patchReviewStatus({id: this.id, action: 'revise'});
+      this.$router.replace({name: "moderation_reviews"});
     }
   }
 }

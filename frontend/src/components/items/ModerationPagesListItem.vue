@@ -6,7 +6,7 @@
         <p class="text-muted mb-0">{{ url }} <a class="ms-2" target="_blank" :href="url"><i class="fas fa-external-link-alt text-primary"></i></a></p>
       </div>
       <div class="">
-        <b class="text-primary">{{ user.username }}</b>
+        <b class="text-primary">{{ added_by_user.username }}</b>
       </div>
     </div>
 
@@ -14,12 +14,12 @@
 
     <div class="mt-3" v-if="opened">
       <p>{{ description }}</p>
-      <div class="d-flex gap-2" v-if="status === 'moderation'">
+      <div class="d-flex flex-wrap gap-2" v-if="status === 'moderation'">
         <Btn class="btn-success" @click="$emit('action', {id: id, action: 'accept'})">Одобрить</Btn>
         <Btn class="btn-warning" @click="$emit('action', {id: id, action: 'reject'})">Отклонить</Btn>
         <Btn class="btn-danger" @click="$emit('action', {id: id, action: 'delete'})">Удалить</Btn>
       </div>
-      <div class="d-flex gap-2" v-else>
+      <div class="d-flex flex-wrap gap-2" v-else>
         <Btn class="btn-primary" @click="$emit('action', {id: id, action: 'revise'})">Пересмотреть</Btn>
         <Btn class="btn-danger" @click="$emit('action', {id: id, action: 'delete'})">Удалить</Btn>
       </div>
@@ -48,7 +48,7 @@ export default {
       required: true,
       type: String,
     },
-    user: {
+    added_by_user: {
       required: true,
       type: String,
     },
