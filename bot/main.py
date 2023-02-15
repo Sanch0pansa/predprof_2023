@@ -1,7 +1,7 @@
 import telebot
 import requests
 from threading import Thread
-import datetime
+from datetime import datetime
 import json
 import logging
 
@@ -15,7 +15,6 @@ logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
 
 my_id = 1080913894
-
 
 with open('conf.txt') as file:
     config = [i.split() for i in file.readlines()]
@@ -34,7 +33,6 @@ try:
 except Exception as er:
     last_data_telegram = {}
     print('Unsuccessful load file\n', er)
-
 
 Mailing_Mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
 Mailing_Mail.login(bot_mail, mail_password)
@@ -104,21 +102,25 @@ def registration(message):
 
 @bot.message_handler(commands=['last'])
 def bot_reply(message):
+    print(last_data_telegram)
     logging.info(f"Message '{message.text}' from {message.from_user.id}")
     if not last_data_telegram:
         bot.send_message(message.from_user.id, 'Данных пока нет')
         logging.error('No last data')
         return
-    try:
+    reply = ''
+    for key in last_data_telegram:
+        if message.from_user.id in last_data_telegram[key]:
+            reply += key
+
+    if reply:
         bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
-                         last_data_telegram[str(message.from_user.id)],
-                         disable_web_page_preview=True)
-    except KeyError:
+                         reply, disable_web_page_preview=True)
+    else:
         bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
                          f"✅ Все сайты работали на момент времени {last_data_telegram['date'][1]}")
 
 
-# @bot.message_handler(commands=['check'])
 def check_bot_messages():
     global last_data_telegram
     print("Run 'check_bot_messages' function")
@@ -133,6 +135,8 @@ def check_bot_messages():
         return
 
     tg_message = {}
+    for_last_tg_message = {}
+
     mail_messages = {}
     print(dict_data)
 
@@ -141,24 +145,30 @@ def check_bot_messages():
             array[user] += text
         else:
             array[user] = text
+
     print('Processing data')
     for i in dict_data:
-        time = datetime.datetime.fromisoformat(i['checked_at'].replace('T', ' ').replace('Z', ''))
+        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
         if time.minute < 10:
             time = f"{time.hour}:0{time.minute}"
         else:
             time = f"{time.hour}:{time.minute}"
 
-        for tg_id in i['subscribers_telegram']:
-            add_message(tg_message, str(tg_id),
-                        f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
+        if i["response_status_code"] == '200':
+            continue
+        message = f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n'
+        for_last_tg_message[message] = i["subscribers_telegram"]
+
+        for tg in i["subscribers_telegram"]:
+            add_message(tg_message, tg, message)
+
         for mail in i['subscribers_email']:
-            add_message(mail_messages, mail,
-                        f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n')
+            add_message(mail_messages, mail, message)
+
     if dict_data:
-        date = datetime.datetime.fromisoformat(dict_data[0]['checked_at'].replace('T', ' ').replace('Z', ''))
+        date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
     else:
-        date = datetime.datetime.now()
+        date = datetime.now()
         print(date)
     month = date.month
     day = date.day
@@ -171,7 +181,7 @@ def check_bot_messages():
               'Декабря']
     month = MONTHS[month - 1]
 
-    last_data_telegram = tg_message.copy()
+    last_data_telegram = for_last_tg_message.copy()
     last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', time]
 
     print('Load the last date to file')
@@ -180,6 +190,8 @@ def check_bot_messages():
 
     print('Send messages to telegram')
     for message in tg_message:
+        if message == 'date':
+            continue
         try:
             bot.send_message(message, last_data_telegram['date'][0] + tg_message[message],
                              disable_web_page_preview=True)
