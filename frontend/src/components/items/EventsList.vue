@@ -1,5 +1,5 @@
 <template>
-  <ul class="list-group list-group-flush">
+  <ul class="list-group list-group-flush border-top">
     <EventsListItem :data="event" v-for="event in events"></EventsListItem>
   </ul>
 </template>

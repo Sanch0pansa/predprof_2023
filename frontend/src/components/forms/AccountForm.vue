@@ -81,7 +81,7 @@ export default {
       }
 
       const res = await this.patchUserData(data);
-
+      
       errorBagFill(this.errorBag, res);
 
       if (res.success) {

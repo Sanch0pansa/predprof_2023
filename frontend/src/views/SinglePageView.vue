@@ -241,7 +241,7 @@ export default {
         "secondary"
       ];
       let ln = this.checksForTable.length;
-      [...this.checks].reverse().slice(ln, ln + 3).forEach(check => {
+      [...this.checks].reverse().slice(ln, ln + 10).forEach(check => {
         let checkRow = [
           (new Date(check.checked_at)).toLocaleString("ru", {
             year: 'numeric',

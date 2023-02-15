@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card border-start-0 border-top-0 border-end-0 shadow">
     <div class="card-body">
       <h5 class="card-title">Общая информация</h5>
       <p class="card-text">

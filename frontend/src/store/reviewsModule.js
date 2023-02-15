@@ -4,7 +4,7 @@ import Url from "@/store/url";
 const URLS = {
     createPageReviews: id => `${Url}/page/${id}/reviews/`,
     getPersonalReviews: `${Url}/user/review/`,
-    removePersonalReview: id => `${Url}/user/review/${id}`,
+    removePersonalReview: id => `${Url}/user/review/${id}/`,
 }
 
 export default {
