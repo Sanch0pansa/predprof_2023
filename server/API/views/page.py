@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from API.funcs import getData
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -406,6 +406,9 @@ class Events(generics.GenericAPIView):
 from ping3 import ping as ping3
 from urllib.parse import urlparse
 import requests
+import openpyxl
+from openpyxl.styles import PatternFill, Font
+
 
 class DeepCheck(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -413,9 +416,97 @@ class DeepCheck(generics.GenericAPIView):
     def post(self, request, level):
         data = getData(request)  # url, start_date, end_date
         print(data)
+
+        def generate_report(checkreport, checks=None, reports=None):
+            try:
+                greenFill = PatternFill(start_color='c6efce',
+                                        end_color='c6efce',
+                                        fill_type='solid')
+                greenFont = Font(color='006100')
+                yellowFill = PatternFill(start_color='ffeb9c',
+                                         end_color='ffeb9c',
+                                         fill_type='solid')
+                yellowFont = Font(color='9c573e')
+                redFill = PatternFill(start_color='ffc7ce',
+                                      end_color='ffc7ce',
+                                      fill_type='solid')
+                redFont = Font(color='ad0006')
+                if checkreport.page_id is not None:
+                    report = openpyxl.load_workbook('static/templates/отчёт с базой сайта.xlsx')
+                else:
+                    report = openpyxl.load_workbook('static/templates/отчёт без базы сайта.xlsx')
+                report.active = report['Главное']
+                general = report.active
+                general['B2'].hyperlink = checkreport.requested_url
+                general['B2'].value = checkreport.requested_url
+                general['B3'].value = checkreport.ping
+                general['B4'].value = int(checkreport.response_status_code)
+                general['B5'].value = checkreport.response_time
+                if checkreport.response_status_code.startswith('2') or checkreport.response_status_code.startswith('3'):
+                    if checkreport.response_time >= 1000:
+                        general['B6'].value = 'Работает медленно'
+                        general['B6'].fill = yellowFill
+                        general['B6'].font = yellowFont
+                    else:
+                        general['B6'].value = 'Работает'
+                        general['B6'].fill = greenFill
+                        general['B6'].font = greenFont
+                else:
+                    general['B6'].value = 'Не работает'
+                    general['B6'].fill = redFill
+                    general['B6'].font = redFont
+                general['B9'].value = (checkreport.first_content_loading_time if checkreport.first_content_loading_time is not None else 'Нет данных')
+                general['B10'].value = (checkreport.first_meaningful_content_loading_time if checkreport.first_meaningful_content_loading_time is not None else 'Нет данных')
+                general['B11'].value = (checkreport.largest_content_loading_time if checkreport.largest_content_loading_time is not None else 'Нет данных')
+                general['B12'].value = (checkreport.speed_index if checkreport.speed_index is not None else 'Нет данных')
+                general['B13'].value = (checkreport.full_page_loading_time if checkreport.full_page_loading_time is not None else 'Нет данных')
+                general['B14'].value = (checkreport.score if checkreport.score is not None else 'Нет данных')
+                if checkreport.score is None:
+                    general['B14'].value = 'Нет данных'
+                elif checkreport.score >= 90:
+                    general['B14'].font = greenFont
+                    general['B14'].fill = greenFill
+                elif checkreport.score >= 50:
+                    general['B14'].font = yellowFont
+                    general['B14'].fill = yellowFill
+                else:
+                    general['B14'].font = redFont
+                    general['B14'].fill = redFill
+                if checkreport.page_id is not None:
+                    if checks:
+                        start = 2
+                        report.active = report['Результаты проверок']
+                        general = report.active
+                        for i in checks:
+                            general[f'A{str(start)}'].value = (i['checked_at'].replace(tzinfo=None))
+                            general[f'A{str(start)}'].number_format = 'yyyy-mm-dd hh:mm:ss'
+                            general[f'B{str(start)}'].value = int(i['response_status_code'])
+                            general[f'C{str(start)}'].value = i['response_time']
+                            if i['response_status_code'].startswith('2') or i['response_status_code'].startswith('3'):
+                                general[f'B{str(start)}'].font = greenFont
+                                general[f'B{str(start)}'].fill = greenFill
+                            else:
+                                general[f'B{str(start)}'].font = redFont
+                                general[f'B{str(start)}'].fill = redFill
+                            start += 1
+                    if reports:
+                        start = 2
+                        report.active = report['Сообщения о сбоях']
+                        general = report.active
+                        for i in reports:
+                            general[f'A{str(start)}'].value = (i['added_at'].replace(tzinfo=None))
+                            general[f'A{str(start)}'].number_format = 'yyyy-mm-dd hh:mm:ss'
+                            general[f'B{str(start)}'].value = i['message']
+                            start += 1
+                report.save(f'media/temp_files/{check_report.id}.xlsx')
+                return True
+            except Exception:
+                return False
         try:
             if level == 1:
                 try:
+                    headers = requests.utils.default_headers()
+                    headers.update({'User-Agent': 'My User Agent 1.0', })
                     url = data['url']
                     ping = None
                     response = None
@@ -426,10 +517,19 @@ class DeepCheck(generics.GenericAPIView):
                         try:
                             num += 1
                             domain = urlparse(url).netloc
-                            response = requests.get(url)
-                            ping = round(ping3(domain) * 1000)
+                            response = requests.get(url, headers=headers)
+                            num2 = 0
+                            while num2 < 5:
+                                try:
+                                    num2 += 1
+                                    ping = round(ping3(domain) * 1000)
+                                except Exception:
+                                    continue
+                            else:
+                                ping = None
                             response_code = response.status_code
                             response_time = round(response.elapsed.total_seconds() * 1000)
+                            print(response_code, ping, response_time)
                             break
                         except Exception:
                             continue
@@ -458,7 +558,6 @@ class DeepCheck(generics.GenericAPIView):
                     token = "AIzaSyD_mPUNnDh_8UY2Ba3Aj9I0zAiWxjP2zDU"
                     req = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={check_report.requested_url}&key={token}"
                     GPSI = requests.get(req).json()
-                    print(GPSI)
                     try:
                         first_content_loading_time = GPSI['lighthouseResult']['audits']['first-contentful-paint'][
                             'numericValue']
@@ -466,7 +565,7 @@ class DeepCheck(generics.GenericAPIView):
                         first_content_loading_time = None
                     try:
                         first_meaningful_content_loading_time = \
-                        GPSI['lighthouseResult']['audits']['first-meaningful-paint']['numericValue']
+                            GPSI['lighthouseResult']['audits']['first-meaningful-paint']['numericValue']
                     except Exception:
                         first_meaningful_content_loading_time = None
                     try:
@@ -486,7 +585,8 @@ class DeepCheck(generics.GenericAPIView):
                         full_page_loading_time = round(GPSI['lighthouseResult']['timing']['total'])
                     except Exception:
                         full_page_loading_time = None
-                    print(first_content_loading_time, first_meaningful_content_loading_time, largest_content_loading_time, speed_index, score, full_page_loading_time)
+                    print(first_content_loading_time, first_meaningful_content_loading_time,
+                          largest_content_loading_time, speed_index, score, full_page_loading_time)
                     check_report.first_content_loading_time = first_content_loading_time
                     check_report.first_meaningful_content_loading_time = first_meaningful_content_loading_time
                     check_report.largest_content_loading_time = largest_content_loading_time
@@ -517,11 +617,13 @@ class DeepCheck(generics.GenericAPIView):
                                                              page_id=check_report.page_id,
                                                              is_published=True)
                                        .values('added_at', 'message'))
-                        result.append(checks)
-                        result.append(reports)
-                        return JsonResponse(result, safe=False)
+                        generate_report(check_report, checks, reports)
                     else:
-                        return JsonResponse({'success': True})
+                        generate_report(check_report)
+                    file = open(f'media/temp_files/reports/{check_report.id}.xlsx', 'rb')
+                    check_report.report_file.save(f'{check_report.id}.xlsx', file)
+                    file.close()
+                    return JsonResponse(f'media/{check_report.report_file}', safe=False)
                 except Exception as ex:
                     print(ex)
                     return JsonResponse({'success': False}, status=500)

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 import rest_framework.authentication
 
@@ -144,16 +145,14 @@ REST_FRAMEWORK = {
     ]
 }
 
-DJOSER = {
-    'SEND_ACTIVATION_EMAIL': False,
-    'SERIALIZERS': {}
-}
-
 AUTH_USER_MODEL = 'API.user'
-
-TOKEN_EXPIRED_AFTER_SECONDS = 5
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1',
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

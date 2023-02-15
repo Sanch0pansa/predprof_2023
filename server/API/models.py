@@ -81,5 +81,5 @@ class CheckReport(models.Model):
     speed_index = models.PositiveIntegerField(null=True, default=None)
     score = models.PositiveSmallIntegerField(null=True, default=None)
     full_page_loading_time = models.PositiveIntegerField(null=True, default=None)
-    report_file = models.FileField(null=True, default=None, blank=True)
+    report_file = models.FileField(upload_to='reports/')
 
