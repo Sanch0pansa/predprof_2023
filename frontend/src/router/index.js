@@ -12,6 +12,7 @@ import ModerationReviewsView from "@/views/Moderation/ModerationReviewsView.vue"
 import ModerationReportsView from "@/views/Moderation/ModerationReportsView.vue";
 import AdminView from "@/views/Admin/AdminView.vue";
 import AccountEditView from "@/views/Account/AccountEditView.vue";
+import CheckerView from "@/views/CheckerView.vue";
 
 
 const router = createRouter({
@@ -122,6 +123,13 @@ const router = createRouter({
         authUpdate: true,
         moderatorRequired: true,
         adminRequired: true,
+      },
+    },
+    {
+      path: '/checker/',
+      name: 'checker',
+      component: CheckerView,
+      meta: {
       },
     },
   ]

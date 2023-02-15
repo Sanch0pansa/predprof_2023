@@ -8,6 +8,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item me-3">
+            <RouterLink :to="{name: 'checker'}" class="btn btn-primary">Проверить сайт</RouterLink>
+          </li>
           <li v-if="isAuth" class="nav-item me-3">
             <RouterLink :to="{name: 'create_page'}" :class="['btn btn-primary']">Добавить ресурс</RouterLink>
           </li>

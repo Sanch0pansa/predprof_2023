@@ -9,6 +9,7 @@ import moderationModule from "@/store/moderationModule";
 import adminModule from "@/store/adminModule";
 import userModule from "@/store/userModule";
 import eventsModule from "@/store/eventsModule";
+import deepCheckModule from "@/store/deepCheckModule";
 
 export default createStore({
     state: {
@@ -24,6 +25,7 @@ export default createStore({
         moderation: moderationModule,
         admin: adminModule,
         user: userModule,
-        events: eventsModule
+        events: eventsModule,
+        deepCheck: deepCheckModule,
     }
 });

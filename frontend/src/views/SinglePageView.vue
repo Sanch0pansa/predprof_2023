@@ -13,6 +13,7 @@
           <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
         </div>
         <Btn class="btn-warning" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
+        <br>
 
     </div>
     <div class="col-md-1"></div>
@@ -42,6 +43,8 @@
           <span>Рейтинг</span>
           <span class="text-end"><i class="fas fa-star text-warning"></i> {{ rating }}</span>
         </div>
+        <br>
+        <RouterLink :to="`/checker/?url=${url}`" class="btn btn-primary" >Отчёт по сайту</RouterLink>
       </Block>
     </div>
   </div>
