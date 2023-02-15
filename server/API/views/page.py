@@ -432,9 +432,9 @@ class DeepCheck(generics.GenericAPIView):
                                       fill_type='solid')
                 redFont = Font(color='ad0006')
                 if checkreport.page_id is not None:
-                    report = openpyxl.load_workbook('static/templates/отчёт с базой сайта.xlsx')
+                    report = openpyxl.load_workbook('static/templates/report with page.xlsx')
                 else:
-                    report = openpyxl.load_workbook('static/templates/отчёт без базы сайта.xlsx')
+                    report = openpyxl.load_workbook('static/templates/report without page.xlsx')
                 report.active = report['Главное']
                 general = report.active
                 general['B2'].hyperlink = checkreport.requested_url
@@ -498,9 +498,10 @@ class DeepCheck(generics.GenericAPIView):
                             general[f'A{str(start)}'].number_format = 'yyyy-mm-dd hh:mm:ss'
                             general[f'B{str(start)}'].value = i['message']
                             start += 1
-                report.save(f'media/temp_files/{check_report.id}.xlsx')
+                report.save(f'temp_files/reports/{check_report.id}.xlsx')
                 return True
-            except Exception:
+            except Exception as ex:
+                print(ex)
                 return False
         try:
             if level == 1:
@@ -620,10 +621,10 @@ class DeepCheck(generics.GenericAPIView):
                         generate_report(check_report, checks, reports)
                     else:
                         generate_report(check_report)
-                    file = open(f'media/temp_files/reports/{check_report.id}.xlsx', 'rb')
+                    file = open(f'temp_files/reports/{check_report.id}.xlsx', 'rb')
                     check_report.report_file.save(f'{check_report.id}.xlsx', file)
                     file.close()
-                    return JsonResponse(f'media/{check_report.report_file}', safe=False)
+                    return JsonResponse(f'{check_report.report_file}', safe=False)
                 except Exception as ex:
                     print(ex)
                     return JsonResponse({'success': False}, status=500)
