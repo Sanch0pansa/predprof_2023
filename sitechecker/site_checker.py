@@ -1,10 +1,11 @@
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen, Request
 import requests
+from datetime import datetime
+import pytz
 
 
 TIMEOUT_TIME = 7
-LATE_TIME = 5
 
 
 def opening_time(url):
@@ -12,31 +13,25 @@ def opening_time(url):
 
 
 '''
-Всё хорошо - 200
-Плохо грузит - 199
+Особые статусы:
+
 Timeout - 0
 Hostname mismatch - 1
 getaddrinfo failed - 2
-Непонятная фигня с URLError - 666
-
-Not Found - 404
-Method Not Allowed - 405
-Not Acceptable - 406
-и т.д. для HTTPError
-
-unknown url type - -1
-ConnectionError - 808
+другая ошибка URLError - 3
+ConnectionError - 4
+unknown url type (не ссылка) - -1
 '''
-def check(url_to_check):
+def check(url_to_check, check_num=0):
     url = url_to_check
     if 'https://' not in url and 'http://' not in url:
         url = 'https://' + url
     response_time = 0
     try:
-        response_time = opening_time(url)
         headers = requests.utils.default_headers()
         headers.update({'User-Agent': 'My User Agent 1.0',})
         website = urlopen(Request(url, headers=headers), timeout=TIMEOUT_TIME)
+        response_time = opening_time(url)
     except HTTPError as error:
         status = error.code
     except URLError as error:
@@ -47,14 +42,15 @@ def check(url_to_check):
         elif error.reason.args[0] == 11001:
             status = 2
         else:
-            status = 666
+            status = 3
+            if check_num < 4:
+                return check(url_to_check, check_num + 1)
+    except requests.exceptions.ConnectionError:
+        status = 4
+        if check_num < 4:
+            return check(url_to_check, check_num + 1)
     except ValueError:
         status = -1
-    except requests.exceptions.ConnectionError:
-        status = 808
     else:
-        if response_time >= LATE_TIME:
-            status = 199
-        else:
-            status = website.getcode()
-    return status, round(response_time, 3)
+        status = website.getcode()
+    return status, int(response_time * 1000), datetime.now(pytz.timezone('Europe/Moscow')).isoformat()
