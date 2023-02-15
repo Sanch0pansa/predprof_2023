@@ -9,6 +9,7 @@ from API.funcs import getData
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
+import os
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -624,7 +625,9 @@ class DeepCheck(generics.GenericAPIView):
                     file = open(f'temp_files/reports/{check_report.id}.xlsx', 'rb')
                     check_report.report_file.save(f'{check_report.id}.xlsx', file)
                     file.close()
-                    return JsonResponse(f'{check_report.report_file}', safe=False)
+                    os.remove(f'temp_files/reports/{check_report.id}.xlsx')
+                    return JsonResponse({'document_url': f'http://127.0.0.1:8000/media/{check_report.report_file}',
+                                         'other_check_reports': []})
                 except Exception as ex:
                     print(ex)
                     return JsonResponse({'success': False}, status=500)
