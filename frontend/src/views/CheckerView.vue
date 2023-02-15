@@ -269,10 +269,11 @@ export default {
 
       let res = await this.getThirdRequest({
         id: this.report_id,
-        date_from: this.date_from + "T00:00:00.000+3:00",
-        date_to: this.date_to + "T23:59:59.000+3:00",
+        date_from: this.date_from + "T00:00:00.000+03:00",
+        date_to: this.date_to + "T23:59:59.000+03:00",
       });
 
+      this.third_step.document_url = res.document_url;
       this.third_step.loading_status = 3;
       this.third_step.other_check_reports = res.other_check_reports;
     }
