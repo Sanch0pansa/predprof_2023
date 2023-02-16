@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5 text-center">
+    <PageBreadcrumbs :links-names="['account', 'telegram']"></PageBreadcrumbs>
     <div class="col-md-4"></div>
     <div class="col-md-4">
       <h2 class="mb-5">Привязка Telegram</h2>
@@ -26,10 +27,11 @@
 import PageSection from "@/components/UI/Section.vue";
 import Block from "@/components/UI/Block.vue";
 import {mapActions} from "vuex";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "VerifyTelegram",
-  components: {Block, PageSection},
+  components: {PageBreadcrumbs, Block, PageSection},
 
   data() {
     return {

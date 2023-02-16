@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['moderation']"></PageBreadcrumbs>
     <div class="col-12">
       <h1>Панель модератора</h1>
     </div>
@@ -51,10 +52,11 @@
 <script>
 import Block from "@/components/UI/Block.vue";
 import {mapActions} from "vuex";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "ModerationView",
-  components: {Block},
+  components: {PageBreadcrumbs, Block},
   data() {
     return {
       pages_on_moderation: 0,

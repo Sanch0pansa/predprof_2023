@@ -1,5 +1,6 @@
 <template>
 <div class="row pt-5">
+  <PageBreadcrumbs :links-names="['moderation', 'moderation_pages']"></PageBreadcrumbs>
   <div class="col-12">
     <h1>Модерация страниц</h1>
   </div>
@@ -14,10 +15,11 @@
 import Tabs from "@/components/UI/Tabs.vue";
 import ModerationPagesList from "@/components/items/ModerationPagesList.vue";
 import {mapActions} from "vuex";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "ModerationPagesView",
-  components: {ModerationPagesList, Tabs},
+  components: {PageBreadcrumbs, ModerationPagesList, Tabs},
   data() {
     return {
       pages: {

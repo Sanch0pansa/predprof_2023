@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['checker']"></PageBreadcrumbs>
     <div class="col-12">
       <Block>
         <h1>Проверьте Ваш сайт:</h1>
@@ -162,10 +163,11 @@
 import Inp from "@/components/UI/Inp.vue";
 import {mapActions} from "vuex";
 import Btn from "@/components/UI/Btn.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "CheckerView",
-  components: {Btn, Inp},
+  components: {PageBreadcrumbs, Btn, Inp},
   data() {
     let date = new Date();
     let dateTime = (new Date(date.getTime() - (date.getTimezoneOffset() * 60000))).toISOString();

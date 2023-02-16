@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['single']"></PageBreadcrumbs>
     <div class="col-md-5">
         <h1>{{ name }}</h1>
         <h3>{{ url }}</h3>
@@ -117,6 +118,7 @@ import Modal from "@/components/UI/Modal.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import CreatingReportForm from "@/components/forms/CreatingReportForm.vue";
 import CreatingReviewForm from "@/components/forms/CreatingReviewForm.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 ChartJS.register(CategoryScale,
     LinearScale,
@@ -132,6 +134,7 @@ ChartJS.register(CategoryScale,
 export default {
   name: "SinglePageView",
   components: {
+    PageBreadcrumbs,
     CreatingReviewForm,
     CreatingReportForm, ModalBtn, Modal, Indicator, ReviewsList, PageTable, PageSection, Link, Line},
   data() {

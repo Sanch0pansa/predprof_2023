@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['moderation', 'moderation_reviews']"></PageBreadcrumbs>
     <div class="col-12">
       <h1>Модерация отзывов</h1>
     </div>
@@ -12,10 +13,11 @@
 <script>
 import {mapActions} from "vuex";
 import ModerationReviewsList from "@/components/items/ModerationReviewsList.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "ModerationReviewsView",
-  components: {ModerationReviewsList},
+  components: {PageBreadcrumbs, ModerationReviewsList},
   data() {
     return {
       reviews: {
