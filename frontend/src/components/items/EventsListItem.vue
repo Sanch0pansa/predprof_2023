@@ -2,7 +2,7 @@
   <li class="list-group-item card-body py-3">
     <p class="fw-bold card-title mb-2"><span style="width: 30px;" :class="`badge bg-${typesToColors[data.type]}`"><i :class="`text-light fas ${typesToIcons[data.type]}`"></i></span> <span class="text-primary"><RouterLink :to="{name: 'single_page', params: {id: data.page.id}}">{{ data.page.name }}</RouterLink></span></p>
     <template v-if="data.type === 'failure'">
-      Зафиксирован сбой в работе ресурса.<br>При запросе автоматической системой возникает <b class="text-danger">{{ data.detail.error_description }}</b>.<br>
+      Зафиксирован сбой в работе ресурса.<br>При запросе автоматической системой возникла ошибка "<b class="text-danger">{{ data.detail.error_description }}</b>".<br>
       Возможные причины:<br>
       <ul>
         <li v-for="reason in data.detail.reasons">{{ reason }}</li>

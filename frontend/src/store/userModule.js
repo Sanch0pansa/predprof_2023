@@ -16,7 +16,7 @@ export default {
 
             let data = {
                 id: 10,
-                username: "Tester 2020",
+                username: "",
                 joined: 'нет данных',
                 reviews: 'нет данных',
                 reports: 'нет данных',

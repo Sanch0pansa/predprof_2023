@@ -58,14 +58,7 @@ export default {
             } catch(e) {
                 return [
                     {
-                        id: 1,
-                        page: {
-                            id: 2,
-                            name: "МИРЭА"
-                        },
-                        message: "Test",
-                        mark: 4.0,
-                        status: "accepted"
+
                     }
                 ];
             }

@@ -108,16 +108,16 @@ export default {
             // Изначально пустые данные страницы
             let page = {
                 data: {
-                    name: 'Some page',
-                    url: 'https://site.com',
-                    description: "Загрузка не получилось, описание только такое(",
+                    name: '',
+                    url: '',
+                    description: "",
                     status: 3,
                     rating: 0,
                 },
                 lastCheck: {
                     status: 3,
                     response_time: 0,
-                    checked_at: "22 янв 2023, 23:34:32"
+                    checked_at: ""
                 },
                 checks: [
 

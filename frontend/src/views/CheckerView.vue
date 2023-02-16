@@ -107,7 +107,7 @@
             </tr>
             <tr>
               <th>Оценка Google PageSpeed Insights</th>
-              <td><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}</span></td>
+              <td><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}/100</span></td>
             </tr>
             </tbody>
           </table>
