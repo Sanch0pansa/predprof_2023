@@ -17,12 +17,9 @@ def opening_time(url):
 '''
 Особые статусы:
 
-Timeout - 524, 522
-Hostname mismatch - 1
-getaddrinfo failed - 2
-другая ошибка URLError - 520
-ConnectionError - 3
-unknown url type (не ссылка) - -1
+ConnectionError - 503
+Unknown Error - 520
+Timeout - 522, 524
 '''
 def check(url_to_check, check_num=0):
     url = url_to_check
@@ -39,20 +36,14 @@ def check(url_to_check, check_num=0):
     except URLError as error:
         if error.reason.args[0] == '_ssl.c:1106: The handshake operation timed out':
             status = 524
-        elif error.reason.args[0] == 1:
-            status = 1
-        elif error.reason.args[0] == 11001:
-            status = 2
         else:
             status = 520
             if check_num < 4:
                 return check(url_to_check, check_num + 1)
     except requests.exceptions.ConnectionError:
-        status = 3
+        status = 503
         if check_num < 4:
             return check(url_to_check, check_num + 1)
-    except ValueError:
-        status = -1
     except socket.timeout:
         domain = urlparse(url).netloc
         if not bool(ping3.ping(domain)):
