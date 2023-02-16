@@ -42,7 +42,10 @@ def url_get_messages():
     if data['_token'] == _token:
         print('Call from server')
         logging.info('Call from server')
-        check_bot_messages()
+        try:
+            check_bot_messages()
+        except Exception as ex:
+            print(ex)
     else:
         logging.info('Call from OUTSIDE')
     print('End Check')
@@ -79,9 +82,9 @@ def registration(message):
     elif new_user['success']:
         bot.send_message(message.from_user.id, 'Готово. Теперь можете пользоваться ботом')
     elif not new_user['success']:
-        bot.send_message(message.from_user.id, '''Ошибка авторизации
-Возможно срок действия кода истек или он введен неверно
-Проверьте и введите код еще раз''')
+        bot.send_message(message.from_user.id, 'Ошибка авторизации\n'
+                                               'Возможно срок действия кода истек или он введен неверно\n'
+                                               'Проверьте и введите код еще раз')
         bot.register_next_step_handler(message, registration)
 
     logging.info(f'Message {message.text} from {message.from_user.id}')
@@ -116,7 +119,7 @@ def check_bot_messages():
     dict_data = try_connect(f'{url}/get_bot_messages/', {'_token': _token})
     if not dict_data:
         print('No dict_data')
-        return
+        dict_data = []
 
     tg_message = {}
     for_last_tg_message = {}
