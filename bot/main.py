@@ -42,7 +42,10 @@ def url_get_messages():
     if data['_token'] == _token:
         print('Call from server')
         logging.info('Call from server')
-        check_bot_messages()
+        try:
+            check_bot_messages()
+        except Exception as ex:
+            print(ex)
     else:
         logging.info('Call from OUTSIDE')
     print('End Check')
@@ -79,9 +82,9 @@ def registration(message):
     elif new_user['success']:
         bot.send_message(message.from_user.id, 'Готово. Теперь можете пользоваться ботом')
     elif not new_user['success']:
-        bot.send_message(message.from_user.id, '''Ошибка авторизации
-Возможно срок действия кода истек или он введен неверно
-Проверьте и введите код еще раз''')
+        bot.send_message(message.from_user.id, 'Ошибка авторизации\n'
+                                               'Возможно срок действия кода истек или он введен неверно\n'
+                                               'Проверьте и введите код еще раз')
         bot.register_next_step_handler(message, registration)
 
     logging.info(f'Message {message.text} from {message.from_user.id}')
@@ -116,7 +119,7 @@ def check_bot_messages():
     dict_data = try_connect(f'{url}/get_bot_messages/', {'_token': _token})
     if not dict_data:
         print('No dict_data')
-        return
+        dict_data = []
 
     tg_message = {}
     for_last_tg_message = {}
@@ -126,11 +129,13 @@ def check_bot_messages():
 
     print('Processing data')
     for i in dict_data:
-        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%H:%M')
-
+        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%f').strftime('%H:%M')
+        reasons = ''
+        for reason in i['error']["reasons"]:
+            reasons += '\n - ' + reason
         message = f'❌ {i["url"]} Время проверки - {time}\n'\
                   f'Ошибка: {i["error"]["error_description"]}\n' \
-                  f'Возможные причины: {", ".join(i["error"]["reasons"])}\n'
+                  f'Возможные причины: {reasons}\n'
 
         for_last_tg_message[message] = i["subscribers_telegram"]
 
@@ -141,7 +146,7 @@ def check_bot_messages():
             add_message(mail_messages, mail, message)
 
     if dict_data:
-        date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%f')
     else:
         date = datetime.now()
         print(date)
