@@ -64,6 +64,7 @@ class GetRejectedModerationPages(generics.GenericAPIView):
                                                                'username': i['moderated_by_user__username']},
                                          'added_by_user': {'id': i['added_by_user'],
                                                            'username': i['added_by_user__username']}})
+
             return JsonResponse(pagesForModerate, safe=False)
         except Exception as ex:
             print(ex)
