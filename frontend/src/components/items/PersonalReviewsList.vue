@@ -10,8 +10,10 @@
         :status="review.status"
         @delete="sendRemovePersonalReview"
     ></PersonalReviewsListItem>
+    <p class="text-muted" v-if="loaded && getReviews().length === 0">Нет отзывов</p>
     <li><b class="text-primary" v-if="reviews.length > 3" role="button" @click="() => {opened = !opened}">{{ opened ? "Свернуть" : `Развернуть (eщё ${reviews.length - 3})` }} </b></li>
   </ul>
+
   <Btn v-else @click="fetchPersonalReviews">Показать</Btn>
 </template>
 
