@@ -57,7 +57,7 @@ class CheckCreateView(generics.GenericAPIView):
                 except Exception:
                     print('Бот не запущен')
                 return JsonResponse({'success': True})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
 

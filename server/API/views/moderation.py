@@ -16,8 +16,7 @@ class GetModerateCategories(generics.GenericAPIView):
             return JsonResponse({'pages': pages,
                                  'reviews': reviews,
                                  'reports': reports})
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -39,8 +38,7 @@ class GetModerationPages(generics.GenericAPIView):
                                          'added_by_user': {'id': i['added_by_user'],
                                                            'username': i['added_by_user__username']}})
             return JsonResponse(pagesForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -66,8 +64,7 @@ class GetRejectedModerationPages(generics.GenericAPIView):
                                                            'username': i['added_by_user__username']}})
 
             return JsonResponse(pagesForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -93,8 +90,7 @@ class GetModerationReviews(generics.GenericAPIView):
                      'added_by_user': {'id': i['added_by_user'],
                                        'username': i['added_by_user__username']}})
             return JsonResponse(reviewsForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -123,8 +119,7 @@ class GetRejectedModerationReviews(generics.GenericAPIView):
                      'added_by_user': {'id': i['added_by_user'],
                                        'username': i['added_by_user__username']}})
             return JsonResponse(reviewsForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -149,8 +144,7 @@ class GetModerationReports(generics.GenericAPIView):
                      'message': i['message'],
                      'added_at': i['added_at']})
             return JsonResponse(reportsForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -177,8 +171,7 @@ class GetRejectedModerationReports(generics.GenericAPIView):
                      'moderated_by_user': {'id': i['moderated_by_user'],
                                            'username': i['moderated_by_user__username']}})
             return JsonResponse(reportsForModerate, safe=False)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)
 
 
@@ -222,6 +215,5 @@ class Moderate(generics.GenericAPIView):
             elif data['action'] == 'delete':
                 category.delete()
             return JsonResponse({'success': True})
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=500)

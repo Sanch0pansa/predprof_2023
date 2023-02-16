@@ -3,7 +3,8 @@ from API.views import user
 
 urlpatterns = [
     path('auth/user/registration/', user.UserCreateView.as_view()),
-    path('auth/user/login/', user.UserLoginView.as_view()),
+    path('auth/user/login/', user.UserLogView.as_view()),
+    path('auth/user/logout/', user.UserLogView.as_view()),
     path('user/change_account_info/', user.ChangePersonalData.as_view()),
     path('user/generate_telegram_code/', user.GenerateTelegramCode.as_view()),
     path('user/unlink_telegram/', user.UnlinkTelegram.as_view()),
