@@ -71,7 +71,7 @@ def bot_start(message):
 
 def registration(message):
     new_user = try_connect(f'{url}/verify_user/', {'_token': _token, 'telegram_id': message.from_user.id,
-                                                              'telegram_verification_code': message.text})
+                                                   'telegram_verification_code': message.text})
     if not new_user:
         bot.send_message(message.from_user.id,
                          'Простите, но сейчас сервер недоступен. Попробуйте позже через /start')
@@ -126,12 +126,12 @@ def check_bot_messages():
 
     print('Processing data')
     for i in dict_data:
-        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        time = f"{time.hour}:0{time.minute}" if time.minute < 10 else f"{time.hour}:{time.minute}"
+        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%H:%M')
 
-        if i["response_status_code"] == '200':
-            continue
-        message = f'❌ {i["url"]} Код ошибки: {i["response_status_code"]}, Время проверки: {time}\n'
+        message = f'❌ {i["url"]} Время проверки - {time}\n'\
+                  f'Ошибка: {i["error"]["error_description"]}\n' \
+                  f'Возможные причины: {", ".join(i["error"]["reasons"])}\n'
+
         for_last_tg_message[message] = i["subscribers_telegram"]
 
         for tg in i["subscribers_telegram"]:
@@ -147,10 +147,7 @@ def check_bot_messages():
         print(date)
     month = MONTHS(date.month)
     day = date.day
-    if date.minute < 10:
-        time = f"{date.hour}:0{date.minute}"
-    else:
-        time = f"{date.hour}:{date.minute}"
+    time = date.strftime('%H:%M')
 
     last_data_telegram = for_last_tg_message.copy()
     last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', time]
