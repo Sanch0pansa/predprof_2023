@@ -44,7 +44,7 @@ class UserCreateView(generics.GenericAPIView):
             token = Token.objects.create(user=user)
             return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
         except Exception:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+            return JsonResponse({'success': False}, status=500)
 
 
 class UserLogView(generics.GenericAPIView):
@@ -134,7 +134,7 @@ class GenerateTelegramCode(generics.GenericAPIView):
                 return JsonResponse({'telegram_verification_code': user.telegram_verification_code,
                                      'remain_time': (codeTime - timeNow).seconds})
         except Exception:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+            return JsonResponse({'success': False}, status=500)
 
 
 class ShowMe(generics.GenericAPIView):
@@ -160,7 +160,7 @@ class ShowMe(generics.GenericAPIView):
                                  'is_moderator': is_moderator,
                                  'is_admin': is_admin})
         except Exception:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+            return JsonResponse({'success': False}, status=500)
 
 
 class ChangePersonalData(generics.GenericAPIView):
