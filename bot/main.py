@@ -170,6 +170,7 @@ def check_bot_messages():
                              disable_web_page_preview=True)
         except telebot.apihelper.ApiException:
             logging.error(f"Can't send message to {message}")
+            print(f"Can't send message to {message}")
         except Exception as ex:
             logging.error(ex)
             print(ex)
