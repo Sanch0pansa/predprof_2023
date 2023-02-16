@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['moderation', 'moderation_reports']"></PageBreadcrumbs>
     <div class="col-12">
       <h1>Модерация сообщений о сбоях</h1>
     </div>
@@ -12,10 +13,11 @@
 <script>
 import {mapActions} from "vuex";
 import ModerationReportsList from "@/components/items/ModerationReportsList.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "ModerationReportsView",
-  components: {ModerationReportsList},
+  components: {PageBreadcrumbs, ModerationReportsList},
   data() {
     return {
       reports: {

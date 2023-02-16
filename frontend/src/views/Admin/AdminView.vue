@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['admin']"></PageBreadcrumbs>
     <div class="col-12">
       <h1>Панель администратора</h1>
     </div>
@@ -28,10 +29,11 @@ import {mapActions} from "vuex";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import Modal from "@/components/UI/Modal.vue";
 import AddingStaffUserForm from "@/components/forms/AddingStaffUserForm.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "AdminView",
-  components: {AddingStaffUserForm, Modal, ModalBtn, Btn, PageTable, PageSection},
+  components: {PageBreadcrumbs, AddingStaffUserForm, Modal, ModalBtn, Btn, PageTable, PageSection},
   data() {
     return {
       staffUsers: [],

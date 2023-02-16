@@ -29,13 +29,13 @@ export default {
 
             } catch(e) {
                 return {
-                    id: 1, // ID для последующего дописывания
+                    id: 0, // ID для последующего дописывания
 
                     has_data: false, // Есть ли инфа по этому ресурсу
 
-                    ping: 0.0065, // Пингование
+                    ping: 0, // Пингование
                     response_status_code: 200, // Код ответа
-                    response_time: 0.034, // Задержка ответа
+                    response_time: 0, // Задержка ответа
                 };
             }
         },
@@ -87,12 +87,8 @@ export default {
 
             } catch(e) {
                 return {
-                    document_url: "https://google.com",
+                    document_url: "",
                     other_check_reports: [
-                        {
-                            date: 'hfgh',
-                            document_url: "https://msu.ru"
-                        }
                     ],
                 };
             }

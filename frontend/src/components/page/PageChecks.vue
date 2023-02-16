@@ -2,7 +2,7 @@
   <PageSection :title="`Все ресурсы`">
     <Block class="mb-2 d-flex align-items-end">
       <Inp v-model="search" label="Поиск по сайтам" class="w-100 me-3"></Inp>
-      <Btn @click="fetchCheckingPages">Искать</Btn>
+      <Btn @click="fetchCheckingPages(true, true)">Искать</Btn>
     </Block>
 
     <PageTable
@@ -46,8 +46,8 @@ export default {
       this.fetchCheckingPages();
     },
 
-    async fetchCheckingPages(first=false) {
-      if (this.search) {
+    async fetchCheckingPages(first=false, search=false) {
+      if (search) {
         this.pages = [];
       }
       const data = await this.getCheckingPages({first: first || this.search, search: this.search});

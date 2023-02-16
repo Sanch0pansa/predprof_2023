@@ -11,6 +11,8 @@
         @delete="sendRemovePersonalReport"
     ></PersonalReportsListItem>
 
+    <p class="text-muted" v-if="loaded && getReports().length === 0">Нет сообщений</p>
+
     <li><b class="text-primary" v-if="reports.length > 3" role="button" @click="() => {opened = !opened}">{{ opened ? "Свернуть" : `Развернуть (eщё ${reports.length - 3})` }} </b></li>
   </ul>
   <Btn v-else @click="fetchPersonalReports">Показать</Btn>

@@ -30,7 +30,7 @@ class UserCreateView(generics.GenericAPIView):
                         password=data['password'])
             try:
                 user.full_clean()
-            except ValidationError as ex:
+            except ValidationError:
                 errors = dict(ex)
                 if 'username' in errors:
                     errors['username'][0] = errors['username'][0].replace('Username', 'именем пользователя')
@@ -43,11 +43,11 @@ class UserCreateView(generics.GenericAPIView):
             user.save()
             token = Token.objects.create(user=user)
             return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
-class UserLoginView(generics.GenericAPIView):
+class UserLogView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserRegisterSerializer
 
@@ -82,9 +82,15 @@ class UserLoginView(generics.GenericAPIView):
                 return JsonResponse(
                     {'errors': {'non_field_errors': ['Невозможно войти с предоставленными учетными данными.']}},
                     status=400)
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'errors': str(ex)}, status=400, safe=False)
 
+    def get(self, request):
+        try:
+            request.user.auth_token.delete()
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 class UserListView(generics.ListAPIView):
     permission_classes = [IsAdmin]
@@ -127,8 +133,8 @@ class GenerateTelegramCode(generics.GenericAPIView):
                 codeTime = user.telegram_verification_code_date
                 return JsonResponse({'telegram_verification_code': user.telegram_verification_code,
                                      'remain_time': (codeTime - timeNow).seconds})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class ShowMe(generics.GenericAPIView):
@@ -153,8 +159,8 @@ class ShowMe(generics.GenericAPIView):
                                  'role': user.role.name,
                                  'is_moderator': is_moderator,
                                  'is_admin': is_admin})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class ChangePersonalData(generics.GenericAPIView):
@@ -176,7 +182,7 @@ class ChangePersonalData(generics.GenericAPIView):
                         user.password = data['password']
                 try:
                     user.validate_unique()
-                except ValidationError as ex:
+                except ValidationError:
                     errors = dict(ex)
                     if 'password' in errors:
                         errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
@@ -191,8 +197,7 @@ class ChangePersonalData(generics.GenericAPIView):
                 return JsonResponse({'success': True})
             else:
                 return JsonResponse({'errors': {'current_password': ['Неправильный пароль']}}, status=400)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
 
@@ -207,7 +212,7 @@ class UnlinkTelegram(generics.GenericAPIView):
             user.telegram_id = None
             user.save()
             return JsonResponse({'success': True})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'detail': False}, status=500)
 
 
@@ -223,7 +228,7 @@ class UserInfo(generics.GenericAPIView):
             joined = list(User.objects.filter(id=id).values('date_joined'))[0]['date_joined']
             return JsonResponse(
                 {'reviews': reviews, 'reports': reports, 'subscriptions': subscriptions, 'joined': joined})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
 
@@ -252,7 +257,7 @@ class UserReports(generics.GenericAPIView):
                                'added_at': i['added_at'],
                                'status': status})
             return JsonResponse(result, safe=False)
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
     def delete(self, request, id):
@@ -260,7 +265,7 @@ class UserReports(generics.GenericAPIView):
             report = Report.objects.get(id=id)
             report.delete()
             return JsonResponse({'success': True})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
 
@@ -290,7 +295,7 @@ class UserReviews(generics.GenericAPIView):
                                'added_at': i['added_at'],
                                'status': status})
             return JsonResponse(result, safe=False)
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)
 
     def delete(self, request, id):
@@ -298,5 +303,5 @@ class UserReviews(generics.GenericAPIView):
             review = Review.objects.get(id=id)
             review.delete()
             return JsonResponse({'success': True})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'success': False}, status=500)

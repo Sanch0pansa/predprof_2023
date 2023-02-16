@@ -5,7 +5,7 @@ const URLS = {
     login: `${Url}/auth/user/login/`,
     register: `${Url}/auth/user/registration/`,
     getUserData: `${Url}/user/me/`,
-    logout: `${Url}/auth/token/logout/`,
+    logout: `${Url}/auth/user/logout/`,
     patchUserData: `${Url}/user/change_account_info/`
 }
 
@@ -103,12 +103,13 @@ export default {
         // Выход из лк
         async logout({state, commit}) {
             try {
-                const res = await axios.post(
+                const res = await axios.get(
                     URLS.logout,
-                    {},
-                    {headers: {
+                    {
+                        headers: {
                             Authorization: `Token ${state.authToken}`
-                        }},
+                        }
+                        },
                 );
 
 

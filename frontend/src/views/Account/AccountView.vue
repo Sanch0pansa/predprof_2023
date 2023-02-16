@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['account']"></PageBreadcrumbs>
     <div class="col-12">
         <h1>{{ user.username }} <RouterLink :to="{name: 'edit_account'}"><i role="button" class="fas fa-edit text-primary"></i></RouterLink></h1>
         <div class="d-flex align-items-center"><i class="fs-4 fab fa-telegram-plane me-2" :class="{
@@ -45,10 +46,11 @@ import PageEvents from "@/components/page/PageEvents.vue";
 import ModalBtn from "@/components/UI/ModalBtn.vue";
 import PersonalReviewsList from "@/components/items/PersonalReviewsList.vue";
 import PersonalReportsList from "@/components/items/PersonalReportsList.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "AccountView.vue",
-  components: {PersonalReportsList, PersonalReviewsList, ModalBtn, PageEvents, SubscriptionsList, PagesList, PageSection},
+  components: {PersonalReportsList, PersonalReviewsList, ModalBtn, PageEvents, SubscriptionsList, PagesList, PageSection, PageBreadcrumbs},
   data() {
     return {
       pages: [],

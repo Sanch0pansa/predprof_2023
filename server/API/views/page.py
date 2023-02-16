@@ -9,15 +9,29 @@ from API.funcs import getData
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
-import os
+from os import remove
+from re import search
+from ping3 import ping as ping3
+from urllib.parse import urlparse
+import requests
+import openpyxl
+from openpyxl.styles import PatternFill, Font, Alignment
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
                       'Перезагрузка сервера',
                       'Ошибка в коде сервера',
                       'Ошибка в файле .htaccess']},
-          '808': {'error_description': 'Неизвестная ошибка',
-                  'reasons': ['Сайт обрывает соединение']}}
+          '520': {'error_description': 'Неизвестная ошибка',
+                  'reasons': ['Сайт обрывает соединение']},
+          '522': {'error_description': 'Время ожидания подключения к исходному серверу истекло',
+                  'reasons': ['Сервер не работает']},
+          '524': {'error_description': 'Время ожидания ответа сервера истекло',
+                  'reasons': ['Сервер не отправляет своевременный HTTP-ответ']},
+          '400': {'error_description': 'Ошибка клиента',
+                  'reasons': ['Неверная ссылка']},
+          '200': {'error_description': 'Медленная загрузка',
+                  'reasons': ['Большой трафик', 'DDOS', 'т.д.']}}
 
 
 class PageListView(generics.ListAPIView):
@@ -34,21 +48,30 @@ class PageCreate(generics.GenericAPIView):
         try:
             data = getData(request)
             user = request.user
-            page = list(Page.objects.filter(url=data['url']).exclude(is_moderated=False))
+            try:
+                if bool(search('[а-яА-Я]', data['url'])):
+                    if data['url'][-1] != '/':
+                        url = data['url'] + '/'
+                    else:
+                        url = data['url']
+                else:
+                    url = requests.get(data['url']).url
+            except Exception:
+                url = data['url']
+            page = list(Page.objects.filter(url=url).exclude(is_moderated=False))
             if page:
-                return JsonResponse({'errors': {'url': ['Сайт с такой ссылкой уже есть в базе']}})
+                return JsonResponse({'errors': {'url': ['Сайт с таким доменом уже есть в базе']}})
             page = Page(name=data['name'],
-                        url=data['url'],
+                        url=url,
                         description=data['description'],
                         added_by_user_id=user.id)
             try:
                 page.full_clean()
-            except ValidationError as ex:
+            except ValidationError:
                 return JsonResponse({'errors': dict(ex)})
             page.save()
             return JsonResponse({'success': True})
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'success': False}, status=400)
 
 
@@ -78,7 +101,7 @@ class GetPopularPages(generics.GenericAPIView):
                                            'JOIN "API_check" AS checks ON checks.page_id=pages.id '
                                            f'WHERE pages.id in ({pageIds[0]}, {pageIds[1]}, {pageIds[2]}) '
                                            'ORDER BY pages.id DESC, checks.id DESC')
-            except Exception as ex:
+            except Exception:
                 return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов с подтверждёнными отзывами'}, status=400)
             temp = {}
             for i in checks:
@@ -90,8 +113,8 @@ class GetPopularPages(generics.GenericAPIView):
                             'url': i.url,
                             'check_status': temp[i.id]})
             return JsonResponse(res, safe=False)
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class GetSiteStats(generics.GenericAPIView):
@@ -106,8 +129,8 @@ class GetSiteStats(generics.GenericAPIView):
             result = {'total_pages': pages, 'total_reports': reports, 'total_reviews': reviews,
                       'detected_failures': failures}
             return JsonResponse(result)
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class GetCheckingPages(generics.GenericAPIView):
@@ -138,10 +161,10 @@ class GetCheckingPages(generics.GenericAPIView):
                                    'last_check_timeout': i.response_time,
                                    'check_status': i.check_status,
                                    'rating': i.rating})
-            result = Paginator(result, 5)
+            result = Paginator(result, 10)
             return JsonResponse({'num_pages': result.num_pages, 'pages': list(result.page(data['page_number']))})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class GetAccountData(generics.GenericAPIView):
@@ -163,8 +186,8 @@ class GetAccountData(generics.GenericAPIView):
                                'name': i.name,
                                'check_status': i.check_status})
             return JsonResponse(result, safe=False)
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class PageChecks(generics.GenericAPIView):
@@ -200,7 +223,7 @@ class PageReviews(generics.GenericAPIView):
                           .values('id', 'added_at', 'mark', 'message', 'added_by_user__username', 'added_by_user')
                           .filter(is_published=True))
             return JsonResponse(checks, safe=False)
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'detail': 'Something went wrong'})
 
     def post(self, request, id, *args, **kwargs):
@@ -274,7 +297,7 @@ class Subscriptions(generics.GenericAPIView):
                 return JsonResponse({'subscribed': True})
             else:
                 return JsonResponse({'subscribed': False})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=400)
 
     def post(self, request, id, *args, **kwargs):
@@ -287,7 +310,7 @@ class Subscriptions(generics.GenericAPIView):
                 return JsonResponse({'success': True})
             else:
                 return JsonResponse({'success': False})
-        except Exception as ex:
+        except Exception:
             return JsonResponse({'detail': 'Exception'}, status=400)
 
     def delete(self, request, id, *args, **kwargs):
@@ -332,7 +355,6 @@ class Events(generics.GenericAPIView):
                 .exclude(check_status='2') \
                 .values('page_id', 'page__name', 'check_status', 'checked_at', 'response_status_code', 'response_time',
                         'check_status') \
-                .distinct('page_id') \
                 .order_by('page_id', '-id')
 
             pages = Check.objects.filter(page_id__in=pageIds) \
@@ -363,10 +385,15 @@ class Events(generics.GenericAPIView):
                                                             'т.д.']},
                                              'message_datetime': i['checked_at']})
                 else:
+                    try:
+                        error = errors[i.response_status_code]
+                    except Exception:
+                        error = {'error_description': 'Неизвестная ошибка',
+                                 'reasons': ['Не известны']}
                     result['events'].append({'type': 'failure',
                                              'page': {'id': i['page_id'],
                                                       'name': i['page__name']},
-                                             'detail': errors[i['response_status_code']],
+                                             'detail': error,
                                              'message_datetime': i['checked_at']})
             for i in reports:
                 result['events'].append({'type': 'report',
@@ -396,19 +423,10 @@ class Events(generics.GenericAPIView):
                                          },
                                          'message_datetime': i['added_at']
                                          })
-
             return JsonResponse(result, safe=False)
 
-        except Exception as ex:
-            print(ex)
+        except Exception:
             return JsonResponse({'success': False}, status=500)
-
-
-from ping3 import ping as ping3
-from urllib.parse import urlparse
-import requests
-import openpyxl
-from openpyxl.styles import PatternFill, Font
 
 
 class DeepCheck(generics.GenericAPIView):
@@ -416,7 +434,6 @@ class DeepCheck(generics.GenericAPIView):
 
     def post(self, request, level):
         data = getData(request)  # url, start_date, end_date
-        print(data)
 
         def generate_report(checkreport, checks=None, reports=None):
             try:
@@ -432,12 +449,15 @@ class DeepCheck(generics.GenericAPIView):
                                       end_color='ffc7ce',
                                       fill_type='solid')
                 redFont = Font(color='ad0006')
+                right = Alignment(horizontal='right', vertical='bottom')
                 if checkreport.page_id is not None:
                     report = openpyxl.load_workbook('static/templates/report with page.xlsx')
                 else:
                     report = openpyxl.load_workbook('static/templates/report without page.xlsx')
                 report.active = report['Главное']
                 general = report.active
+                for cell in general["B:B"]:
+                    cell.alignment = right
                 general['B2'].hyperlink = checkreport.requested_url
                 general['B2'].value = checkreport.requested_url
                 general['B3'].value = checkreport.ping
@@ -501,17 +521,24 @@ class DeepCheck(generics.GenericAPIView):
                             start += 1
                 report.save(f'temp_files/reports/{check_report.id}.xlsx')
                 return True
-            except Exception as ex:
-                print(ex)
+            except Exception:
                 return False
         try:
             if level == 1:
                 try:
                     headers = requests.utils.default_headers()
                     headers.update({'User-Agent': 'My User Agent 1.0', })
-                    url = data['url']
+                    try:
+                        if bool(search('[а-яА-Я]', data['url'])):
+                            if data['url'][-1] != '/':
+                                url = data['url'] + '/'
+                            else:
+                                url = data['url']
+                        else:
+                            url = requests.get(data['url']).url
+                    except Exception:
+                        url = data['url']
                     ping = None
-                    response = None
                     response_code = None
                     response_time = None
                     num = 0
@@ -521,17 +548,17 @@ class DeepCheck(generics.GenericAPIView):
                             domain = urlparse(url).netloc
                             response = requests.get(url, headers=headers)
                             num2 = 0
-                            while num2 < 5:
+                            while num2 < 3:
                                 try:
                                     num2 += 1
                                     ping = round(ping3(domain) * 1000)
+                                    break
                                 except Exception:
                                     continue
                             else:
                                 ping = None
                             response_code = response.status_code
                             response_time = round(response.elapsed.total_seconds() * 1000)
-                            print(response_code, ping, response_time)
                             break
                         except Exception:
                             continue
@@ -540,7 +567,7 @@ class DeepCheck(generics.GenericAPIView):
                                                response_status_code=str(response_code),
                                                response_time=response_time)
                     has_data = False
-                    page = list(Page.objects.filter(url=data['url'], is_checking=True).values('id'))
+                    page = list(Page.objects.filter(url=url, is_checking=True).values('id'))
                     if page:
                         check_report.page_id = page[0]['id']
                         has_data = True
@@ -551,8 +578,7 @@ class DeepCheck(generics.GenericAPIView):
                                          'ping': ping,
                                          'response_status_code': response_code,
                                          'response_time': response_time})
-                except Exception as ex:
-                    print(ex)
+                except Exception:
                     return JsonResponse({'success': False}, status=500)
             elif level == 2:
                 try:
@@ -587,8 +613,6 @@ class DeepCheck(generics.GenericAPIView):
                         full_page_loading_time = round(GPSI['lighthouseResult']['timing']['total'])
                     except Exception:
                         full_page_loading_time = None
-                    print(first_content_loading_time, first_meaningful_content_loading_time,
-                          largest_content_loading_time, speed_index, score, full_page_loading_time)
                     check_report.first_content_loading_time = first_content_loading_time
                     check_report.first_meaningful_content_loading_time = first_meaningful_content_loading_time
                     check_report.largest_content_loading_time = largest_content_loading_time
@@ -602,12 +626,10 @@ class DeepCheck(generics.GenericAPIView):
                                          'speed_index': speed_index,
                                          'score': score,
                                          'full_page_loading_time': full_page_loading_time})
-                except Exception as ex:
-                    print(ex)
+                except Exception:
                     return JsonResponse({'success': False}, status=500)
             elif level == 3:
                 try:
-                    result = []
                     check_report = CheckReport.objects.get(id=data['id'])
                     if check_report.page_id is not None:
                         date_from = data['date_from']
@@ -625,11 +647,20 @@ class DeepCheck(generics.GenericAPIView):
                     file = open(f'temp_files/reports/{check_report.id}.xlsx', 'rb')
                     check_report.report_file.save(f'{check_report.id}.xlsx', file)
                     file.close()
-                    os.remove(f'temp_files/reports/{check_report.id}.xlsx')
+                    remove(f'temp_files/reports/{check_report.id}.xlsx')
+                    check_reports = list(CheckReport.objects.filter(requested_url=check_report.requested_url)
+                                         .exclude(report_file="")
+                                         .values('report_file', 'created_at')
+                                         .order_by('-id', 'created_at')[1:4])
+                    other_check_reports = []
+                    if check_reports:
+                        for i in check_reports:
+                            url = f"http://127.0.0.1:8000/media/{i['report_file']}"
+                            other_check_reports.append({'date': i['created_at'],
+                                                        'document_url': url})
                     return JsonResponse({'document_url': f'http://127.0.0.1:8000/media/{check_report.report_file}',
-                                         'other_check_reports': []})
-                except Exception as ex:
-                    print(ex)
+                                         'other_check_reports': other_check_reports})
+                except Exception:
                     return JsonResponse({'success': False}, status=500)
         except Exception:
             return JsonResponse({'success': False}, status=400)

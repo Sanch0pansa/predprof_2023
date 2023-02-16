@@ -1,5 +1,6 @@
 <template>
   <div class="row pt-5">
+    <PageBreadcrumbs :links-names="['checker']"></PageBreadcrumbs>
     <div class="col-12">
       <Block>
         <h1>Проверьте Ваш сайт:</h1>
@@ -106,7 +107,7 @@
             </tr>
             <tr>
               <th>Оценка Google PageSpeed Insights</th>
-              <td><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}</span></td>
+              <td><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}/100</span></td>
             </tr>
             </tbody>
           </table>
@@ -162,10 +163,11 @@
 import Inp from "@/components/UI/Inp.vue";
 import {mapActions} from "vuex";
 import Btn from "@/components/UI/Btn.vue";
+import PageBreadcrumbs from "@/components/page/PageBreadcrumbs.vue";
 
 export default {
   name: "CheckerView",
-  components: {Btn, Inp},
+  components: {PageBreadcrumbs, Btn, Inp},
   data() {
     let date = new Date();
     let dateTime = (new Date(date.getTime() - (date.getTimezoneOffset() * 60000))).toISOString();

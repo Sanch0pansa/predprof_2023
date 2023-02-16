@@ -4,6 +4,7 @@ from API.models import Check, User
 from django.utils import timezone
 from API.funcs import getData
 from rest_framework.permissions import AllowAny
+from API.views.page import errors
 
 config = [i.split() for i in open('tokens.txt').readlines()][0]
 
@@ -15,24 +16,28 @@ class GetBotMessages(generics.GenericAPIView):
         data = getData(request)
         if data['_token'] == config[1]:
             query = (
-                'SELECT 1 as id, pages.url, users.email, users.telegram_id, sub1.response_status_code, sub1.response_time, sub1.checked_at '
+                'SELECT 1 as id, pages.url, users.email, users.telegram_id, sub1.response_status_code, sub1.checked_at '
                 'FROM "API_page" as pages '
-                'JOIN (SELECT DISTINCT ON (subs.id) checks.page_id, subs.user_id, checks.response_status_code, checks.response_time, checks.checked_at '
+                'JOIN (SELECT DISTINCT ON (subs.id) checks.page_id, subs.user_id, checks.response_status_code, checks.check_status, checks.checked_at '
                 '            FROM "API_subscription" as subs '
                 '            JOIN "API_check" as checks on subs.page_id=checks.page_id '
                 '            ORDER BY subs.id ASC, checks.id DESC, checks.page_id ASC, checked_at DESC) as sub1 '
                 '            ON pages.id=sub1.page_id '
                 'JOIN "API_user" as users '
                 'ON users.id=sub1.user_id '
-                'WHERE NOT(sub1.response_status_code=\'200\')')
+                'WHERE NOT(sub1.check_status=\'2\')')
             checks = (Check.objects.raw(query))
             pages = {}
             for i in checks:
                 if i.url not in pages:
+                    try:
+                        error = errors[i.response_status_code]
+                    except Exception:
+                        error = {'error_description': 'Неизвестная ошибка',
+                                 'reasons': ['Не известны']}
                     pages[i.url] = {
                         'url': i.url,
-                        'response_status_code': i.response_status_code,
-                        'response_time': i.response_time,
+                        'error': error,
                         'checked_at': i.checked_at,
                         'subscribers_telegram': [],
                         'subscribers_email': []
@@ -69,8 +74,8 @@ class VerifyUser(generics.GenericAPIView):
                     return JsonResponse({'success': False})
             else:
                 return JsonResponse({'detail': 'Неправильный токен'})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
 
 
 class CheckUser(generics.GenericAPIView):
@@ -87,5 +92,5 @@ class CheckUser(generics.GenericAPIView):
                     return JsonResponse({'user_verified': False})
             else:
                 return JsonResponse({'detail': 'Неправильный токен'})
-        except Exception as ex:
-            return JsonResponse({'errors': {'non_field_errors': [str(ex)]}}, status=400)
+        except Exception:
+            return JsonResponse({'success': False}, status=500)
