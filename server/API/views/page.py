@@ -15,7 +15,7 @@ from ping3 import ping as ping3
 from urllib.parse import urlparse
 import requests
 import openpyxl
-from openpyxl.styles import PatternFill, Font
+from openpyxl.styles import PatternFill, Font, Alignment
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -50,7 +50,10 @@ class PageCreate(generics.GenericAPIView):
             user = request.user
             try:
                 if bool(search('[а-яА-Я]', data['url'])):
-                    url = data['url']
+                    if data['url'][-1] != '/':
+                        url = data['url'] + '/'
+                    else:
+                        url = data['url']
                 else:
                     url = requests.get(data['url']).url
             except Exception:
@@ -446,12 +449,15 @@ class DeepCheck(generics.GenericAPIView):
                                       end_color='ffc7ce',
                                       fill_type='solid')
                 redFont = Font(color='ad0006')
+                right = Alignment(horizontal='right', vertical='bottom')
                 if checkreport.page_id is not None:
                     report = openpyxl.load_workbook('static/templates/report with page.xlsx')
                 else:
                     report = openpyxl.load_workbook('static/templates/report without page.xlsx')
                 report.active = report['Главное']
                 general = report.active
+                for cell in general["B:B"]:
+                    cell.alignment = right
                 general['B2'].hyperlink = checkreport.requested_url
                 general['B2'].value = checkreport.requested_url
                 general['B3'].value = checkreport.ping
@@ -522,7 +528,16 @@ class DeepCheck(generics.GenericAPIView):
                 try:
                     headers = requests.utils.default_headers()
                     headers.update({'User-Agent': 'My User Agent 1.0', })
-                    url = data['url']
+                    try:
+                        if bool(search('[а-яА-Я]', data['url'])):
+                            if data['url'][-1] != '/':
+                                url = data['url'] + '/'
+                            else:
+                                url = data['url']
+                        else:
+                            url = requests.get(data['url']).url
+                    except Exception:
+                        url = data['url']
                     ping = None
                     response_code = None
                     response_time = None
@@ -533,7 +548,7 @@ class DeepCheck(generics.GenericAPIView):
                             domain = urlparse(url).netloc
                             response = requests.get(url, headers=headers)
                             num2 = 0
-                            while num2 < 5:
+                            while num2 < 3:
                                 try:
                                     num2 += 1
                                     ping = round(ping3(domain) * 1000)
@@ -552,7 +567,7 @@ class DeepCheck(generics.GenericAPIView):
                                                response_status_code=str(response_code),
                                                response_time=response_time)
                     has_data = False
-                    page = list(Page.objects.filter(url=data['url'], is_checking=True).values('id'))
+                    page = list(Page.objects.filter(url=url, is_checking=True).values('id'))
                     if page:
                         check_report.page_id = page[0]['id']
                         has_data = True
@@ -615,7 +630,6 @@ class DeepCheck(generics.GenericAPIView):
                     return JsonResponse({'success': False}, status=500)
             elif level == 3:
                 try:
-                    result = []
                     check_report = CheckReport.objects.get(id=data['id'])
                     if check_report.page_id is not None:
                         date_from = data['date_from']
@@ -634,8 +648,18 @@ class DeepCheck(generics.GenericAPIView):
                     check_report.report_file.save(f'{check_report.id}.xlsx', file)
                     file.close()
                     remove(f'temp_files/reports/{check_report.id}.xlsx')
+                    check_reports = list(CheckReport.objects.filter(requested_url=check_report.requested_url)
+                                         .exclude(report_file="")
+                                         .values('report_file', 'created_at')
+                                         .order_by('-id', 'created_at')[1:4])
+                    other_check_reports = []
+                    if check_reports:
+                        for i in check_reports:
+                            url = f"http://127.0.0.1:8000/media/{i['report_file']}"
+                            other_check_reports.append({'date': i['created_at'],
+                                                        'document_url': url})
                     return JsonResponse({'document_url': f'http://127.0.0.1:8000/media/{check_report.report_file}',
-                                         'other_check_reports': []})
+                                         'other_check_reports': other_check_reports})
                 except Exception:
                     return JsonResponse({'success': False}, status=500)
         except Exception:
