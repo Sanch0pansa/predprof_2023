@@ -1,13 +1,11 @@
 import telebot
-import requests
 from threading import Thread
 from datetime import datetime
 import json
-import logging
-
 import smtplib
-
 from flask import Flask, request
+
+from functions import *
 
 app = Flask('SiteChecker')
 
@@ -54,19 +52,13 @@ def url_get_messages():
 @bot.message_handler(commands=['help', 'start'])
 def bot_start(message):
     if message.text == '/start':
-        try:
-            check = requests.post(f'{url}/check_user/', data={'_token': _token, 'telegram_id': message.from_user.id})
-            check = check.json()
-        except Exception as ex:
-            print(ex)
-            logging.error("No request to 'bot/check_user/'")
+        check = try_connect(f'{url}/check_user/', {'_token': _token, 'telegram_id': message.from_user.id})
+        if not check:
             bot.send_message(message.from_user.id, 'Простите, но сейчас сервер недоступен. Попробуйте позже')
             return
-
-        if not check['user_verified']:
+        elif not check['user_verified']:
             bot.send_message(message.from_user.id,
                              '''Привет!\nОтправьте мне код, который показан на сайте''')
-
             bot.register_next_step_handler(message, registration)
         else:
             bot.send_message(message.from_user.id, 'Ваш телеграмм уже зарегестрирован')
@@ -78,20 +70,15 @@ def bot_start(message):
 
 
 def registration(message):
-    try:
-        new_user = requests.post(f'{url}/verify_user/', data={'_token': _token, 'telegram_id': message.from_user.id,
+    new_user = try_connect(f'{url}/verify_user/', {'_token': _token, 'telegram_id': message.from_user.id,
                                                               'telegram_verification_code': message.text})
-        new_user_answer = new_user.json()
-    except Exception as ex:
-        print(ex)
-        logging.error("No request to 'bot/verify_user/'")
+    if not new_user:
         bot.send_message(message.from_user.id,
                          'Простите, но сейчас сервер недоступен. Попробуйте позже через /start')
         return
-
-    if new_user_answer['success']:
+    elif new_user['success']:
         bot.send_message(message.from_user.id, 'Готово. Теперь можете пользоваться ботом')
-    elif not new_user_answer['success']:
+    elif not new_user['success']:
         bot.send_message(message.from_user.id, '''Ошибка авторизации
 Возможно срок действия кода истек или он введен неверно
 Проверьте и введите код еще раз''')
@@ -125,13 +112,10 @@ def check_bot_messages():
     global last_data_telegram
     print("Run 'check_bot_messages' function")
     logging.info("Run 'check_bot_messages' function")
-    try:
-        data = requests.post(f'{url}/get_bot_messages/', data={'_token': _token})
-        dict_data = data.json()
-        print('Successful connection')
-    except Exception as ex:
-        print(ex)
-        logging.error("No request to 'bot/get_bot_messages/'")
+
+    dict_data = try_connect(f'{url}/get_bot_messages/', {'_token': _token})
+    if not dict_data:
+        print('No dict_data')
         return
 
     tg_message = {}
@@ -140,19 +124,10 @@ def check_bot_messages():
     mail_messages = {}
     print(dict_data)
 
-    def add_message(array, user, text):
-        if user in array:
-            array[user] += text
-        else:
-            array[user] = text
-
     print('Processing data')
     for i in dict_data:
         time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        if time.minute < 10:
-            time = f"{time.hour}:0{time.minute}"
-        else:
-            time = f"{time.hour}:{time.minute}"
+        time = f"{time.hour}:0{time.minute}" if time.minute < 10 else f"{time.hour}:{time.minute}"
 
         if i["response_status_code"] == '200':
             continue
@@ -170,16 +145,12 @@ def check_bot_messages():
     else:
         date = datetime.now()
         print(date)
-    month = date.month
+    month = MONTHS(date.month)
     day = date.day
     if date.minute < 10:
         time = f"{date.hour}:0{date.minute}"
     else:
         time = f"{date.hour}:{date.minute}"
-
-    MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября',
-              'Декабря']
-    month = MONTHS[month - 1]
 
     last_data_telegram = for_last_tg_message.copy()
     last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', time]
@@ -201,18 +172,12 @@ def check_bot_messages():
             logging.error(ex)
             print(ex)
 
-    def send_email(to_mail, text):
-        theme = 'Оповещение о работе сайта'
-        e_mail = f'From: {bot_mail}\r\nTo: {to_mail}]\r\n' \
-                 f'Content-Type: text/plain; charset="utf-8"\r\nSubject: {theme}\r\n\r\n'
-        e_mail += text
-        Mailing_Mail.sendmail(bot_mail, to_mail, e_mail.encode('utf8'))
-
     print('Send messages to mail')
     for message in mail_messages:
         try:
             send_email(message, f'На момент {day} {month}:\n' +
-                       mail_messages[message] + '\nС уважением Site Checker!')
+                       mail_messages[message] + '\nС уважением Site Checker!',
+                       bot_mail, Mailing_Mail)
         except Exception as ex:
             print(ex)
 
