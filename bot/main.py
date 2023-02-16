@@ -126,11 +126,13 @@ def check_bot_messages():
 
     print('Processing data')
     for i in dict_data:
-        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%H:%M')
-
+        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%f').strftime('%H:%M')
+        reasons = ''
+        for reason in i['error']["reasons"]:
+            reasons += '\n - ' + reason
         message = f'❌ {i["url"]} Время проверки - {time}\n'\
                   f'Ошибка: {i["error"]["error_description"]}\n' \
-                  f'Возможные причины: {", ".join(i["error"]["reasons"])}\n'
+                  f'Возможные причины: {reasons}\n'
 
         for_last_tg_message[message] = i["subscribers_telegram"]
 
@@ -141,7 +143,7 @@ def check_bot_messages():
             add_message(mail_messages, mail, message)
 
     if dict_data:
-        date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%f')
     else:
         date = datetime.now()
         print(date)
