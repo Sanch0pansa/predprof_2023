@@ -330,6 +330,7 @@ class Subscriptions(generics.GenericAPIView):
 
 class Events(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = PageSerializer
 
     def get(self, request):
         try:
@@ -433,9 +434,10 @@ class Events(generics.GenericAPIView):
 
 class DeepCheck(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = CheckReport
 
     def post(self, request, level):
-        data = getData(request)  # url, start_date, end_date
+        data = getData(request)
 
         def generate_report(checkreport, checks=None, reports=None):
             try:
