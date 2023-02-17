@@ -4,8 +4,9 @@
     <div class="col-12">
       <Block>
         <h1>Проверьте Ваш сайт:</h1>
-        <Inp label="URL сайта" name="url" v-model="url" class="form-control-lg ps-0 mt-3"></Inp>
-        <Btn @click="check" class="btn-lg mt-3">Получить отчёт о доступности</Btn>
+        <Inp label="URL сайта" name="url" v-model="url" class="form-control-lg ps-0 mt-3" :errors="urlErrors"></Inp>
+        <Btn v-if="!checking" @click="check" class="btn-lg mt-3">Получить отчёт о доступности</Btn>
+        <Btn v-else class="btn-lg btn-disabled mt-3" disabled>Проверка не завершена</Btn>
 
       </Block>
     </div>
@@ -27,45 +28,25 @@
             <tbody>
               <tr>
                 <th>Пинг сервера, мс</th>
-                <td>{{ first_step.ping }}</td>
+                <td class="text-end">{{ first_step.ping }}</td>
               </tr>
               <tr>
                 <th>Задержка ответа, мс</th>
-                <td>{{ first_step.response_time }}</td>
+                <td class="text-end">{{ first_step.response_time}}</td>
               </tr>
               <tr>
                 <th>Ответ</th>
-                <td>{{ first_step.response_status_code }}</td>
+                <td class="text-end">{{ first_step.response_status_code }}</td>
               </tr>
               <tr>
                 <th>Вердикт</th>
-                <td>{{ first_step.response_status_code == 200 ? "Сайт доступен" : "Сайт не доступен" }}</td>
+                <td class="text-end">{{ first_step.response_status_code == 200 ? "Сайт доступен" : "Сайт не доступен" }}</td>
               </tr>
             </tbody>
           </table>
         </template>
         <template v-if="first_step.loading_status == 3">
-          <h2>Не удалось проверить (</h2>
-          <table class="table table-striped mt-4">
-            <tbody>
-            <tr>
-              <th>Пинг сервера, мс</th>
-              <td>{{ first_step.ping }}</td>
-            </tr>
-            <tr>
-              <th>Задержка ответа, мс</th>
-              <td>{{ first_step.response_time }}</td>
-            </tr>
-            <tr>
-              <th>Ответ</th>
-              <td>{{ first_step.response_status_code }}</td>
-            </tr>
-            <tr>
-              <th>Вердикт</th>
-              <td>{{ first_step.response_status_code == 200 ? "Сайт доступен" : "Сайт не доступен" }}</td>
-            </tr>
-            </tbody>
-          </table>
+          <h2><i class="text-danger fas fa-exclamation-triangle"></i> Не удалось проверить сайт на базовом уровне</h2>
         </template>
 
       </Block>
@@ -87,33 +68,33 @@
             <tbody>
             <tr>
               <th>Время загрузки первого контента, мс</th>
-              <td>{{ second_step.first_contentful_paint }}</td>
+              <td class="text-end">{{ second_step.first_contentful_paint }}</td>
             </tr>
             <tr>
               <th>Время загрузки первой значащей части контента, мс</th>
-              <td>{{ second_step.first_meaningful_paint }}</td>
+              <td class="text-end">{{ second_step.first_meaningful_paint }}</td>
             </tr>
             <tr>
               <th>Время загрузки самой большой части контента, мс</th>
-              <td>{{ second_step.largest_contentful_paint }}</td>
+              <td class="text-end">{{ second_step.largest_contentful_paint }}</td>
             </tr>
             <tr>
               <th>Индекс скорости, мс</th>
-              <td>{{ second_step.speed_index }}</td>
+              <td class="text-end">{{ second_step.speed_index }}</td>
             </tr>
             <tr>
               <th>Время полной загрузки страницы, мс</th>
-              <td>{{ second_step.full_page_loading_time }}</td>
+              <td class="text-end">{{ second_step.full_page_loading_time }}</td>
             </tr>
             <tr>
               <th>Оценка Google PageSpeed Insights</th>
-              <td><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}/100</span></td>
+              <td class="text-end"><span :class="`badge bg-${second_step.score < 50 ? 'danger' : (second_step.score < 90 ? 'warning' : 'success')} fs-4`">{{ second_step.score }}/100</span></td>
             </tr>
             </tbody>
           </table>
         </template>
         <template v-if="second_step.loading_status == 3">
-          <h2>Не удалось проверить средствами Google PageSpeed Insights</h2>
+          <h2><i class="text-danger fas fa-exclamation-triangle"></i> Не удалось проверить средствами Google PageSpeed Insights</h2>
         </template>
       </Block>
     </div>
@@ -151,7 +132,13 @@
           <template v-if="third_step.other_check_reports.length">
               <h5 class="mt-4">Найдены другие отчёты по этой странице:</h5>
               <ul>
-                <li v-for="check_report in third_step.other_check_reports"><a :href="check_report.document_url" target="_blank">{{ check_report.date }}</a></li>
+                <li v-for="check_report in third_step.other_check_reports"><a :href="check_report.document_url" target="_blank">Отчёт {{ (new Date(check_report.date)).toLocaleString("ru", {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: "numeric",
+                  minute: "numeric",
+                }).replaceAll(" г", "").replaceAll(".", "") }}</a></li>
               </ul>
           </template>
         </template>
@@ -173,6 +160,7 @@ export default {
     let dateTime = (new Date(date.getTime() - (date.getTimezoneOffset() * 60000))).toISOString();
     return {
       url: this.$route.query.url,
+      urlErrors: [],
       report_id: 0,
       checking: false,
       error: false,
@@ -181,9 +169,9 @@ export default {
       date_to: dateTime.split('T')[0],
       first_step: {
         loading_status: 0,
-        ping: 0.012,
-        response_status_code: 200, // Код ответа
-        response_time: 0.034, // Задержка ответа
+        ping: 0,
+        response_status_code: 0, // Код ответа
+        response_time: 0, // Задержка ответа
       },
       second_step: {
         loading_status: 0,
@@ -219,6 +207,42 @@ export default {
         return true;
       }
 
+      let urlRegExp = /^(https?):\/\/([А-Яа-яa-zA-Z0-9.-]+(:[А-Яа-яa-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([А-Яа-яa-zA-Z0-9-]+\.)*[А-Яа-яa-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|онлайн|москва|[А-Яа-яa-zA-Z]{2}))(:[0-9]+)*(\/($|[А-Яа-яa-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
+      let urlIsValid = urlRegExp.test(this.url);
+
+      if (!urlIsValid) {
+        let invalidUrlErrorText = "Ссылка не валидна";
+        if (!this.urlErrors.includes(invalidUrlErrorText)) {
+          this.urlErrors.push(invalidUrlErrorText);
+        }
+        return null;
+      }
+
+      this.urlErrors = [];
+
+      this.first_step = {
+        loading_status: 0,
+        ping: 0,
+        response_status_code: 0, // Код ответа
+        response_time: 0, // Задержка ответа
+      }
+
+      this.second_step = {
+        loading_status: 0,
+        first_contentful_paint: 0,
+        first_meaningful_paint: 0,
+        largest_contentful_paint: 0,
+        speed_index: 0,
+        full_page_loading_time: 0,
+        score: 0,
+      }
+
+      this.third_step = {
+        loading_status: 0,
+        document_url: "https://google.com",
+        other_check_reports: [],
+      }
+
       this.checking = true;
 
       // Проверка на базовом уровне
@@ -237,16 +261,14 @@ export default {
       } else {
 
         this.first_step.loading_status = 3;
-
-        return true;
       }
 
       // Проверка средствами Google Page Speed Insights
       this.second_step.loading_status = 1;
       res = await this.getSecondRequest({id: this.report_id});
-      console.log(res);
 
-      if (res.score !== undefined) {
+      console.log(res);
+      if (res.score !== null && res.score !== undefined && !(res.success === false)) {
         this.second_step.first_contentful_paint = res.first_contentful_paint;
         this.second_step.first_meaningful_paint = res.first_meaningful_paint;
         this.second_step.largest_contentful_paint = res.largest_contentful_paint;
@@ -257,13 +279,12 @@ export default {
         this.second_step.loading_status = 2;
 
       } else {
-
+        console.log(this.second_step);
         this.second_step.loading_status = 3;
-
-        return true;
       }
 
       this.third_step.loading_status = 1;
+      this.checking = false;
     },
 
     async makeDocument() {
