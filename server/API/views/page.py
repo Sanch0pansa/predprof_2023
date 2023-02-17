@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 import requests
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
+from project.settings import host
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -480,11 +481,16 @@ class DeepCheck(generics.GenericAPIView):
                     general['B6'].value = 'Не работает'
                     general['B6'].fill = redFill
                     general['B6'].font = redFont
-                general['B9'].value = (checkreport.first_content_loading_time if checkreport.first_content_loading_time is not None else 'Нет данных')
-                general['B10'].value = (checkreport.first_meaningful_content_loading_time if checkreport.first_meaningful_content_loading_time is not None else 'Нет данных')
-                general['B11'].value = (checkreport.largest_content_loading_time if checkreport.largest_content_loading_time is not None else 'Нет данных')
-                general['B12'].value = (checkreport.speed_index if checkreport.speed_index is not None else 'Нет данных')
-                general['B13'].value = (checkreport.full_page_loading_time if checkreport.full_page_loading_time is not None else 'Нет данных')
+                general['B9'].value = (
+                    checkreport.first_content_loading_time if checkreport.first_content_loading_time is not None else 'Нет данных')
+                general['B10'].value = (
+                    checkreport.first_meaningful_content_loading_time if checkreport.first_meaningful_content_loading_time is not None else 'Нет данных')
+                general['B11'].value = (
+                    checkreport.largest_content_loading_time if checkreport.largest_content_loading_time is not None else 'Нет данных')
+                general['B12'].value = (
+                    checkreport.speed_index if checkreport.speed_index is not None else 'Нет данных')
+                general['B13'].value = (
+                    checkreport.full_page_loading_time if checkreport.full_page_loading_time is not None else 'Нет данных')
                 general['B14'].value = (checkreport.score if checkreport.score is not None else 'Нет данных')
                 if checkreport.score is None:
                     general['B14'].value = 'Нет данных'
@@ -527,6 +533,7 @@ class DeepCheck(generics.GenericAPIView):
                 return True
             except Exception:
                 return False
+
         try:
             if level == 1:
                 try:
@@ -542,30 +549,22 @@ class DeepCheck(generics.GenericAPIView):
                             url = requests.get(data['url']).url
                     except Exception:
                         url = data['url']
-                    ping = None
-                    response_code = None
-                    response_time = None
-                    num = 0
-                    while num < 5:
-                        try:
-                            num += 1
-                            domain = urlparse(url).netloc
-                            response = requests.get(url, headers=headers)
-                            num2 = 0
-                            while num2 < 3:
-                                try:
-                                    num2 += 1
-                                    ping = round(ping3(domain) * 1000)
-                                    break
-                                except Exception:
-                                    continue
-                            else:
-                                ping = None
-                            response_code = response.status_code
-                            response_time = round(response.elapsed.total_seconds() * 1000)
-                            break
-                        except Exception:
-                            continue
+                    response_time = 0
+                    try:
+                        response = requests.get(url, headers=headers)
+                        response_code = response.status_code
+                        response_time = round(response.elapsed.total_seconds() * 1000)
+                    except Exception:
+                        response_code = '524'
+                    domain = str(urlparse(url).hostname)
+                    ping = ping3(domain)
+                    if ping == 0:
+                        ping = 0
+                        response_code = '-'
+                    elif ping is None:
+                        ping = 0
+                    else:
+                        ping = round(p * 1000)
                     check_report = CheckReport(requested_url=url,
                                                ping=ping,
                                                response_status_code=str(response_code),
@@ -659,10 +658,10 @@ class DeepCheck(generics.GenericAPIView):
                     other_check_reports = []
                     if check_reports:
                         for i in check_reports:
-                            url = f"http://127.0.0.1:8000/media/{i['report_file']}"
+                            url = f"{host}/media/{i['report_file']}"
                             other_check_reports.append({'date': i['created_at'],
                                                         'document_url': url})
-                    return JsonResponse({'document_url': f'http://127.0.0.1:8000/media/{check_report.report_file}',
+                    return JsonResponse({'document_url': f'{host}/media/{check_report.report_file}',
                                          'other_check_reports': other_check_reports})
                 except Exception:
                     return JsonResponse({'success': False}, status=500)

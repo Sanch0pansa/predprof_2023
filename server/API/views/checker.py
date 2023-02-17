@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 import requests
 from API.funcs import getData
+from project.settings import bot_host
 
 config = [i.split() for i in open('tokens.txt').readlines()][1]
 bot_token = [i.split() for i in open('tokens.txt').readlines()][0]
@@ -53,7 +54,7 @@ class CheckCreateView(generics.GenericAPIView):
                                   checked_at=checked_at)
                     check.save()
                 try:
-                    requests.post('http://127.0.0.1:1000/check_messages', json={'_token': bot_token[1]})
+                    requests.post(f'{bot_host}/check_messages', json={'_token': bot_token[1]})
                 except Exception:
                     print('Бот не запущен')
                 return JsonResponse({'success': True})
