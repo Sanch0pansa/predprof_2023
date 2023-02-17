@@ -28,6 +28,8 @@ errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': ['Сервер не работает']},
           '524': {'error_description': 'Время ожидания ответа сервера истекло',
                   'reasons': ['Сервер не отправляет своевременный HTTP-ответ']},
+          '404': {'error_description': 'Странице не найдена',
+                  'reasons': ['Страница была удалена']},
           '400': {'error_description': 'Ошибка клиента',
                   'reasons': ['Неверная ссылка']},
           '200': {'error_description': 'Медленная загрузка',
@@ -328,6 +330,7 @@ class Subscriptions(generics.GenericAPIView):
 
 class Events(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = PageSerializer
 
     def get(self, request):
         try:
@@ -431,9 +434,10 @@ class Events(generics.GenericAPIView):
 
 class DeepCheck(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = CheckReport
 
     def post(self, request, level):
-        data = getData(request)  # url, start_date, end_date
+        data = getData(request)
 
         def generate_report(checkreport, checks=None, reports=None):
             try:

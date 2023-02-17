@@ -29,13 +29,7 @@ export default {
 
             } catch(e) {
                 return {
-                    id: 0, // ID для последующего дописывания
 
-                    has_data: false, // Есть ли инфа по этому ресурсу
-
-                    ping: 0, // Пингование
-                    response_status_code: 200, // Код ответа
-                    response_time: 0, // Задержка ответа
                 };
             }
         },
@@ -58,12 +52,7 @@ export default {
 
             } catch(e) {
                 return {
-                    first_contentful_paint: 0,
-                    first_meaningful_paint: 0,
-                    largest_contentful_paint: 0,
-                    speed_index: 0,
-                    full_page_loading_time: 0,
-                    score: 0,
+
                 };
             }
         },
