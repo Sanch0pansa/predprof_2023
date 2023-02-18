@@ -170,6 +170,7 @@ def check_bot_messages():
                              disable_web_page_preview=True)
         except telebot.apihelper.ApiException:
             logging.error(f"Can't send message to {message}")
+            print(f"Can't send message to {message}")
         except Exception as ex:
             logging.error(ex)
             print(ex)
@@ -185,7 +186,7 @@ def check_bot_messages():
 
 
 task_client = Thread(target=bot.infinity_polling)
-task_flask = Thread(target=lambda: app.run(port=1000))
+task_flask = Thread(target=lambda: app.run(port=1000, host='127.1.1.1'))
 task_client.start()
 task_flask.start()
 

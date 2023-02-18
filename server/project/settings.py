@@ -30,7 +30,7 @@ SECRET_KEY = config[1]
 DEBUG = True
 
 host = 'http://127.0.0.1:8000'
-bot_host = 'http://127.0.0.1:1000'
+bot_host = 'http://127.1.1.1:1000'
 
 ALLOWED_HOSTS = []
 
