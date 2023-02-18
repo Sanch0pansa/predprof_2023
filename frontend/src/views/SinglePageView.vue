@@ -19,7 +19,7 @@
           </template>
 
         </div>
-        <Btn class="btn-warning" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
+        <Btn class="btn-warning mb-3" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
         <br>
 
     </div>
@@ -43,7 +43,7 @@
           <span class="text-end">{{ checks.length }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-3">
-          <span>Отзывов</span>
+          <span>Всего отзывов</span>
           <span class="text-end">{{ reviews.length }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-3">
