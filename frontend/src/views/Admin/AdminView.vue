@@ -80,7 +80,7 @@ export default {
           },
         ];
         this.staffUsersForTable.push([
-          {text: user.username, href: 'account'},
+          {username: user.username, id: user.id},
           user.is_admin ? "Администратор" : "Модератор",
           actions,
         ]);

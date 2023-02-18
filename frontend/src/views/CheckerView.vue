@@ -3,8 +3,8 @@
     <PageBreadcrumbs :links-names="['checker']"></PageBreadcrumbs>
     <div class="col-12">
       <Block>
-        <h1>Проверьте Ваш сайт:</h1>
-        <Inp label="URL сайта" name="url" v-model="url" class="form-control-lg ps-0 mt-3" :errors="urlErrors"></Inp>
+        <h1>Проверка ресурса</h1>
+        <Inp label="URL сайта:" name="url" v-model="url" class="form-control-lg ps-0 mt-3" :errors="urlErrors"></Inp>
         <Btn v-if="!checking" @click="check" class="btn-lg mt-3">Получить отчёт о доступности</Btn>
         <Btn v-else class="btn-lg btn-disabled mt-3" disabled>Проверка не завершена</Btn>
 
