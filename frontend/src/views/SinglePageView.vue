@@ -10,8 +10,14 @@
         <p>{{ description }}</p>
         <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
           <Link :href="`${url}`" target="_blank">Перейти на сайт</Link>
-          <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
-          <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
+          <template v-if="isAuth">
+              <Btn v-if="!subscribed" @click="subscribe">Отслеживать состояние</Btn>
+              <Btn v-else @click="unsubscribe" :class="`btn-secondary`">Прекратить отслеживать</Btn>
+          </template>
+          <template v-else>
+            <button class="btn btn-primary btn-disabled" disabled>Войдите, чтобы отслеживать</button>
+          </template>
+
         </div>
         <Btn class="btn-warning" v-if="getIsModerator()" @click="sendPageModeration">Отправить на модерацию</Btn>
         <br>
@@ -68,7 +74,8 @@
     ></PageTable>
   </PageSection>
   <PageSection :title="`Сообщение о сбоях`">
-    <ModalBtn :class="`mb-3`" id="creatingReportModal">Сообщить о сбое</ModalBtn>
+    <ModalBtn :class="`mb-3`" id="creatingReportModal" v-if="isAuth">Сообщить о сбое</ModalBtn>
+    <button class="btn btn-primary btn-disabled mb-3" disabled v-else>Войдите, чтобы сообщить о сбое</button>
     <PageTable
         v-if="reportsForTable.length"
         :data="reportsForTable"
@@ -78,7 +85,8 @@
     <div class="text-muted" v-else>Сообщений о сбоях не было</div>
   </PageSection>
   <PageSection :title="`Отзывы`">
-    <ModalBtn :class="`mb-3`" id="creatingReviewModal">Добавить отзыв</ModalBtn>
+    <ModalBtn :class="`mb-3`" id="creatingReviewModal" v-if="isAuth">Добавить отзыв</ModalBtn>
+    <button class="btn btn-primary btn-disabled mb-3" disabled v-else>Войдите, чтобы добавить отзыв</button>
     <ReviewsList v-if="reviews.length" :reviews="reviews"></ReviewsList>
     <div class="text-muted" v-else>Отзывов нет</div>
   </PageSection>
@@ -377,6 +385,13 @@ export default {
 
   async mounted() {
     await this.fetchPageData();
+  },
+
+  computed: {
+    ...mapState({
+      isAuth: state => state.auth.isAuth,
+      user: state => state.auth.user,
+    }),
   }
 }
 </script>
