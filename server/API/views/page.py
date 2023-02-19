@@ -177,12 +177,12 @@ class GetAccountData(generics.GenericAPIView):
         try:
             user = request.user
             subs = Subscription.objects.raw(
-                'SELECT DISTINCT ON (checks.page_id) pages.id, pages.name, checks.check_status '
+                'SELECT DISTINCT ON (pages.id) pages.id, pages.name, checks.check_status '
                 'FROM "API_subscription" as subs '
                 'LEFT JOIN "API_check" as checks ON checks.page_id=subs.page_id '
                 'JOIN "API_page" as pages ON subs.page_id=pages.id '
                 f'WHERE user_id={user.id} '
-                'ORDER BY checks.page_id DESC, checks.id DESC ')
+                'ORDER BY pages.id DESC, checks.page_id DESC, checks.id DESC')
             result = []
             for i in subs:
                 result.append({'id': i.id,
