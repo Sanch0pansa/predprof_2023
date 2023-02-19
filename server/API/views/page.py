@@ -382,8 +382,7 @@ class Events(generics.GenericAPIView):
                                              'detail': {'time': i['response_time'],
                                                         'reasons': [
                                                             'Большой трафик',
-                                                            'DDOS',
-                                                            'т.д.']},
+                                                            'DDOS']},
                                              'message_datetime': i['checked_at']})
                 else:
                     try:
