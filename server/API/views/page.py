@@ -17,6 +17,7 @@ import requests
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from project.settings import host
+from django.db.models import Avg
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -386,7 +387,7 @@ class Events(generics.GenericAPIView):
                                              'message_datetime': i['checked_at']})
                 else:
                     try:
-                        error = errors[i.response_status_code]
+                        error = errors[str(i['response_status_code'])]
                     except Exception:
                         error = {'error_description': 'Неизвестная ошибка',
                                  'reasons': ['Не известны']}
@@ -464,19 +465,37 @@ class DeepCheck(generics.GenericAPIView):
                 general['B3'].value = checkreport.ping
                 general['B4'].value = int(checkreport.response_status_code)
                 general['B5'].value = checkreport.response_time
-                if checkreport.response_status_code.startswith('2') or checkreport.response_status_code.startswith('3'):
-                    if checkreport.response_time >= 1000:
+                temp = Check.objects.values('page_id').exclude(response_time=0).annotate(avg_time=Avg('response_time')).order_by('-page_id')
+                averageTime = {}
+                for i in temp:
+                    averageTime[str(i['page_id'])] = round(i['avg_time'])
+                if str(checkreport.page_id) in averageTime:
+                    time = averageTime[str(checkreport.page_id)]
+                    if time < 100:
+                        k = 2.5
+                    else:
+                        k = 1.5
+                    if not checkreport.response_status_code.startswith('2'):
+                        general['B6'].value = 'Не работает'
+                        general['B6'].fill = redFill
+                        general['B6'].font = redFont
+                    elif checkreport.response_time / time < k:
+                        general['B6'].value = 'Работает'
+                        general['B6'].fill = greenFill
+                        general['B6'].font = greenFont
+                    else:
                         general['B6'].value = 'Работает медленно'
                         general['B6'].fill = yellowFill
                         general['B6'].font = yellowFont
+                else:
+                    if not checkreport.response_status_code.startswith('2'):
+                        eneral['B6'].value = 'Не работает'
+                        general['B6'].fill = redFill
+                        general['B6'].font = redFont
                     else:
                         general['B6'].value = 'Работает'
                         general['B6'].fill = greenFill
                         general['B6'].font = greenFont
-                else:
-                    general['B6'].value = 'Не работает'
-                    general['B6'].fill = redFill
-                    general['B6'].font = redFont
                 general['B9'].value = (
                     checkreport.first_content_loading_time if checkreport.first_content_loading_time is not None else 'Нет данных')
                 general['B10'].value = (
