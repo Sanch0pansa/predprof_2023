@@ -34,7 +34,7 @@ errors = {'500': {'error_description': 'Ошибка сервера',
           '400': {'error_description': 'Ошибка клиента',
                   'reasons': ['Неверная ссылка']},
           '200': {'error_description': 'Медленная загрузка',
-                  'reasons': ['Большой трафик', 'DDOS', 'т.д.']}}
+                  'reasons': ['Большой трафик', 'DDOS']}}
 
 
 class PageListView(generics.ListAPIView):
