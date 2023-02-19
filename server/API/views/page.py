@@ -90,25 +90,22 @@ class GetPopularPages(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            try:
-                reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(revs.id) AS "total" '
-                                             'FROM "API_page" AS pages '
-                                             'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
-                                             'WHERE revs.is_published = true AND pages.is_checking = true '
-                                             'GROUP BY pages.id '
-                                             'ORDER BY total DESC '
-                                             'LIMIT 3 ')
-                pageIds = [i.id for i in reviews]
-                checks = Check.objects.raw('SELECT DISTINCT ON (pages.id) pages.id, checks.check_status '
-                                           'FROM "API_page" AS pages '
-                                           'JOIN "API_check" AS checks ON checks.page_id=pages.id '
-                                           f'WHERE pages.id in ({pageIds[0]}, {pageIds[1]}, {pageIds[2]}) '
-                                           'ORDER BY pages.id DESC, checks.id DESC')
-            except Exception:
-                return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов с подтверждёнными отзывами'}, status=400)
+            reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(CASE WHEN revs.is_published=true THEN 1 ELSE NULL END) AS "total" '
+                                         'FROM "API_page" AS pages '
+                                         'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
+                                         'WHERE pages.is_checking = true '
+                                         'GROUP BY pages.id '
+                                         'ORDER BY total DESC, pages.id DESC '
+                                         'LIMIT 3 ')
+            pageIds = [i.id for i in reviews]
+            checks = list(Page.objects.filter(id__in=pageIds)
+                          .select_related('checks')
+                          .values('id', 'checks__check_status')
+                          .order_by('-id', '-checks__id')
+                          .distinct('id'))
             temp = {}
             for i in checks:
-                temp[i.id] = i.check_status
+                temp[i['id']] = i['checks__check_status']
             res = []
             for i in reviews:
                 res.append({'id': i.id,
