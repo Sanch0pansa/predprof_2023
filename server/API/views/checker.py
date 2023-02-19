@@ -39,7 +39,7 @@ class CheckCreateView(generics.GenericAPIView):
             if data['_token'] == config[1]:
                 pages = data['data']
                 averageTime = {}
-                temp = Check.objects.values('page_id').annotate(avg_time=Avg('response_time')).order_by('-page_id')
+                temp = Check.objects.values('page_id').exclude(response_time=0).annotate(avg_time=Avg('response_time')).order_by('-page_id')
                 for i in temp:
                     averageTime[str(i['page_id'])] = round(i['avg_time'])
                 for i in pages:
