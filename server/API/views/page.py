@@ -584,8 +584,7 @@ class DeepCheck(generics.GenericAPIView):
             elif level == 2:
                 try:
                     check_report = CheckReport.objects.get(id=int(data['id']))
-                    token = "AIzaSyD_mPUNnDh_8UY2Ba3Aj9I0zAiWxjP2zDU"
-                    req = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={check_report.requested_url}&key={token}"
+                    req = f"https://lifegame.su/crasher/proxy.php?url={check_report.requested_url}"
                     GPSI = requests.get(req).json()
                     try:
                         first_content_loading_time = round(GPSI['lighthouseResult']['audits']['first-contentful-paint'][
