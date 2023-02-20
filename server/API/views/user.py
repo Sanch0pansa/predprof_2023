@@ -30,7 +30,7 @@ class UserCreateView(generics.GenericAPIView):
                         password=data['password'])
             try:
                 user.full_clean()
-            except ValidationError:
+            except ValidationError as ex:
                 errors = dict(ex)
                 if 'username' in errors:
                     errors['username'][0] = errors['username'][0].replace('Username', 'именем пользователя')
@@ -43,7 +43,7 @@ class UserCreateView(generics.GenericAPIView):
             user.save()
             token = Token.objects.create(user=user)
             return JsonResponse({'email': user.email, 'username': user.username, 'token': token.key})
-        except Exception:
+        except Exception as ex:
             return JsonResponse({'success': False}, status=500)
 
 
@@ -120,7 +120,7 @@ class GenerateTelegramCode(generics.GenericAPIView):
             elif user.telegram_id is not None:
                 return JsonResponse({'detail': 'Телеграм уже привязан к аккаунту'})
             else:
-                seed(int(str(int(datetime.timestamp(timezone.localtime()))) + str(user.id)))
+                seed(int(str(int(datetime.timestamp(timezone.now()))) + str(user.id)))
                 while True:
                     try:
                         user.telegram_verification_code = randint(100000, 999999)
@@ -133,7 +133,8 @@ class GenerateTelegramCode(generics.GenericAPIView):
                 codeTime = user.telegram_verification_code_date
                 return JsonResponse({'telegram_verification_code': user.telegram_verification_code,
                                      'remain_time': (codeTime - timeNow).seconds})
-        except Exception:
+        except Exception as ex:
+            print(ex)
             return JsonResponse({'success': False}, status=500)
 
 
@@ -182,7 +183,7 @@ class ChangePersonalData(generics.GenericAPIView):
                         user.password = data['password']
                 try:
                     user.validate_unique()
-                except ValidationError:
+                except ValidationError as ex:
                     errors = dict(ex)
                     if 'password' in errors:
                         errors['password'][0] = errors['password'][0].replace('значение', 'пароль').replace('это', '')
@@ -303,5 +304,6 @@ class UserReviews(generics.GenericAPIView):
             review = Review.objects.get(id=id)
             review.delete()
             return JsonResponse({'success': True})
-        except Exception:
+        except Exception as ex:
+            print(ex)
             return JsonResponse({'success': False}, status=500)

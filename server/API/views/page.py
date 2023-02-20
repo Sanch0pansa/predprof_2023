@@ -70,7 +70,7 @@ class PageCreate(generics.GenericAPIView):
                         added_by_user_id=user.id)
             try:
                 page.full_clean()
-            except ValidationError:
+            except ValidationError as ex:
                 return JsonResponse({'errors': dict(ex)})
             page.save()
             return JsonResponse({'success': True})
@@ -564,7 +564,7 @@ class DeepCheck(generics.GenericAPIView):
                     elif ping is None:
                         ping = 0
                     else:
-                        ping = round(p * 1000)
+                        ping = round(ping * 1000)
                     check_report = CheckReport(requested_url=url,
                                                ping=ping,
                                                response_status_code=str(response_code),
@@ -581,7 +581,8 @@ class DeepCheck(generics.GenericAPIView):
                                          'ping': ping,
                                          'response_status_code': response_code,
                                          'response_time': response_time})
-                except Exception:
+                except Exception as ex:
+                    print(ex)
                     return JsonResponse({'success': False}, status=500)
             elif level == 2:
                 try:
@@ -590,18 +591,18 @@ class DeepCheck(generics.GenericAPIView):
                     req = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={check_report.requested_url}&key={token}"
                     GPSI = requests.get(req).json()
                     try:
-                        first_content_loading_time = GPSI['lighthouseResult']['audits']['first-contentful-paint'][
-                            'numericValue']
+                        first_content_loading_time = round(GPSI['lighthouseResult']['audits']['first-contentful-paint'][
+                            'numericValue'])
                     except Exception:
                         first_content_loading_time = None
                     try:
                         first_meaningful_content_loading_time = \
-                            GPSI['lighthouseResult']['audits']['first-meaningful-paint']['numericValue']
+                            round(GPSI['lighthouseResult']['audits']['first-meaningful-paint']['numericValue'])
                     except Exception:
                         first_meaningful_content_loading_time = None
                     try:
-                        largest_content_loading_time = GPSI['lighthouseResult']['audits']['largest-contentful-paint'][
-                            'numericValue']
+                        largest_content_loading_time = round(GPSI['lighthouseResult']['audits']['largest-contentful-paint'][
+                            'numericValue'])
                     except Exception:
                         largest_content_loading_time = None
                     try:

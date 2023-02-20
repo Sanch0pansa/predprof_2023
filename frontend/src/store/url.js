@@ -1,3 +1,5 @@
-const URL = "http://127.0.0.1:8000/api/v1";
+const serverUrlEl = document.querySelector('.server');
+const URL = `${serverUrlEl.innerHTML}/api/v1`;
+serverUrlEl.remove();
 
 export default URL;
