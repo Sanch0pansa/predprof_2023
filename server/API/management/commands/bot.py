@@ -20,9 +20,9 @@ logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
 my_id = 1080913894
 
 conf = [
-"bot_token: 5958220323:AAHE7tbTmY6_YSL6xpupmP3NOgD1muNsYlE",
-"bot_mail: tochecksite@yandex.ru",
-"mail_password: _qazwsx123",
+    "bot_token: 5958220323:AAHE7tbTmY6_YSL6xpupmP3NOgD1muNsYlE",
+    "bot_mail: tochecksite@yandex.ru",
+    "mail_password: _qazwsx123",
 ]
 
 config = [i.split() for i in conf]
@@ -40,9 +40,6 @@ except Exception as er:
     last_data_telegram = {}
     print('Unsuccessful load file\n', er)
 
-Mailing_Mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
-Mailing_Mail.login(bot_mail, mail_password)
-
 
 @bot.message_handler(commands=['help', 'start'])
 def bot_start(message):
@@ -52,15 +49,13 @@ def bot_start(message):
             bot.send_message(message.from_user.id, 'Простите, но сейчас сервер недоступен. Попробуйте позже')
             return
         elif not check['user_verified']:
-            bot.send_message(message.from_user.id,
-                             '''Привет!\nОтправьте мне код, который показан на сайте''')
+            bot.send_message(message.from_user.id, 'Привет!\nОтправьте мне код, который показан на сайте')
             bot.register_next_step_handler(message, registration)
         else:
             bot.send_message(message.from_user.id, 'Ваш телеграмм уже зарегестрирован')
     elif message.text == '/help':
-        commands = '''Вот список доступных команд:
-/last - Показать последние статусы сайтов
-'''
+        commands = 'Вот список доступных команд: \n' \
+                   '/last - Показать последние статусы сайтов'
         bot.send_message(message.from_user.id, commands)
 
 
@@ -79,6 +74,18 @@ def registration(message):
         bot.register_next_step_handler(message, registration)
 
     logging.info(f'Message {message.text} from {message.from_user.id}')
+
+
+@bot.message_handler(commands=['host', 'check'])
+def admin_commands(message):
+    if message.from_user.id != my_id:
+        return
+
+    elif message.text == '/check':
+        try:
+            check_bot_messages()
+        except Exception as ex:
+            print(ex)
 
 
 @bot.message_handler(commands=['last'])
@@ -127,7 +134,7 @@ def check_bot_messages():
             reasons += '\n - ' + reason
         message = f'❌ {i["url"]} Время проверки - {time}\n'\
                   f'Ошибка: {i["error"]["error_description"]}\n' \
-                  f'Возможные причины: {reasons}\n'
+                  f'Возможные причины: {reasons}\n\n'
 
         for_last_tg_message[message] = i["subscribers_telegram"]
 
@@ -168,13 +175,15 @@ def check_bot_messages():
             print(ex)
 
     print('Send messages to mail')
-    for message in mail_messages:
-        try:
-            send_email(message, f'На момент {day} {month}:\n' +
-                       mail_messages[message] + '\nС уважением Site Checker!',
-                       bot_mail, Mailing_Mail)
-        except Exception as ex:
-            print(ex)
+    with smtplib.SMTP_SSL('smtp.yandex.ru:465') as Mailing_Mail:
+        Mailing_Mail.login(bot_mail, mail_password)
+        for message in mail_messages:
+            try:
+                send_email(message, f'На момент {day} {month}:\n' +
+                           mail_messages[message] + '\nС уважением Site Checker!',
+                           bot_mail, Mailing_Mail)
+            except Exception as ex:
+                print(ex)
 
 
 def scheduler():
@@ -196,6 +205,3 @@ class Command(BaseCommand):
         task_calendar = Thread(target=scheduler)
         task_client.start()
         task_calendar.start()
-
-
-
