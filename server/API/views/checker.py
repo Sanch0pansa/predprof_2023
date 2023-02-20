@@ -6,9 +6,11 @@ from django.http import JsonResponse
 import requests
 from API.funcs import getData
 from project.settings import bot_host
+from django.db.models import Avg
 
 config = [i.split() for i in open('tokens.txt').readlines()][1]
 bot_token = [i.split() for i in open('tokens.txt').readlines()][0]
+
 
 class GetPagesForCheck(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -36,17 +38,32 @@ class CheckCreateView(generics.GenericAPIView):
             data = getData(request)
             if data['_token'] == config[1]:
                 pages = data['data']
+                averageTime = {}
+                temp = Check.objects.values('page_id').exclude(response_time=0).annotate(avg_time=Avg('response_time')).order_by('-page_id')
+                for i in temp:
+                    averageTime[str(i['page_id'])] = round(i['avg_time'])
                 for i in pages:
                     page_id = i
-                    res_code = pages[i][0]
+                    res_code = str(pages[i][0])
                     res_time = pages[i][1]
                     checked_at = pages[i][2]
-                    if res_code != 200:
-                        last_check_result = '0'
-                    elif res_time < 1000:
-                        last_check_result = '2'
-                    elif res_time >= 1000:
-                        last_check_result = '1'
+                    if i in averageTime:
+                        time = averageTime[i]
+                        if time < 100:
+                            k = 2.5
+                        else:
+                            k = 1.5
+                        if not res_code.startswith('2'):
+                            last_check_result = '0'
+                        elif res_time/time < k:
+                            last_check_result = '2'
+                        else:
+                            last_check_result = '1'
+                    else:
+                        if not res_code.startswith('2'):
+                            last_check_result = 0
+                        else:
+                            last_check_result = 2
                     check = Check(page_id=page_id,
                                   response_status_code=res_code,
                                   response_time=res_time,

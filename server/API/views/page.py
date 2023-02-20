@@ -17,6 +17,7 @@ import requests
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from project.settings import host
+from django.db.models import Avg
 
 errors = {'500': {'error_description': 'Ошибка сервера',
                   'reasons': [
@@ -34,7 +35,7 @@ errors = {'500': {'error_description': 'Ошибка сервера',
           '400': {'error_description': 'Ошибка клиента',
                   'reasons': ['Неверная ссылка']},
           '200': {'error_description': 'Медленная загрузка',
-                  'reasons': ['Большой трафик', 'DDOS', 'т.д.']}}
+                  'reasons': ['Большой трафик', 'DDOS']}}
 
 
 class PageListView(generics.ListAPIView):
@@ -90,25 +91,22 @@ class GetPopularPages(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            try:
-                reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(revs.id) AS "total" '
-                                             'FROM "API_page" AS pages '
-                                             'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
-                                             'WHERE revs.is_published = true AND pages.is_checking = true '
-                                             'GROUP BY pages.id '
-                                             'ORDER BY total DESC '
-                                             'LIMIT 3 ')
-                pageIds = [i.id for i in reviews]
-                checks = Check.objects.raw('SELECT DISTINCT ON (pages.id) pages.id, checks.check_status '
-                                           'FROM "API_page" AS pages '
-                                           'JOIN "API_check" AS checks ON checks.page_id=pages.id '
-                                           f'WHERE pages.id in ({pageIds[0]}, {pageIds[1]}, {pageIds[2]}) '
-                                           'ORDER BY pages.id DESC, checks.id DESC')
-            except Exception:
-                return JsonResponse({'detail': 'Ошибка, меньше 3 сайтов с подтверждёнными отзывами'}, status=400)
+            reviews = Review.objects.raw('SELECT pages.id, pages.name, pages.url, COUNT(CASE WHEN revs.is_published=true THEN 1 ELSE NULL END) AS "total" '
+                                         'FROM "API_page" AS pages '
+                                         'LEFT JOIN "API_review" AS revs ON revs.page_id=pages.id '
+                                         'WHERE pages.is_checking = true '
+                                         'GROUP BY pages.id '
+                                         'ORDER BY total DESC, pages.id DESC '
+                                         'LIMIT 3 ')
+            pageIds = [i.id for i in reviews]
+            checks = list(Page.objects.filter(id__in=pageIds)
+                          .select_related('checks')
+                          .values('id', 'checks__check_status')
+                          .order_by('-id', '-checks__id')
+                          .distinct('id'))
             temp = {}
             for i in checks:
-                temp[i.id] = i.check_status
+                temp[i['id']] = i['checks__check_status']
             res = []
             for i in reviews:
                 res.append({'id': i.id,
@@ -177,12 +175,12 @@ class GetAccountData(generics.GenericAPIView):
         try:
             user = request.user
             subs = Subscription.objects.raw(
-                'SELECT DISTINCT ON (checks.page_id) pages.id, pages.name, checks.check_status '
+                'SELECT DISTINCT ON (pages.id) pages.id, pages.name, checks.check_status '
                 'FROM "API_subscription" as subs '
                 'LEFT JOIN "API_check" as checks ON checks.page_id=subs.page_id '
                 'JOIN "API_page" as pages ON subs.page_id=pages.id '
                 f'WHERE user_id={user.id} '
-                'ORDER BY checks.page_id DESC, checks.id DESC ')
+                'ORDER BY pages.id DESC, checks.page_id DESC, checks.id DESC')
             result = []
             for i in subs:
                 result.append({'id': i.id,
@@ -385,12 +383,11 @@ class Events(generics.GenericAPIView):
                                              'detail': {'time': i['response_time'],
                                                         'reasons': [
                                                             'Большой трафик',
-                                                            'DDOS',
-                                                            'т.д.']},
+                                                            'DDOS']},
                                              'message_datetime': i['checked_at']})
                 else:
                     try:
-                        error = errors[i.response_status_code]
+                        error = errors[str(i['response_status_code'])]
                     except Exception:
                         error = {'error_description': 'Неизвестная ошибка',
                                  'reasons': ['Не известны']}
@@ -468,19 +465,37 @@ class DeepCheck(generics.GenericAPIView):
                 general['B3'].value = checkreport.ping
                 general['B4'].value = int(checkreport.response_status_code)
                 general['B5'].value = checkreport.response_time
-                if checkreport.response_status_code.startswith('2') or checkreport.response_status_code.startswith('3'):
-                    if checkreport.response_time >= 1000:
+                temp = Check.objects.values('page_id').exclude(response_time=0).annotate(avg_time=Avg('response_time')).order_by('-page_id')
+                averageTime = {}
+                for i in temp:
+                    averageTime[str(i['page_id'])] = round(i['avg_time'])
+                if str(checkreport.page_id) in averageTime:
+                    time = averageTime[str(checkreport.page_id)]
+                    if time < 100:
+                        k = 2.5
+                    else:
+                        k = 1.5
+                    if not checkreport.response_status_code.startswith('2'):
+                        general['B6'].value = 'Не работает'
+                        general['B6'].fill = redFill
+                        general['B6'].font = redFont
+                    elif checkreport.response_time / time < k:
+                        general['B6'].value = 'Работает'
+                        general['B6'].fill = greenFill
+                        general['B6'].font = greenFont
+                    else:
                         general['B6'].value = 'Работает медленно'
                         general['B6'].fill = yellowFill
                         general['B6'].font = yellowFont
+                else:
+                    if not checkreport.response_status_code.startswith('2'):
+                        eneral['B6'].value = 'Не работает'
+                        general['B6'].fill = redFill
+                        general['B6'].font = redFont
                     else:
                         general['B6'].value = 'Работает'
                         general['B6'].fill = greenFill
                         general['B6'].font = greenFont
-                else:
-                    general['B6'].value = 'Не работает'
-                    general['B6'].fill = redFill
-                    general['B6'].font = redFont
                 general['B9'].value = (
                     checkreport.first_content_loading_time if checkreport.first_content_loading_time is not None else 'Нет данных')
                 general['B10'].value = (
@@ -587,8 +602,7 @@ class DeepCheck(generics.GenericAPIView):
             elif level == 2:
                 try:
                     check_report = CheckReport.objects.get(id=int(data['id']))
-                    token = "AIzaSyD_mPUNnDh_8UY2Ba3Aj9I0zAiWxjP2zDU"
-                    req = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={check_report.requested_url}&key={token}"
+                    req = f"https://lifegame.su/crasher/proxy.php?url={check_report.requested_url}"
                     GPSI = requests.get(req).json()
                     try:
                         first_content_loading_time = round(GPSI['lighthouseResult']['audits']['first-contentful-paint'][

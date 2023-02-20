@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 import pytz
 import ping3
-
+import socket
 
 TIMEOUT_TIME = 7
 
