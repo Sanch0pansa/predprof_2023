@@ -12,7 +12,6 @@ app = Flask('SiteChecker')
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
 
-my_id = 1080913894
 
 with open('conf.txt') as file:
     config = [i.split() for i in file.readlines()]
@@ -23,6 +22,7 @@ with open('conf.txt') as file:
 
     bot_mail = config[1][1]
     mail_password = config[2][1]
+    my_id = int(config[5][1])
 
 try:
     with open('last_data.json', 'r') as file:
@@ -31,9 +31,6 @@ try:
 except Exception as er:
     last_data_telegram = {}
     print('Unsuccessful load file\n', er)
-
-Mailing_Mail = smtplib.SMTP_SSL('smtp.yandex.ru:465')
-Mailing_Mail.login(bot_mail, mail_password)
 
 
 @app.post('/check_messages')
@@ -66,9 +63,9 @@ def bot_start(message):
         else:
             bot.send_message(message.from_user.id, 'Ваш телеграмм уже зарегестрирован')
     elif message.text == '/help':
-        commands = '''Вот список доступных команд:
-/last - Показать последние статусы сайтов
-'''
+        commands = 'Вот список доступных команд: \n' \
+                   '/last - Показать последние статусы сайтов\n' \
+                   '/help - Показать доступные команды'
         bot.send_message(message.from_user.id, commands)
 
 
@@ -109,6 +106,20 @@ def bot_reply(message):
     else:
         bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
                          f"✅ Все сайты работали на момент времени {last_data_telegram['date'][1]}")
+
+
+@bot.message_handler(commands=['host', 'check'])
+def admin_commands(message):
+    if message.from_user.id != my_id:
+        return
+    if message.text == '/host':
+        host = app.static_url_path
+        bot.send_message(my_id, host)
+    elif message.text == '/check':
+        try:
+            check_bot_messages()
+        except Exception as ex:
+            print(ex)
 
 
 def check_bot_messages():
@@ -176,13 +187,14 @@ def check_bot_messages():
             print(ex)
 
     print('Send messages to mail')
-    for message in mail_messages:
-        try:
-            send_email(message, f'На момент {day} {month}:\n' +
-                       mail_messages[message] + '\nС уважением Site Checker!',
-                       bot_mail, Mailing_Mail)
-        except Exception as ex:
-            print(ex)
+    with smtplib.SMTP_SSL('smtp.yandex.ru:465') as Mailing_Mail:
+        Mailing_Mail.login(bot_mail, mail_password)
+        for message in mail_messages:
+            try:
+                send_email(message, f'На момент {day} {month}:\n' + mail_messages[message] +
+                           '\nС уважением Site Checker!', bot_mail, Mailing_Mail)
+            except Exception as ex:
+                print(ex)
 
 
 task_client = Thread(target=bot.infinity_polling)

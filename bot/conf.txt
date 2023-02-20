@@ -3,3 +3,4 @@ bot_mail: tochecksite@yandex.ru
 mail_password: _qazwsx123
 _token: Ki6@fh@EGGc~8q1?Ti5zzRsPS
 url: http://127.0.0.1:8000/api/v1/bot
+my_id: 1080913894
