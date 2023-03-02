@@ -10,9 +10,7 @@ import os
 from API.views.bot import check_user, get_messages, verify_user
 import time
 
-
 token = "5958220323:AAHE7tbTmY6_YSL6xpupmP3NOgD1muNsYlE"
-
 
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='w',
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -76,12 +74,11 @@ def registration(message):
     logging.info(f'Message {message.text} from {message.from_user.id}')
 
 
-@bot.message_handler(commands=['host', 'check'])
+@bot.message_handler(command=['check'])
 def admin_commands(message):
     if message.from_user.id != my_id:
         return
-
-    elif message.text == '/check':
+    if message.text == '/check':
         try:
             check_bot_messages()
         except Exception as ex:
@@ -105,12 +102,15 @@ def bot_reply(message):
         bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
                          reply, disable_web_page_preview=True)
     else:
-        bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
-                         f"✅ Все сайты работали на момент времени {last_data_telegram['date'][1]}")
+        check = check_user(message.from_user.id)
+        if check['user_verified']:
+            bot.send_message(message.from_user.id, last_data_telegram['date'][0] +
+                             f"✅ Все сайты работали на момент времени {last_data_telegram['date'][1]}")
+        else:
+            bot.send_message(message.from_user.id, 'Ваш телеграмм не привязан или остутствует соединение с сервером')
 
 
 def check_bot_messages():
-
     global last_data_telegram
     print("Run 'check_bot_messages' function")
     logging.info("Run 'check_bot_messages' function")
@@ -132,7 +132,7 @@ def check_bot_messages():
         reasons = ''
         for reason in i['error']["reasons"]:
             reasons += '\n - ' + reason
-        message = f'❌ {i["url"]} Время проверки - {time}\n'\
+        message = f'❌ {i["url"]} Время проверки - {time}\n' \
                   f'Ошибка: {i["error"]["error_description"]}\n' \
                   f'Возможные причины: {reasons}\n\n'
 
