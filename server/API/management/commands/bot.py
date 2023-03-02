@@ -128,11 +128,11 @@ def check_bot_messages():
 
     print('Processing data')
     for i in dict_data:
-        time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%f').strftime('%H:%M')
+        site_time = datetime.strptime(i['checked_at'], '%Y-%m-%dT%H:%M:%S.%f').strftime('%H:%M')
         reasons = ''
         for reason in i['error']["reasons"]:
             reasons += '\n - ' + reason
-        message = f'❌ {i["url"]} Время проверки - {time}\n' \
+        message = f'❌ {i["url"]} Время проверки - {site_time}\n' \
                   f'Ошибка: {i["error"]["error_description"]}\n' \
                   f'Возможные причины: {reasons}\n\n'
 
@@ -148,13 +148,12 @@ def check_bot_messages():
         date = datetime.strptime(dict_data[0]['checked_at'], '%Y-%m-%dT%H:%M:%S.%f')
     else:
         date = datetime.now()
-        print(date)
     month = MONTHS(date.month)
     day = date.day
-    time = date.strftime('%H:%M')
+    for_last_time = date.strftime('%H:%M')
 
     last_data_telegram = for_last_tg_message.copy()
-    last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', time]
+    last_data_telegram['date'] = [f'Последнее обновление {day} {month}\n', for_last_time]
 
     print('Load the last date to file')
     with open('last_data.json', 'w') as write_file:
